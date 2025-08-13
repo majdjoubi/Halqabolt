@@ -78,12 +78,6 @@ const Header = () => {
               {user ? (
                 <div className="flex items-center space-x-4 space-x-reverse">
                   <button
-                    onClick={() => setShowSearchPage(true)}
-                    className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
-                  >
-                    البحث عن معلمين
-                  </button>
-                  <button
                     onClick={handleSignOut}
                     className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
                   >
