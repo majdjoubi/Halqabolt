@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 export interface Teacher {
   id: string;
   name: string;
+  gender: string;
   specialization: string;
   experience_years: number;
   rating: number;
@@ -22,6 +23,7 @@ const mockTeachers: Teacher[] = [
   {
     id: '1',
     name: 'الشيخ أحمد محمد',
+    gender: 'ذكر',
     specialization: 'تحفيظ القرآن الكريم',
     experience_years: 15,
     rating: 4.9,
@@ -38,6 +40,7 @@ const mockTeachers: Teacher[] = [
   {
     id: '2',
     name: 'الأستاذة فاطمة أحمد',
+    gender: 'أنثى',
     specialization: 'تجويد القرآن الكريم',
     experience_years: 12,
     rating: 4.8,
@@ -54,6 +57,7 @@ const mockTeachers: Teacher[] = [
   {
     id: '3',
     name: 'الشيخ يوسف علي',
+    gender: 'ذكر',
     specialization: 'علوم القرآن والتفسير',
     experience_years: 20,
     rating: 4.9,
@@ -70,6 +74,7 @@ const mockTeachers: Teacher[] = [
   {
     id: '4',
     name: 'الأستاذة خديجة المغربي',
+    gender: 'أنثى',
     specialization: 'تحفيظ للأطفال',
     experience_years: 8,
     rating: 4.7,
@@ -86,6 +91,7 @@ const mockTeachers: Teacher[] = [
   {
     id: '5',
     name: 'الشيخ عبد الرحمن الكويتي',
+    gender: 'ذكر',
     specialization: 'القراءات العشر',
     experience_years: 18,
     rating: 4.9,
@@ -102,6 +108,7 @@ const mockTeachers: Teacher[] = [
   {
     id: '6',
     name: 'الأستاذة مريم التونسي',
+    gender: 'أنثى',
     specialization: 'تجويد وتلاوة',
     experience_years: 10,
     rating: 4.6,

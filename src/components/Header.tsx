@@ -40,7 +40,8 @@ const Header = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-emerald-700">حلقة</h1>
-                <p className="text-sm text-gray-600">منصة تعليم القرآن الكريم</p>
+                <p className="text-xs text-gray-600">د. مجد الدين جوبي - طبيب عظام</p>
+                <p className="text-xs text-emerald-600">تعليم كتاب الله للأجر والثواب</p>
               </div>
             </div>
 

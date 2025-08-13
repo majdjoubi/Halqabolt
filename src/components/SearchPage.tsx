@@ -96,6 +96,7 @@ interface SearchPageProps {
 const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialization, setSelectedSpecialization] = useState('');
+  const [selectedGender, setSelectedGender] = useState('');
   const [priceRange, setPriceRange] = useState('');
   const [filteredTeachers, setFilteredTeachers] = useState(mockTeachers);
 
@@ -105,6 +106,11 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
     'علوم القرآن والتفسير',
     'القراءات العشر',
     'تحفيظ للأطفال'
+  ];
+
+  const genders = [
+    'ذكر',
+    'أنثى'
   ];
 
   const handleSearch = () => {
@@ -124,6 +130,12 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
       );
     }
 
+    if (selectedGender) {
+      filtered = filtered.filter(teacher =>
+        teacher.gender === selectedGender
+      );
+    }
+
     if (priceRange) {
       const [min, max] = priceRange.split('-').map(Number);
       filtered = filtered.filter(teacher =>
@@ -136,7 +148,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
 
   React.useEffect(() => {
     handleSearch();
-  }, [searchTerm, selectedSpecialization, priceRange]);
+  }, [searchTerm, selectedSpecialization, selectedGender, priceRange]);
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
@@ -199,6 +211,23 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
                 </select>
               </div>
 
+              {/* Gender Filter */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  الجنس
+                </label>
+                <select
+                  value={selectedGender}
+                  onChange={(e) => setSelectedGender(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                >
+                  <option value="">جميع المعلمين</option>
+                  {genders.map((gender) => (
+                    <option key={gender} value={gender}>{gender}</option>
+                  ))}
+                </select>
+              </div>
+
               {/* Price Range */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -221,6 +250,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
                 onClick={() => {
                   setSearchTerm('');
                   setSelectedSpecialization('');
+                  setSelectedGender('');
                   setPriceRange('');
                 }}
                 className="w-full bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition-colors"

@@ -10,16 +10,16 @@ const Features = () => {
       color: 'text-emerald-600 bg-emerald-100'
     },
     {
+      icon: Video,
+      title: 'دروس مسجلة عالية الجودة',
+      description: 'مكتبة شاملة من الدروس المسجلة مع تقنية Agora للبث المتقدم',
+      color: 'text-purple-600 bg-purple-100'
+    },
+    {
       icon: Users,
       title: 'دروس جماعية وفردية',
       description: 'اختر بين الدروس الفردية المخصصة أو الجماعية التفاعلية',
       color: 'text-blue-600 bg-blue-100'
-    },
-    {
-      icon: Video,
-      title: 'جلسات صوتية عالية الجودة',
-      description: 'تقنية صوتية متقدمة لضمان وضوح التلاوة والتعليم',
-      color: 'text-purple-600 bg-purple-100'
     },
     {
       icon: Clock,

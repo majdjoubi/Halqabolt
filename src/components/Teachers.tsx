@@ -95,6 +95,16 @@ export default function Teachers() {
                     ({Number(teacher.rating).toFixed(1)})
                   </span>
                 </div>
+                
+                <div className="text-center mb-3">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    teacher.gender === 'ذكر' 
+                      ? 'bg-blue-100 text-blue-800' 
+                      : 'bg-pink-100 text-pink-800'
+                  }`}>
+                    معلم {teacher.gender === 'ذكر' ? '' : 'ة'}
+                  </span>
+                </div>
               </div>
 
               <div className="space-y-3 mb-6">
