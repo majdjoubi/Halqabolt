@@ -68,54 +68,6 @@ const Features = () => {
           })}
         </div>
 
-        {/* Additional Section */}
-        <div className="mt-20 bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-3xl p-8 lg:p-12">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-6">
-                تجربة تعليمية لا مثيل لها
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-4 space-x-reverse">
-                  <div className="bg-emerald-200 rounded-full p-2 mt-1">
-                    <HeadphonesIcon className="h-5 w-5 text-emerald-700" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">جودة صوتية عالية</h4>
-                    <p className="text-gray-600">تقنية متقدمة لنقل أدق تفاصيل التجويد والنطق</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-4 space-x-reverse">
-                  <div className="bg-emerald-200 rounded-full p-2 mt-1">
-                    <Star className="h-5 w-5 text-emerald-700" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">متابعة دقيقة للتقدم</h4>
-                    <p className="text-gray-600">تقارير مفصلة عن مستواك وتطورك في الحفظ والتلاوة</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-4 space-x-reverse">
-                  <div className="bg-emerald-200 rounded-full p-2 mt-1">
-                    <Users className="h-5 w-5 text-emerald-700" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">مجتمع تعليمي متفاعل</h4>
-                    <p className="text-gray-600">انضم لمجتمع من المتعلمين والمعلمين المتميزين</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="relative bg-gradient-to-br from-emerald-200 to-emerald-300 rounded-2xl p-8 text-center">
-              <div className="text-8xl mb-4">🕌</div>
-              <h4 className="text-xl font-bold text-emerald-800 mb-2">
-                بيئة تعليمية إسلامية أصيلة
-              </h4>
-              <p className="text-emerald-700">
-                تعلم في جو إيماني يساعدك على التركيز والخشوع
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );

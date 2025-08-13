@@ -46,30 +46,6 @@ const Hero = () => {
               </button>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300">
-                  <div className="text-3xl font-bold text-emerald-600 mb-1">200+</div>
-                  <div className="text-gray-600 text-sm">معلم متخصص</div>
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300">
-                  <div className="text-3xl font-bold text-emerald-600 mb-1">5000+</div>
-                  <div className="text-gray-600 text-sm">طالب نشط</div>
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300">
-                  <div className="text-3xl font-bold text-emerald-600 mb-1">4.9</div>
-                  <div className="text-gray-600 text-sm flex items-center justify-center">
-                    <Star className="h-4 w-4 text-amber-400 ml-1" />
-                    تقييم
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Islamic Pattern Design */}
