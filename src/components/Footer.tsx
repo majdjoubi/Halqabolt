@@ -9,7 +9,17 @@ const Footer = () => {
           {/* Company Info */}
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-3 space-x-reverse mb-6">
-              <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 p-3 rounded-xl">
+              <img 
+                src="/حلقة 2.png" 
+                alt="شعار حلقة" 
+                className="h-12 w-12 object-contain"
+                onError={(e) => {
+                  // Fallback to icon if image fails to load
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+              <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 p-3 rounded-xl hidden">
                 <BookOpen className="h-8 w-8 text-white" />
               </div>
               <div>
