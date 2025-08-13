@@ -14,7 +14,6 @@ const LessonTypes = () => {
         'مرونة في المنهج والوقت',
         'تصحيح فوري للأخطاء'
       ],
-      price: '20-30',
       duration: '60 دقيقة',
       color: 'from-blue-600 to-blue-700',
       bgColor: 'bg-blue-50',
@@ -27,11 +26,10 @@ const LessonTypes = () => {
       icon: Users,
       features: [
         'تفاعل مع طلاب آخرين',
-        'تكلفة أقل',
+        'بيئة تعليمية محفزة',
         'تحفيز جماعي',
         'تبادل الخبرات'
       ],
-      price: '8-15',
       duration: '90 دقيقة',
       color: 'from-emerald-600 to-emerald-700',
       bgColor: 'bg-emerald-50',
@@ -39,8 +37,8 @@ const LessonTypes = () => {
     },
     {
       id: 3,
-      title: 'حلقات التحفيظ',
-      description: 'برامج مخصصة لحفظ القرآن الكريم',
+      title: 'دروس التحفيظ',
+      description: 'دروس فردية مخصصة لحفظ القرآن الكريم',
       icon: BookOpen,
       features: [
         'منهج متدرج للحفظ',
@@ -48,7 +46,6 @@ const LessonTypes = () => {
         'تتبع التقدم',
         'شهادات إتمام'
       ],
-      price: '12-18',
       duration: '45 دقيقة',
       color: 'from-amber-600 to-amber-700',
       bgColor: 'bg-amber-50',
@@ -62,10 +59,9 @@ const LessonTypes = () => {
       features: [
         'أحكام التجويد كاملة',
         'تطبيق عملي',
-        'تسجيلات للمراجعة',
+        'متابعة شخصية',
         'شهادة معتمدة'
       ],
-      price: '15-25',
       duration: '75 دقيقة',
       color: 'from-purple-600 to-purple-700',
       bgColor: 'bg-purple-50',
@@ -119,17 +115,10 @@ const LessonTypes = () => {
                       <span className="text-gray-600">المدة:</span>
                       <span className="font-semibold">{lesson.duration}</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600">السعر:</span>
-                      <div className="text-right">
-                        <span className="text-xl font-bold text-gray-900">{lesson.price}$</span>
-                        <span className="text-gray-600 text-sm"> / درس</span>
-                      </div>
-                    </div>
                   </div>
 
                   <button className={`w-full mt-6 bg-gradient-to-r ${lesson.color} text-white py-3 rounded-xl hover:shadow-lg transition-all duration-200 font-semibold`}>
-                    احجز الآن
+                    تعرف على المزيد
                   </button>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Star, Crown, Zap, Heart, DollarSign, Users, User, BookOpen } from 'lucide-react';
+import { Check, Star, Crown, Zap, Heart, DollarSign } from 'lucide-react';
 
 const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
@@ -27,9 +27,9 @@ const Pricing = () => {
     },
     {
       name: 'الباقة المتوسطة',
-      dailyPrice: 8,
-      weeklyPrice: 50,
-      monthlyPrice: 160,
+      dailyPrice: 9,
+      weeklyPrice: 55,
+      monthlyPrice: 180,
       description: 'الأكثر شعبية للطلاب الجادين',
       features: [
         'درس جماعي مجاني (ساعة واحدة)',
@@ -48,9 +48,9 @@ const Pricing = () => {
     },
     {
       name: 'الباقة الشاملة',
-      dailyPrice: 12,
-      weeklyPrice: 75,
-      monthlyPrice: 240,
+      dailyPrice: 15,
+      weeklyPrice: 90,
+      monthlyPrice: 300,
       description: 'للطلاب المتفوقين',
       features: [
         'درس جماعي مجاني (ساعة واحدة)',
@@ -67,33 +67,6 @@ const Pricing = () => {
       color: 'border-amber-400',
       buttonColor: 'bg-amber-600 hover:bg-amber-700',
       icon: Crown
-    }
-  ];
-
-  const lessonTypes = [
-    {
-      type: 'فردي',
-      price: 15,
-      duration: '60 دقيقة',
-      description: 'درس خاص مع المعلم',
-      icon: User,
-      color: 'bg-blue-50 border-blue-200'
-    },
-    {
-      type: 'جماعي',
-      price: 8,
-      duration: '60 دقيقة',
-      description: 'مع مجموعة من الطلاب (حد أقصى 6)',
-      icon: Users,
-      color: 'bg-emerald-50 border-emerald-200'
-    },
-    {
-      type: 'تحفيظ',
-      price: 10,
-      duration: '60 دقيقة',
-      description: 'حلقة تحفيظ (حد أقصى 4 طلاب)',
-      icon: BookOpen,
-      color: 'bg-amber-50 border-amber-200'
     }
   ];
 
@@ -172,27 +145,7 @@ const Pricing = () => {
               </button>
             </div>
           </div>
-        </div>
 
-        {/* Lesson Types */}
-        <div className="mb-16">
-          <h3 className="text-2xl font-bold text-center text-gray-900 mb-8">أسعار الدروس</h3>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {lessonTypes.map((lesson, index) => {
-              const IconComponent = lesson.icon;
-              return (
-                <div key={index} className={`${lesson.color} border-2 rounded-2xl p-6 text-center`}>
-                  <div className="inline-flex p-3 bg-white rounded-full mb-4 shadow-sm">
-                    <IconComponent className="h-8 w-8 text-gray-700" />
-                  </div>
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">درس {lesson.type}</h4>
-                  <div className="text-3xl font-bold text-emerald-600 mb-2">${lesson.price}</div>
-                  <p className="text-gray-600 text-sm mb-2">{lesson.duration}</p>
-                  <p className="text-gray-600 text-sm">{lesson.description}</p>
-                </div>
-              );
-            })}
-          </div>
           <div className="text-center mt-6">
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 max-w-2xl mx-auto">
               <p className="text-emerald-800 font-medium">
@@ -319,32 +272,6 @@ const Pricing = () => {
                   </p>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Revenue Sharing Info */}
-        <div className="mt-16 bg-gradient-to-r from-emerald-50 to-blue-50 rounded-3xl p-8 lg:p-12">
-          <div className="text-center mb-8">
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">
-              نموذج عادل للجميع
-            </h3>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              نحن نؤمن بالعدالة في توزيع الأرباح بين المعلمين والمنصة
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-white rounded-2xl p-6 shadow-md">
-              <h4 className="text-xl font-bold text-gray-900 mb-4">حصة المعلم</h4>
-              <div className="text-4xl font-bold text-emerald-600 mb-2">70%</div>
-              <p className="text-gray-600">من رسوم كل درس تذهب مباشرة للمعلم</p>
-            </div>
-            
-            <div className="bg-white rounded-2xl p-6 shadow-md">
-              <h4 className="text-xl font-bold text-gray-900 mb-4">حصة المنصة</h4>
-              <div className="text-4xl font-bold text-blue-600 mb-2">30%</div>
-              <p className="text-gray-600">لتطوير المنصة وتقديم أفضل الخدمات</p>
             </div>
           </div>
         </div>

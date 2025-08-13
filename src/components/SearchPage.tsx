@@ -18,11 +18,11 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
   const [isTeacherProfileOpen, setIsTeacherProfileOpen] = useState(false);
 
   const specializations = [
-    'تحفيظ القرآن الكريم',
+    'دروس فردية - تحفيظ القرآن الكريم',
     'تجويد القرآن الكريم',
     'علوم القرآن والتفسير',
     'القراءات العشر',
-    'تحفيظ للأطفال'
+    'دروس فردية - تحفيظ للأطفال'
   ];
 
   const genders = [
