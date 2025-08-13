@@ -5,14 +5,16 @@ import TeacherProfile from './TeacherProfile';
 
 interface SearchPageProps {
   onClose: () => void;
+  showGroupLessonsOnly?: boolean;
 }
 
-const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
+const SearchPage: React.FC<SearchPageProps> = ({ onClose, showGroupLessonsOnly = false }) => {
   const { teachers, loading, error } = useTeachers();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialization, setSelectedSpecialization] = useState('');
   const [selectedGender, setSelectedGender] = useState('');
   const [priceRange, setPriceRange] = useState('');
+  const [lessonType, setLessonType] = useState(showGroupLessonsOnly ? 'group' : '');
   const [filteredTeachers, setFilteredTeachers] = useState<Teacher[]>([]);
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [isTeacherProfileOpen, setIsTeacherProfileOpen] = useState(false);
@@ -31,6 +33,11 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
 
   const handleSearch = () => {
     let filtered = teachers;
+
+    // إذا كان showGroupLessonsOnly مفعل، أظهر فقط المعلمين الذين لديهم دروس جماعية متاحة
+    if (showGroupLessonsOnly) {
+      filtered = filtered.filter(teacher => teacher.group_lesson_price > 0);
+    }
 
     if (searchTerm) {
       filtered = filtered.filter(teacher =>
@@ -69,7 +76,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
 
   React.useEffect(() => {
     handleSearch();
-  }, [searchTerm, selectedSpecialization, selectedGender, priceRange, teachers]);
+  }, [searchTerm, selectedSpecialization, selectedGender, priceRange, lessonType, teachers, showGroupLessonsOnly]);
 
   if (loading) {
     return (
@@ -123,7 +130,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
               <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-8">
                 <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
                   <Filter className="h-5 w-5 ml-2" />
-                  تصفية النتائج
+                  {showGroupLessonsOnly ? 'الدروس الجماعية المتاحة' : 'تصفية النتائج'}
                 </h2>
 
                 {/* Search */}
@@ -137,7 +144,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
                       type="text"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="ابحث عن معلم أو تخصص..."
+                      placeholder={showGroupLessonsOnly ? "ابحث عن معلم للدروس الجماعية..." : "ابحث عن معلم أو تخصص..."}
                       className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     />
                   </div>
@@ -201,6 +208,9 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
                     setSelectedSpecialization('');
                     setSelectedGender('');
                     setPriceRange('');
+                    if (!showGroupLessonsOnly) {
+                      setLessonType('');
+                    }
                   }}
                   className="w-full bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition-colors"
                 >
@@ -213,8 +223,16 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
             <div className="lg:col-span-3">
               <div className="mb-6 flex items-center justify-between">
                 <p className="text-gray-600">
-                  تم العثور على {filteredTeachers.length} معلم
+                  {showGroupLessonsOnly 
+                    ? `${filteredTeachers.length} معلم متاح للدروس الجماعية المجانية`
+                    : `تم العثور على ${filteredTeachers.length} معلم`
+                  }
                 </p>
+                {showGroupLessonsOnly && (
+                  <div className="bg-emerald-100 text-emerald-800 px-4 py-2 rounded-lg text-sm font-medium">
+                    🎁 الدرس الأول مجاني!
+                  </div>
+                )}
               </div>
 
               <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">

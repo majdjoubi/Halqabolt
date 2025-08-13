@@ -36,7 +36,7 @@ const Hero = () => {
               <button className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-lg font-semibold">
                 onClick={handleStartLearning}
                 <PlayCircle className="inline-block ml-2 h-6 w-6" />
-                {isAuthenticated ? 'ابحث عن معلم' : 'ابدأ درسك الأول مجاناً'}
+                ابدأ درسك الأول مجاناً
               </button>
               <button className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white px-8 py-4 rounded-xl transition-all duration-300 text-lg font-semibold">
                 تصفح المعلمين

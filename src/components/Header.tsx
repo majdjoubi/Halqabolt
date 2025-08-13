@@ -22,6 +22,7 @@ const Header = () => {
 
   const handleStartLearning = () => {
     if (isAuthenticated) {
+      // إظهار الدروس الجماعية المتاحة للدرس المجاني
       setShowSearchPage(true);
     } else {
       openAuthModal('signup');
@@ -184,7 +185,10 @@ const Header = () => {
       
       {showSearchPage && (
         <div className="fixed inset-0 bg-white z-50">
-          <SearchPage onClose={() => setShowSearchPage(false)} />
+          <SearchPage 
+            onClose={() => setShowSearchPage(false)} 
+            showGroupLessonsOnly={isAuthenticated}
+          />
         </div>
       )}
     </>
