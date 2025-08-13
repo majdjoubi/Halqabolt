@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Clock, Users, Award, BookOpen } from 'lucide-react';
+import { Star, Clock, Users, Award, BookOpen, DollarSign } from 'lucide-react';
 import { useTeachers } from '../hooks/useTeachers';
 import TeacherProfile from './TeacherProfile';
 

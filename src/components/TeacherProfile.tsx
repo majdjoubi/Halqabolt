@@ -28,10 +28,10 @@ const TeacherProfile: React.FC<TeacherProfileProps> = ({ teacher, onClose }) => 
   const lessons = [
     {
       id: '1',
-      title: 'درس فردي - تلاوة وتجويد',
+      title: 'درس فردي',
       duration_minutes: 60,
       price: teacher.individual_lesson_price,
-      description: 'درس فردي مخصص لتعلم التلاوة الصحيحة وأحكام التجويد'
+      description: 'درس فردي مخصص حسب احتياجاتك'
     },
     {
       id: '2',
