@@ -35,14 +35,12 @@ const Header = () => {
           <div className="flex justify-between items-center py-4">
             {/* Logo */}
             <div className="flex items-center space-x-3 space-x-reverse">
-              <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 p-3 rounded-xl shadow-md">
-                <BookOpen className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-emerald-700">حلقة</h1>
-                <p className="text-xs text-gray-600">د. مجد الدين جوبي - طبيب عظام</p>
-                <p className="text-xs text-emerald-600">تعليم كتاب الله للأجر والثواب</p>
-              </div>
+              <img 
+                src="/حلقة 2.png" 
+                alt="حلقة - منصة تعليم القرآن الكريم" 
+                className="h-12 w-auto"
+              />
+              <h1 className="text-2xl font-bold text-emerald-700">حلقة</h1>
             </div>
 
             {/* Desktop Navigation */}

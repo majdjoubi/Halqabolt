@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Star, Clock, Users, Award, BookOpen, Calendar, MessageCircle, Heart } from 'lucide-react';
-import BookingModal from './BookingModal';
 
 interface TeacherProfileProps {
   teacher: {
@@ -281,12 +280,20 @@ const TeacherProfile: React.FC<TeacherProfileProps> = ({ teacher, onClose }) => 
 
       {/* Booking Modal */}
       {isBookingModalOpen && selectedLesson && (
-        <BookingModal
-          isOpen={isBookingModalOpen}
-          onClose={() => setIsBookingModalOpen(false)}
-          teacher={teacher}
-          lesson={selectedLesson}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">حجز درس</h3>
+            <p className="text-gray-600 mb-6">
+              سيتم تفعيل نظام الحجز قريباً. يمكنك التواصل مع المعلم مباشرة.
+            </p>
+            <button
+              onClick={() => setIsBookingModalOpen(false)}
+              className="w-full bg-emerald-600 text-white py-3 rounded-lg hover:bg-emerald-700 transition-colors font-semibold"
+            >
+              إغلاق
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

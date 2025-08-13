@@ -8,6 +8,7 @@ import LessonTypes from './components/LessonTypes';
 import Pricing from './components/Pricing';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
+import AboutUs from './components/AboutUs';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <LessonTypes />
       <Pricing />
       <Testimonials />
+      <AboutUs />
       <Footer />
     </div>
   );

@@ -1,9 +1,17 @@
 import React from 'react';
 import { Star, Clock, Users, Award, BookOpen } from 'lucide-react';
 import { useTeachers } from '../hooks/useTeachers';
+import TeacherProfile from './TeacherProfile';
 
 export default function Teachers() {
   const { teachers, loading, error } = useTeachers();
+  const [selectedTeacher, setSelectedTeacher] = React.useState(null);
+  const [isTeacherProfileOpen, setIsTeacherProfileOpen] = React.useState(false);
+
+  const handleTeacherProfileClick = (teacher) => {
+    setSelectedTeacher(teacher);
+    setIsTeacherProfileOpen(true);
+  };
 
   if (loading) {
     return (
@@ -163,6 +171,7 @@ export default function Teachers() {
                   احجز درس
                 </button>
                 <button className="px-4 py-2 border border-emerald-600 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors font-medium text-sm">
+                  onClick={() => handleTeacherProfileClick(teacher)}
                   الملف الشخصي
                 </button>
               </div>
@@ -195,6 +204,17 @@ export default function Teachers() {
             عرض جميع المعلمين
           </button>
         </div>
+
+        {/* Teacher Profile Modal */}
+        {selectedTeacher && (
+          <TeacherProfile
+            teacher={selectedTeacher}
+            onClose={() => {
+              setSelectedTeacher(null);
+              setIsTeacherProfileOpen(false);
+            }}
+          />
+        )}
       </div>
     </section>
   );
