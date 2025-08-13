@@ -162,10 +162,11 @@ const Header = () => {
                         تسجيل الدخول
                       </button>
                       <button
+                        data-start-learning
                         onClick={handleStartLearning}
                         className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200"
                       >
-                        ابدأ التعلم
+                        ابدأ درسك الأول مجاناً
                       </button>
                     </>
                   )}
