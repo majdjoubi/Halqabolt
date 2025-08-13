@@ -53,9 +53,6 @@ const Footer = () => {
               <li><a href="#home" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">الرئيسية</a></li>
               <li><a href="#teachers" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">المعلمون</a></li>
               <li><a href="#lessons" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">الدروس</a></li>
-              <li><a href="#pricing" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">الأسعار</a></li>
-              <li><a href="#about" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">من نحن</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">تواصل معنا</a></li>
             </ul>
           </div>
 
@@ -65,10 +62,7 @@ const Footer = () => {
             <ul className="space-y-4">
               <li><a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">دروس فردية</a></li>
               <li><a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">دروس جماعية</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">حلقات التحفيظ</a></li>
               <li><a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">دورات التجويد</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">التفسير</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">الشهادات المعتمدة</a></li>
             </ul>
           </div>
 

@@ -66,12 +66,6 @@ const Header = () => {
               <a href="#lessons" className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200">
                 الدروس
               </a>
-              <a href="#pricing" className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200">
-                الأسعار
-              </a>
-              <a href="#about" className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200">
-                من نحن
-              </a>
             </nav>
 
             {/* CTA Buttons */}
@@ -131,12 +125,6 @@ const Header = () => {
                 </button>
                 <a href="#lessons" className="text-gray-700 hover:text-emerald-600 font-medium">
                   الدروس
-                </a>
-                <a href="#pricing" className="text-gray-700 hover:text-emerald-600 font-medium">
-                  الأسعار
-                </a>
-                <a href="#about" className="text-gray-700 hover:text-emerald-600 font-medium">
-                  من نحن
                 </a>
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                   {user ? (
