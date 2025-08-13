@@ -75,9 +75,6 @@ const Header = () => {
                 onClick={() => {/* سيتم إضافة صفحة التبرع لاحقاً */}}
                 className="text-amber-600 hover:text-amber-700 font-medium transition-colors duration-200"
               >
-                onClick={() => setShowDonationPage(true)}
-                className="text-amber-600 hover:text-amber-700 font-medium transition-colors duration-200"
-              >
                 تبرع الآن
               </button>
             </nav>
