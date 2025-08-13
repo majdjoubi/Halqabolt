@@ -56,9 +56,12 @@ const Header = () => {
               <a href="#home" className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200">
                 الرئيسية
               </a>
-              <a href="#teachers" className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200">
+              <button 
+                onClick={() => setShowSearchPage(true)}
+                className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
+              >
                 المعلمون
-              </a>
+              </button>
               <a href="#lessons" className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200">
                 الدروس
               </a>
@@ -121,9 +124,15 @@ const Header = () => {
                 <a href="#home" className="text-gray-700 hover:text-emerald-600 font-medium">
                   الرئيسية
                 </a>
-                <a href="#teachers" className="text-gray-700 hover:text-emerald-600 font-medium">
+                <button 
+                  onClick={() => {
+                    setShowSearchPage(true);
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-gray-700 hover:text-emerald-600 font-medium text-right"
+                >
                   المعلمون
-                </a>
+                </button>
                 <a href="#lessons" className="text-gray-700 hover:text-emerald-600 font-medium">
                   الدروس
                 </a>
