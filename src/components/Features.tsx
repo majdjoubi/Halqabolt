@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Users, Video, Clock, Award, Shield, HeadphonesIcon, Star } from 'lucide-react';
+import { BookOpen, Users, Clock, Award, Shield, HeadphonesIcon, Star } from 'lucide-react';
 
 const Features = () => {
   const features = [
@@ -8,12 +8,6 @@ const Features = () => {
       title: 'تعليم متخصص',
       description: 'معلمون مؤهلون وحاصلون على إجازات في القرآن الكريم والتجويد',
       color: 'text-emerald-600 bg-emerald-100'
-    },
-    {
-      icon: Video,
-      title: 'دروس مسجلة عالية الجودة',
-      description: 'مكتبة شاملة من الدروس المسجلة مع تقنية Agora للبث المتقدم',
-      color: 'text-purple-600 bg-purple-100'
     },
     {
       icon: Users,
