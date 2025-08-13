@@ -180,8 +180,10 @@ export default function Teachers() {
                 <button className="flex-1 bg-emerald-600 text-white py-2 px-4 rounded-lg hover:bg-emerald-700 transition-colors font-medium text-sm">
                   احجز درس
                 </button>
-                <button className="px-4 py-2 border border-emerald-600 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors font-medium text-sm">
+                <button 
                   onClick={() => handleTeacherProfileClick(teacher)}
+                  className="px-4 py-2 border border-emerald-600 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors font-medium text-sm"
+                >
                   الملف الشخصي
                 </button>
               </div>

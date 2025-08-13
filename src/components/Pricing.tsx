@@ -233,13 +233,6 @@ const Pricing = () => {
           </div>
 
           <div className="text-center mt-8">
-            <p className="text-gray-600 mb-4">
-              <Clock className="inline h-5 w-5 ml-2" />
-              جميع الدروس مدتها ساعة كاملة
-            </p>
-            <button className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white px-8 py-3 rounded-xl hover:from-emerald-700 hover:to-blue-700 transition-all duration-200 font-semibold shadow-lg">
-              ابدأ البحث عن معلم
-            </button>
           </div>
         </div>
       </div>

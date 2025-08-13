@@ -142,9 +142,6 @@ const LessonTypes = () => {
                 </p>
               </div>
             </div>
-            <button className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white px-8 py-3 rounded-xl hover:from-emerald-700 hover:to-blue-700 transition-all duration-200 font-semibold shadow-lg">
-              ابدأ الآن
-            </button>
           </div>
         </div>
       </div>
