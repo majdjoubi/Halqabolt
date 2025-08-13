@@ -139,7 +139,7 @@ const LessonTypes = () => {
                 <h4 className="font-bold text-gray-900 mb-3 text-lg">الطالب يختار ويحجز</h4>
                 <p className="text-gray-600">
                   تصفح المعلمين، اختر المناسب لك، واحجز الدرس في الوقت المتاح
-                </p>
+            <button className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white px-8 py-3 rounded-xl hover:from-emerald-700 hover:to-blue-700 transition-all duration-200 font-semibold shadow-lg">
               </div>
             </div>
           </div>

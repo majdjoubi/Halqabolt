@@ -105,7 +105,7 @@ const Features = () => {
                 </div>
               </div>
             </div>
-            <div className="relative bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl p-8 text-center">
+            <div className="relative bg-gradient-to-br from-emerald-200 to-emerald-300 rounded-2xl p-8 text-center">
               <div className="text-8xl mb-4">🕌</div>
               <h4 className="text-xl font-bold text-emerald-800 mb-2">
                 بيئة تعليمية إسلامية أصيلة
