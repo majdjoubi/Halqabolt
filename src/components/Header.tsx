@@ -3,11 +3,13 @@ import { BookOpen, Menu, X, User, Star, Clock } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import AuthModal from './AuthModal';
 import SearchPage from './SearchPage';
+import DonationPage from './DonationPage';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showSearchPage, setShowSearchPage] = useState(false);
+  const [showDonationPage, setShowDonationPage] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const { user, signOut, isAuthenticated } = useAuth();
 
@@ -71,6 +73,9 @@ const Header = () => {
               </button>
               <button 
                 onClick={() => {/* سيتم إضافة صفحة التبرع لاحقاً */}}
+                className="text-amber-600 hover:text-amber-700 font-medium transition-colors duration-200"
+              >
+                onClick={() => setShowDonationPage(true)}
                 className="text-amber-600 hover:text-amber-700 font-medium transition-colors duration-200"
               >
                 تبرع الآن
@@ -144,7 +149,7 @@ const Header = () => {
                 <button 
                   onClick={() => {
                     setIsMenuOpen(false);
-                    /* سيتم إضافة صفحة التبرع لاحقاً */
+                    setShowDonationPage(true);
                   }}
                   className="text-amber-600 hover:text-amber-700 font-medium text-right"
                 >
@@ -203,6 +208,12 @@ const Header = () => {
             onClose={() => setShowSearchPage(false)} 
             showGroupLessonsOnly={isAuthenticated}
           />
+        </div>
+      )}
+      
+      {showDonationPage && (
+        <div className="fixed inset-0 bg-white z-50">
+          <DonationPage onClose={() => setShowDonationPage(false)} />
         </div>
       )}
     </>
