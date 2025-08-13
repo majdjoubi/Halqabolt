@@ -35,11 +35,9 @@ const Header = () => {
           <div className="flex justify-between items-center py-4">
             {/* Logo */}
             <div className="flex items-center space-x-3 space-x-reverse">
-              <img 
-                src="/حلقة 2.png" 
-                alt="حلقة - منصة تعليم القرآن الكريم" 
-                className="h-12 w-auto"
-              />
+              <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 p-3 rounded-xl">
+                <BookOpen className="h-8 w-8 text-white" />
+              </div>
               <h1 className="text-2xl font-bold text-emerald-700">حلقة</h1>
             </div>
 
