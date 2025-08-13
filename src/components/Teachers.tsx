@@ -138,11 +138,21 @@ export default function Teachers() {
 
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center text-gray-600">
-                    <BookOpen className="w-4 h-4 ml-2" />
-                    <span>السعر</span>
+                    <DollarSign className="w-4 h-4 ml-2" />
+                    <span>درس فردي</span>
                   </div>
-                  <span className="font-bold text-emerald-600">
-                    {Number(teacher.hourly_rate).toFixed(0)} ر.س/ساعة
+                  <span className="font-bold text-emerald-600 text-sm">
+                    ${teacher.individual_lesson_price}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center text-gray-600">
+                    <Users className="w-4 h-4 ml-2" />
+                    <span>درس جماعي</span>
+                  </div>
+                  <span className="font-bold text-blue-600 text-sm">
+                    ${teacher.group_lesson_price}
                   </span>
                 </div>
               </div>

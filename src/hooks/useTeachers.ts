@@ -8,7 +8,8 @@ export interface Teacher {
   experience_years: number;
   rating: number;
   students_count: number;
-  hourly_rate: number;
+  individual_lesson_price: number;
+  group_lesson_price: number;
   bio?: string;
   certificates: string[];
   languages: string[];
@@ -24,12 +25,13 @@ const mockTeachers: Teacher[] = [
     id: '1',
     name: 'الشيخ أحمد محمد',
     gender: 'ذكر',
-    specialization: 'دروس فردية - تحفيظ القرآن الكريم',
+    specialization: 'تحفيظ القرآن الكريم والتجويد',
     experience_years: 15,
     rating: 4.9,
     students_count: 150,
-    hourly_rate: 50,
-    bio: 'معلم متخصص في دروس التحفيظ الفردية مع خبرة 15 عام في التدريس',
+    individual_lesson_price: 25,
+    group_lesson_price: 15,
+    bio: 'معلم متخصص في تحفيظ القرآن الكريم والتجويد مع خبرة 15 عام في التدريس',
     certificates: ['إجازة في القرآن الكريم', 'دبلوم التجويد'],
     languages: ['العربية', 'الإنجليزية'],
     availability_status: 'available',
@@ -45,7 +47,8 @@ const mockTeachers: Teacher[] = [
     experience_years: 12,
     rating: 4.8,
     students_count: 120,
-    hourly_rate: 45,
+    individual_lesson_price: 20,
+    group_lesson_price: 12,
     bio: 'معلمة متخصصة في تجويد القرآن الكريم للنساء والأطفال',
     certificates: ['إجازة في التجويد', 'دبلوم التربية الإسلامية'],
     languages: ['العربية'],
@@ -62,7 +65,8 @@ const mockTeachers: Teacher[] = [
     experience_years: 20,
     rating: 4.9,
     students_count: 200,
-    hourly_rate: 60,
+    individual_lesson_price: 30,
+    group_lesson_price: 18,
     bio: 'دكتور في علوم القرآن والتفسير مع خبرة طويلة في التدريس',
     certificates: ['دكتوراه في علوم القرآن', 'إجازة في القراءات'],
     languages: ['العربية', 'الإنجليزية', 'الفرنسية'],
@@ -75,12 +79,13 @@ const mockTeachers: Teacher[] = [
     id: '4',
     name: 'الأستاذة خديجة المغربي',
     gender: 'أنثى',
-    specialization: 'دروس فردية - تحفيظ للأطفال',
+    specialization: 'تحفيظ القرآن للأطفال',
     experience_years: 8,
     rating: 4.7,
     students_count: 80,
-    hourly_rate: 40,
-    bio: 'معلمة متخصصة في دروس التحفيظ الفردية للأطفال بطرق تفاعلية ممتعة',
+    individual_lesson_price: 18,
+    group_lesson_price: 10,
+    bio: 'معلمة متخصصة في تحفيظ القرآن للأطفال بطرق تفاعلية ممتعة',
     certificates: ['دبلوم تعليم الأطفال', 'إجازة في التحفيظ'],
     languages: ['العربية', 'الفرنسية'],
     availability_status: 'available',
@@ -96,7 +101,8 @@ const mockTeachers: Teacher[] = [
     experience_years: 18,
     rating: 4.9,
     students_count: 90,
-    hourly_rate: 70,
+    individual_lesson_price: 35,
+    group_lesson_price: 20,
     bio: 'متخصص في القراءات العشر وعلوم القرآن المتقدمة',
     certificates: ['إجازة في القراءات العشر', 'ماجستير في علوم القرآن'],
     languages: ['العربية'],
@@ -113,7 +119,8 @@ const mockTeachers: Teacher[] = [
     experience_years: 10,
     rating: 4.6,
     students_count: 110,
-    hourly_rate: 35,
+    individual_lesson_price: 15,
+    group_lesson_price: 8,
     bio: 'معلمة تجويد وتلاوة مع التركيز على الأداء الصحيح والخشوع',
     certificates: ['إجازة في التجويد', 'دبلوم التلاوة'],
     languages: ['العربية'],

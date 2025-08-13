@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Users, BookOpen, Volume2, Calendar, CheckCircle } from 'lucide-react';
+import { BookOpen, Users, Clock, Star, CheckCircle } from 'lucide-react';
 
 const LessonTypes = () => {
   const lessonTypes = [
@@ -7,17 +7,20 @@ const LessonTypes = () => {
       id: 1,
       title: 'دروس فردية',
       description: 'دروس خاصة مخصصة لك وحدك مع المعلم',
-      icon: User,
+      icon: BookOpen,
       features: [
         'انتباه كامل من المعلم',
-        'خطة تعلم مخصصة',
+        'خطة تعلم مخصصة حسب مستواك',
         'مرونة في المنهج والوقت',
-        'تصحيح فوري للأخطاء'
+        'تصحيح فوري للأخطاء',
+        'تركيز على نقاط الضعف',
+        'تقدم أسرع في التعلم'
       ],
       duration: '60 دقيقة',
-      color: 'from-blue-600 to-blue-700',
-      bgColor: 'bg-blue-50',
-      iconColor: 'text-blue-600'
+      color: 'from-emerald-600 to-emerald-700',
+      bgColor: 'bg-emerald-50',
+      iconColor: 'text-emerald-600',
+      priceNote: 'السعر يحدده المعلم'
     },
     {
       id: 2,
@@ -27,45 +30,16 @@ const LessonTypes = () => {
       features: [
         'تفاعل مع طلاب آخرين',
         'بيئة تعليمية محفزة',
-        'تحفيز جماعي',
-        'تبادل الخبرات'
+        'تحفيز جماعي للتعلم',
+        'تبادل الخبرات والتجارب',
+        'تكلفة أقل من الدروس الفردية',
+        'جو أسري ودود'
       ],
-      duration: '90 دقيقة',
-      color: 'from-emerald-600 to-emerald-700',
-      bgColor: 'bg-emerald-50',
-      iconColor: 'text-emerald-600'
-    },
-    {
-      id: 3,
-      title: 'دروس التحفيظ',
-      description: 'دروس فردية مخصصة لحفظ القرآن الكريم',
-      icon: BookOpen,
-      features: [
-        'منهج متدرج للحفظ',
-        'مراجعة دورية',
-        'تتبع التقدم',
-        'شهادات إتمام'
-      ],
-      duration: '45 دقيقة',
-      color: 'from-amber-600 to-amber-700',
-      bgColor: 'bg-amber-50',
-      iconColor: 'text-amber-600'
-    },
-    {
-      id: 4,
-      title: 'دورات التجويد',
-      description: 'تعلم أحكام التجويد وتحسين التلاوة',
-      icon: Volume2,
-      features: [
-        'أحكام التجويد كاملة',
-        'تطبيق عملي',
-        'متابعة شخصية',
-        'شهادة معتمدة'
-      ],
-      duration: '75 دقيقة',
-      color: 'from-purple-600 to-purple-700',
-      bgColor: 'bg-purple-50',
-      iconColor: 'text-purple-600'
+      duration: '60 دقيقة',
+      color: 'from-blue-600 to-blue-700',
+      bgColor: 'bg-blue-50',
+      iconColor: 'text-blue-600',
+      priceNote: 'السعر يحدده المعلم'
     }
   ];
 
@@ -80,45 +54,52 @@ const LessonTypes = () => {
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            اختر النوع المناسب لك من دروسنا المتنوعة التي تلبي جميع احتياجاتك التعليمية
+            اختر النوع المناسب لك من دروسنا المتنوعة. كل معلم يحدد أسعاره ومواعيده المتاحة
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
           {lessonTypes.map((lesson) => {
             const IconComponent = lesson.icon;
             return (
               <div
                 key={lesson.id}
-                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden"
+                className="bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden"
               >
-                <div className={`${lesson.bgColor} p-6 text-center`}>
-                  <div className={`inline-flex p-4 rounded-full bg-white shadow-md mb-4`}>
-                    <IconComponent className={`h-8 w-8 ${lesson.iconColor}`} />
+                <div className={`${lesson.bgColor} p-8 text-center`}>
+                  <div className={`inline-flex p-6 rounded-full bg-white shadow-lg mb-6`}>
+                    <IconComponent className={`h-12 w-12 ${lesson.iconColor}`} />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{lesson.title}</h3>
-                  <p className="text-gray-600 text-sm">{lesson.description}</p>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">{lesson.title}</h3>
+                  <p className="text-gray-600 text-lg">{lesson.description}</p>
                 </div>
 
-                <div className="p-6">
-                  <div className="space-y-3 mb-6">
+                <div className="p-8">
+                  <div className="space-y-4 mb-8">
                     {lesson.features.map((feature, index) => (
                       <div key={index} className="flex items-center space-x-3 space-x-reverse">
                         <CheckCircle className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                        <span className="text-gray-700 text-sm">{feature}</span>
+                        <span className="text-gray-700">{feature}</span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="border-t border-gray-200 pt-4 space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">المدة:</span>
-                      <span className="font-semibold">{lesson.duration}</span>
+                  <div className="border-t border-gray-200 pt-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 flex items-center">
+                        <Clock className="h-5 w-5 ml-2" />
+                        المدة:
+                      </span>
+                      <span className="font-semibold text-lg">{lesson.duration}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">السعر:</span>
+                      <span className="font-semibold text-emerald-600">{lesson.priceNote}</span>
                     </div>
                   </div>
 
-                  <button className={`w-full mt-6 bg-gradient-to-r ${lesson.color} text-white py-3 rounded-xl hover:shadow-lg transition-all duration-200 font-semibold`}>
-                    تعرف على المزيد
+                  <button className={`w-full mt-8 bg-gradient-to-r ${lesson.color} text-white py-4 rounded-xl hover:shadow-lg transition-all duration-200 font-semibold text-lg`}>
+                    ابحث عن معلم
                   </button>
                 </div>
               </div>
@@ -129,35 +110,35 @@ const LessonTypes = () => {
         {/* Additional Info Section */}
         <div className="mt-20 bg-gradient-to-r from-gray-50 to-gray-100 rounded-3xl p-8 lg:p-12">
           <div className="text-center">
-            <h3 className="text-3xl font-bold text-gray-900 mb-6">
-              مميزات إضافية لجميع الدروس
+            <h3 className="text-3xl font-bold text-gray-900 mb-8">
+              كيف يعمل النظام؟
             </h3>
-            <div className="grid md:grid-cols-3 gap-8 mt-12">
+            <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="bg-white rounded-full p-4 w-16 h-16 mx-auto mb-4 shadow-md">
-                  <Calendar className="h-8 w-8 text-emerald-600 mx-auto" />
+                <div className="bg-white rounded-full p-6 w-20 h-20 mx-auto mb-6 shadow-lg">
+                  <BookOpen className="h-8 w-8 text-emerald-600 mx-auto" />
                 </div>
-                <h4 className="font-bold text-gray-900 mb-2">جدولة مرنة</h4>
-                <p className="text-gray-600 text-sm">
-                  احجز دروسك في الأوقات المناسبة لك
+                <h4 className="font-bold text-gray-900 mb-3 text-lg">المعلم يحدد السعر</h4>
+                <p className="text-gray-600">
+                  كل معلم يضع أسعاره الخاصة للدروس الفردية والجماعية حسب خبرته ومؤهلاته
                 </p>
               </div>
               <div className="text-center">
-                <div className="bg-white rounded-full p-4 w-16 h-16 mx-auto mb-4 shadow-md">
-                  <Volume2 className="h-8 w-8 text-emerald-600 mx-auto" />
+                <div className="bg-white rounded-full p-6 w-20 h-20 mx-auto mb-6 shadow-lg">
+                  <Clock className="h-8 w-8 text-blue-600 mx-auto" />
                 </div>
-                <h4 className="font-bold text-gray-900 mb-2">تسجيل الدروس</h4>
-                <p className="text-gray-600 text-sm">
-                  احصل على تسجيلات دروسك للمراجعة
+                <h4 className="font-bold text-gray-900 mb-3 text-lg">المعلم يحدد المواعيد</h4>
+                <p className="text-gray-600">
+                  المعلمون يضعون جداولهم المتاحة والطلاب يختارون الأوقات المناسبة لهم
                 </p>
               </div>
               <div className="text-center">
-                <div className="bg-white rounded-full p-4 w-16 h-16 mx-auto mb-4 shadow-md">
-                  <CheckCircle className="h-8 w-8 text-emerald-600 mx-auto" />
+                <div className="bg-white rounded-full p-6 w-20 h-20 mx-auto mb-6 shadow-lg">
+                  <Users className="h-8 w-8 text-purple-600 mx-auto" />
                 </div>
-                <h4 className="font-bold text-gray-900 mb-2">ضمان الجودة</h4>
-                <p className="text-gray-600 text-sm">
-                  ضمان استرداد المال في حالة عدم الرضا
+                <h4 className="font-bold text-gray-900 mb-3 text-lg">الطالب يختار ويحجز</h4>
+                <p className="text-gray-600">
+                  تصفح المعلمين، اختر المناسب لك، واحجز الدرس في الوقت المتاح
                 </p>
               </div>
             </div>

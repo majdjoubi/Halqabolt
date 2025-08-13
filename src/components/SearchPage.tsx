@@ -18,11 +18,12 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
   const [isTeacherProfileOpen, setIsTeacherProfileOpen] = useState(false);
 
   const specializations = [
-    'دروس فردية - تحفيظ القرآن الكريم',
+    'تحفيظ القرآن الكريم والتجويد',
     'تجويد القرآن الكريم',
     'علوم القرآن والتفسير',
     'القراءات العشر',
-    'دروس فردية - تحفيظ للأطفال'
+    'تحفيظ القرآن للأطفال',
+    'تجويد وتلاوة'
   ];
 
   const genders = [
@@ -56,7 +57,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
     if (priceRange) {
       const [min, max] = priceRange.split('-').map(Number);
       filtered = filtered.filter(teacher =>
-        Number(teacher.hourly_rate) >= min && Number(teacher.hourly_rate) <= max
+        Number(teacher.individual_lesson_price) >= min && Number(teacher.individual_lesson_price) <= max
       );
     }
 
@@ -181,7 +182,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
                 {/* Price Range */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    نطاق السعر (ر.س/ساعة)
+                    نطاق السعر للدرس الفردي ($)
                   </label>
                   <select
                     value={priceRange}
@@ -189,10 +190,10 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   >
                     <option value="">جميع الأسعار</option>
-                    <option value="0-40">أقل من 40 ر.س</option>
-                    <option value="40-60">40 - 60 ر.س</option>
-                    <option value="60-80">60 - 80 ر.س</option>
-                    <option value="80-999">أكثر من 80 ر.س</option>
+                    <option value="0-15">أقل من $15</option>
+                    <option value="15-25">$15 - $25</option>
+                    <option value="25-35">$25 - $35</option>
+                    <option value="35-999">أكثر من $35</option>
                   </select>
                 </div>
 
