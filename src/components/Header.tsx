@@ -63,9 +63,18 @@ const Header = () => {
               >
                 المعلمون
               </button>
-              <a href="#lessons" className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200">
-                الدروس
-              </a>
+              <button 
+                onClick={() => setShowSearchPage(true)}
+                className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
+              >
+                الدروس الحية
+              </button>
+              <button 
+                onClick={() => {/* سيتم إضافة صفحة التبرع لاحقاً */}}
+                className="text-amber-600 hover:text-amber-700 font-medium transition-colors duration-200"
+              >
+                تبرع الآن
+              </button>
             </nav>
 
             {/* CTA Buttons */}
@@ -123,9 +132,24 @@ const Header = () => {
                 >
                   المعلمون
                 </button>
-                <a href="#lessons" className="text-gray-700 hover:text-emerald-600 font-medium">
-                  الدروس
-                </a>
+                <button 
+                  onClick={() => {
+                    setShowSearchPage(true);
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-gray-700 hover:text-emerald-600 font-medium text-right"
+                >
+                  الدروس الحية
+                </button>
+                <button 
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    /* سيتم إضافة صفحة التبرع لاحقاً */
+                  }}
+                  className="text-amber-600 hover:text-amber-700 font-medium text-right"
+                >
+                  تبرع الآن
+                </button>
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                   {user ? (
                     <div className="space-y-2">

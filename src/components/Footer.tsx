@@ -52,7 +52,7 @@ const Footer = () => {
             <ul className="space-y-4">
               <li><a href="#home" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">الرئيسية</a></li>
               <li><a href="#teachers" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">المعلمون</a></li>
-              <li><a href="#lessons" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">الدروس</a></li>
+              <li><a href="#lessons" className="text-gray-400 hover:text-emerald-400 transition-colors duration-200">الدروس الحية</a></li>
             </ul>
           </div>
 

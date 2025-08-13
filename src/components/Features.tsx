@@ -22,6 +22,12 @@ const Features = () => {
       color: 'text-amber-600 bg-amber-100'
     },
     {
+      icon: Users,
+      title: 'دروس فردية وجماعية',
+      description: 'اختر بين الدروس الفردية المخصصة أو الجماعية التفاعلية حسب احتياجاتك',
+      color: 'text-purple-600 bg-purple-100'
+    },
+    {
       icon: Award,
       title: 'شهادات معتمدة',
       description: 'احصل على شهادات إتمام لمستوياتك في التلاوة والحفظ',
