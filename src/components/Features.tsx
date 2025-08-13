@@ -111,12 +111,14 @@ const Features = () => {
                 </div>
               </div>
             </div>
-            <div className="relative">
-              <img
-                src="https://images.pexels.com/photos/8923899/pexels-photo-8923899.jpeg?auto=compress&cs=tinysrgb&w=600"
-                alt="تعلم القرآن"
-                className="rounded-2xl shadow-xl object-cover w-full h-80"
-              />
+            <div className="relative bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl p-8 text-center">
+              <div className="text-8xl mb-4">🕌</div>
+              <h4 className="text-xl font-bold text-emerald-800 mb-2">
+                بيئة تعليمية إسلامية أصيلة
+              </h4>
+              <p className="text-emerald-700">
+                تعلم في جو إيماني يساعدك على التركيز والخشوع
+              </p>
             </div>
           </div>
         </div>

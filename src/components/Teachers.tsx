@@ -1,11 +1,9 @@
 import React from 'react';
 import { Star, Clock, Users, Award, BookOpen } from 'lucide-react';
 import { useTeachers } from '../hooks/useTeachers';
-import TeacherProfile from './TeacherProfile';
 
 export default function Teachers() {
   const { teachers, loading, error } = useTeachers();
-  const [selectedTeacher, setSelectedTeacher] = React.useState<any>(null);
 
   if (loading) {
     return (
@@ -152,7 +150,7 @@ export default function Teachers() {
 
               <div className="flex gap-2">
                 <button className="flex-1 bg-emerald-600 text-white py-2 px-4 rounded-lg hover:bg-emerald-700 transition-colors font-medium text-sm">
-                  onClick={() => setSelectedTeacher(teacher)}
+                  احجز درس
                 </button>
                 <button className="px-4 py-2 border border-emerald-600 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors font-medium text-sm">
                   الملف الشخصي
@@ -188,13 +186,6 @@ export default function Teachers() {
           </button>
         </div>
       </div>
-      
-      {selectedTeacher && (
-        <TeacherProfile
-          teacher={selectedTeacher}
-          onClose={() => setSelectedTeacher(null)}
-        />
-      )}
     </section>
   );
 }

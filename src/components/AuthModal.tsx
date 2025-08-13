@@ -6,9 +6,10 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialMode?: 'signin' | 'signup';
+  onSuccess?: () => void;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'signin' }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'signin', onSuccess }) => {
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,13 +27,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 's
 
     try {
       if (mode === 'signin') {
-        const { error } = await signIn(email, password);
-        if (error) throw error;
+        const result = await signIn(email, password);
+        if (!result.success) throw new Error(result.error);
       } else {
-        const { error } = await signUp(email, password);
-        if (error) throw error;
+        const result = await signUp(email, password, name);
+        if (!result.success) throw new Error(result.error);
       }
       onClose();
+      if (onSuccess) onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
     } finally {

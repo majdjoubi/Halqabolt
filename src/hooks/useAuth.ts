@@ -1,62 +1,35 @@
 import { useState, useEffect } from 'react';
-import { User } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import { AuthService, User } from '../lib/auth';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
-    
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    const currentUser = AuthService.getCurrentUser();
+    setUser(currentUser);
+    setLoading(false);
   }, []);
 
-  const signUp = async (email: string, password: string) => {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not configured') };
+  const signUp = async (email: string, password: string, name: string) => {
+    const result = AuthService.signUp(email, password, name);
+    if (result.success && result.user) {
+      setUser(result.user);
     }
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    return { data, error };
+    return result;
   };
 
   const signIn = async (email: string, password: string) => {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not configured') };
+    const result = AuthService.signIn(email, password);
+    if (result.success && result.user) {
+      setUser(result.user);
     }
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { data, error };
+    return result;
   };
 
   const signOut = async () => {
-    if (!supabase) {
-      return { error: new Error('Supabase not configured') };
-    }
-    const { error } = await supabase.auth.signOut();
-    return { error };
+    AuthService.signOut();
+    setUser(null);
   };
 
   return {
@@ -65,5 +38,6 @@ export function useAuth() {
     signUp,
     signIn,
     signOut,
+    isAuthenticated: !!user
   };
 }

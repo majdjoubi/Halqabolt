@@ -1,7 +1,18 @@
 import React from 'react';
 import { BookOpen, Users, Clock, Award, PlayCircle, Star } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 const Hero = () => {
+  const { isAuthenticated } = useAuth();
+  
+  const handleStartLearning = () => {
+    // سيتم التعامل مع هذا في Header component
+    const startButton = document.querySelector('[data-start-learning]') as HTMLButtonElement;
+    if (startButton) {
+      startButton.click();
+    }
+  };
+
   return (
     <section id="home" className="bg-gradient-to-br from-emerald-50 via-white to-emerald-50 pt-12 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -23,8 +34,9 @@ const Hero = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
               <button className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-lg font-semibold">
+                onClick={handleStartLearning}
                 <PlayCircle className="inline-block ml-2 h-6 w-6" />
-                ابدأ درسك الأول مجاناً
+                {isAuthenticated ? 'ابحث عن معلم' : 'ابدأ درسك الأول مجاناً'}
               </button>
               <button className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white px-8 py-4 rounded-xl transition-all duration-300 text-lg font-semibold">
                 تصفح المعلمين
@@ -57,15 +69,16 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* Hero Image */}
+          {/* Islamic Pattern Design */}
           <div className="relative">
-            <div className="relative z-10">
-              <img
-                src="https://images.pexels.com/photos/8923900/pexels-photo-8923900.jpeg?auto=compress&cs=tinysrgb&w=800"
-                alt="تعليم القرآن الكريم"
-                className="rounded-2xl shadow-2xl object-cover w-full h-96 lg:h-[500px]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl"></div>
+            <div className="bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl p-12 text-center shadow-2xl">
+              <div className="text-6xl mb-6">📖</div>
+              <h3 className="text-2xl font-bold text-emerald-800 mb-4">
+                ﴿وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا﴾
+              </h3>
+              <p className="text-emerald-700 text-lg">
+                تعلم القرآن الكريم بأفضل الطرق التعليمية الحديثة
+              </p>
             </div>
             
             {/* Floating Cards */}
