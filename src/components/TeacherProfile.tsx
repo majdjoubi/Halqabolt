@@ -9,7 +9,8 @@ interface TeacherProfileProps {
     experience_years: number;
     rating: number;
     students_count: number;
-    hourly_rate: number;
+    individual_lesson_price: number;
+    group_lesson_price: number;
     bio?: string;
     certificates: string[];
     languages: string[];
@@ -29,21 +30,14 @@ const TeacherProfile: React.FC<TeacherProfileProps> = ({ teacher, onClose }) => 
       id: '1',
       title: 'درس فردي - تلاوة وتجويد',
       duration_minutes: 60,
-      price: teacher.hourly_rate,
+      price: teacher.individual_lesson_price,
       description: 'درس فردي مخصص لتعلم التلاوة الصحيحة وأحكام التجويد'
     },
     {
       id: '2',
-      title: 'حلقة تحفيظ',
-      duration_minutes: 45,
-      price: teacher.hourly_rate * 0.75,
-      description: 'حلقة مخصصة لحفظ القرآن الكريم مع المراجعة'
-    },
-    {
-      id: '3',
       title: 'درس جماعي',
-      duration_minutes: 90,
-      price: teacher.hourly_rate * 0.5,
+      duration_minutes: 60,
+      price: teacher.group_lesson_price,
       description: 'درس جماعي تفاعلي مع مجموعة من الطلاب'
     }
   ];
@@ -137,8 +131,8 @@ const TeacherProfile: React.FC<TeacherProfileProps> = ({ teacher, onClose }) => 
             </div>
             
             <div className="text-left">
-              <div className="text-3xl font-bold">{teacher.hourly_rate} ر.س</div>
-              <div className="text-emerald-100">للساعة</div>
+              <div className="text-2xl font-bold">فردي: ${teacher.individual_lesson_price}</div>
+              <div className="text-2xl font-bold">جماعي: ${teacher.group_lesson_price}</div>
               <div className={`mt-2 px-3 py-1 rounded-full text-sm ${
                 teacher.availability_status === 'available' 
                   ? 'bg-green-500 text-white' 
@@ -242,7 +236,7 @@ const TeacherProfile: React.FC<TeacherProfileProps> = ({ teacher, onClose }) => 
                       <p className="text-sm text-gray-600 mb-3">{lesson.description}</p>
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-sm text-gray-600">{lesson.duration_minutes} دقيقة</span>
-                        <span className="text-lg font-bold text-emerald-600">{lesson.price} ر.س</span>
+                        <span className="text-lg font-bold text-emerald-600">${lesson.price}</span>
                       </div>
                       <button
                         onClick={() => handleBookLesson(lesson)}

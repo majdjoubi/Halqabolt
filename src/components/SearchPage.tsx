@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Star, Clock, Users, BookOpen, MapPin } from 'lucide-react';
+import { Search, Filter, Star, Clock, Users, BookOpen, MapPin, DollarSign } from 'lucide-react';
 import { useTeachers, Teacher } from '../hooks/useTeachers';
 import TeacherProfile from './TeacherProfile';
 
@@ -270,13 +270,21 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
 
                       <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center text-gray-600">
-                          <Clock className="w-4 h-4 ml-1" />
-                          <span>الحالة</span>
+                          <DollarSign className="w-4 h-4 ml-1" />
+                          <span>درس فردي</span>
                         </div>
-                        <span className={`font-medium ${
-                          teacher.availability_status === 'available' ? 'text-green-600' : 'text-yellow-600'
-                        }`}>
-                          {teacher.availability_status === 'available' ? 'متاح الآن' : 'مشغول'}
+                        <span className="font-medium text-emerald-600">
+                          ${teacher.individual_lesson_price}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center text-gray-600">
+                          <Users className="w-4 h-4 ml-1" />
+                          <span>درس جماعي</span>
+                        </div>
+                        <span className="font-medium text-blue-600">
+                          ${teacher.group_lesson_price}
                         </span>
                       </div>
                     </div>
@@ -295,10 +303,19 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose }) => {
                     </div>
 
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-2xl font-bold text-emerald-600">
-                        {Number(teacher.hourly_rate).toFixed(0)} ر.س
-                      </span>
-                      <span className="text-gray-600 text-sm">للساعة</span>
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-emerald-600">
+                          فردي: ${teacher.individual_lesson_price}
+                        </div>
+                        <div className="text-lg font-bold text-blue-600">
+                          جماعي: ${teacher.group_lesson_price}
+                        </div>
+                      </div>
+                      <div className={`text-xs ${
+                        teacher.availability_status === 'available' ? 'text-green-600' : 'text-yellow-600'
+                      }`}>
+                        {teacher.availability_status === 'available' ? '● متاح الآن' : '● مشغول'}
+                      </div>
                     </div>
 
                     <div className="text-center text-sm text-gray-500">
