@@ -25,7 +25,7 @@ const AboutUs = () => {
                 <BookOpen className="h-16 w-16 text-emerald-600" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">د. مجد الدين جوبي</h3>
-              <p className="text-emerald-600 font-medium mb-4">طبيب عظام وطوارئ - ألمانيا</p>
+              <p className="text-emerald-600 font-medium mb-4">ألمانيا</p>
             </div>
             
             <div className="space-y-4">
