@@ -26,12 +26,6 @@ const Features = () => {
       title: 'شهادات معتمدة',
       description: 'احصل على شهادات إتمام لمستوياتك في التلاوة والحفظ',
       color: 'text-rose-600 bg-rose-100'
-    },
-    {
-      icon: Shield,
-      title: 'بيئة تعليمية آمنة',
-      description: 'منصة محمية ومراقبة لضمان أفضل تجربة تعليمية',
-      color: 'text-indigo-600 bg-indigo-100'
     }
   ];
 
