@@ -32,16 +32,7 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
             {/* Logo */}
             <div className="flex items-center space-x-3 space-x-reverse">
               <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 p-2 rounded-xl shadow-md">
-                      onClick={() => {
-                        onOpenAuth('teacher');
-                        setIsMenuOpen(false);
-                      }}
-                      className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200"
-                    e.currentTarget.style.display = 'none';
-                      سجل الدخول كمعلم
-                  }}
-                />
-                <BookOpen className="h-8 w-8 text-white hidden" />
+                <BookOpen className="h-8 w-8 text-white" />
               </div>
               <h1 className="text-2xl font-bold text-emerald-700">حلقة</h1>
             </div>
@@ -92,19 +83,19 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                     تسجيل الدخول
                   </button>
                   <button
-                    data-start-learning
-                    onClick={handleStartLearning}
-                    className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                    onClick={() => onOpenAuth('teacher')}
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                   >
-                    ابدأ درسك الأول مجاناً
+                    سجل الدخول كمعلم
                   </button>
                 </>
               )}
             </div>
-                  onClick={() => onOpenAuth('teacher')}
-                  className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden p-2"
-                  سجل الدخول كمعلم
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -118,7 +109,7 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   الرئيسية
                 </a>
                 <button 
-                  onClick={() => { // Mobile menu items
+                  onClick={() => {
                     navigateTo('search');
                     setIsMenuOpen(false);
                   }}
@@ -127,7 +118,7 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   المعلمون
                 </button>
                 <button 
-                  onClick={() => { // Mobile menu items
+                  onClick={() => {
                     navigateTo('search');
                     setIsMenuOpen(false);
                   }}
@@ -136,7 +127,7 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   الدروس الحية
                 </button>
                 <button 
-                  onClick={() => { // Mobile menu items
+                  onClick={() => {
                     setIsMenuOpen(false);
                     navigateTo('donation');
                   }}
@@ -173,14 +164,13 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                         تسجيل الدخول
                       </button>
                       <button
-                        data-start-learning
                         onClick={() => {
-                          handleStartLearning();
+                          onOpenAuth('teacher');
                           setIsMenuOpen(false);
                         }}
-                        className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200"
+                        className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200"
                       >
-                        ابدأ درسك الأول مجاناً
+                        سجل الدخول كمعلم
                       </button>
                     </>
                   )}
