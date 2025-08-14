@@ -31,7 +31,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
         await signUp(email, password);
       }
       onClose();
-      if (onSuccess) onSuccess();
+      if (onSuccess) {
+        const role = mode === 'teacher' || isJoiningAsTeacher ? 'teacher' : 'student';
+        onSuccess(role);
+      }
     } catch (err: any) {
       setError(err.message || 'حدث خطأ أثناء المصادقة');
     }
@@ -42,7 +45,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
     try {
       await signInWithGoogle();
       onClose();
-      if (onSuccess) onSuccess(userRole);
+      if (onSuccess) {
+        const role = mode === 'teacher' || isJoiningAsTeacher ? 'teacher' : 'student';
+        onSuccess(role);
+      }
     } catch (err: any) {
       setError(err.message || 'حدث خطأ أثناء تسجيل الدخول عبر جوجل');
     }
@@ -156,7 +162,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
             type="submit"
             disabled={loading}
             className={`w-full py-3 rounded-lg transition-all duration-200 disabled:opacity-50 text-white ${
-              userRole === 'teacher'
+              mode === 'teacher' || isJoiningAsTeacher
                 ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
                 : 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800'
             }`}
