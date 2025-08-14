@@ -11,6 +11,7 @@ interface AuthModalProps {
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onSuccess }) => {
   const [mode, setMode] = useState<'signin' | 'signup' | 'teacher'>(initialMode);
+  const [selectedRole, setSelectedRole] = useState<'student' | 'teacher'>('student');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -32,7 +33,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
       }
       onClose();
       if (onSuccess) {
-        const role = selectedRole === 'teacher' ? 'teacher' : 'student';
+        const role = selectedRole;
         onSuccess(role);
       }
     } catch (err: any) {
@@ -46,7 +47,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
       await signInWithGoogle();
       onClose();
       if (onSuccess) {
-        const role = selectedRole === 'teacher' ? 'teacher' : 'student';
+        const role = selectedRole;
         onSuccess(role);
       }
     } catch (err: any) {
@@ -160,9 +161,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
 
           <button
             type="submit"
-            disabled={loading}
-            className={`w-full py-3 rounded-lg transition-all duration-200 disabled:opacity-50 text-white ${
-             selectedRole === 'teacher'
+            onClick={() => setSelectedRole('teacher')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+              selectedRole === 'teacher'
                 ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
                 : 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800'
             }`}
