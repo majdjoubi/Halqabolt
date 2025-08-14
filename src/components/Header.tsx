@@ -165,12 +165,12 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                       </button>
                       <button
                         onClick={() => {
-                          onOpenAuth('teacher');
+                          handleStartLearning();
                           setIsMenuOpen(false);
                         }}
-                        className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200"
+                        className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200"
                       >
-                        سجل الدخول كمعلم
+                        ابدأ التعلم
                       </button>
                     </>
                   )}

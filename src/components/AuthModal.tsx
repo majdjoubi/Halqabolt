@@ -6,7 +6,7 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialMode: 'signin' | 'signup';
-  onSuccess?: () => void;
+  onSuccess?: (userRole: 'student' | 'teacher') => void;
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onSuccess }) => {
@@ -42,7 +42,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
     try {
       await signInWithGoogle();
       onClose();
-      if (onSuccess) onSuccess();
+      if (onSuccess) onSuccess(userRole);
     } catch (err: any) {
       setError(err.message || 'حدث خطأ أثناء تسجيل الدخول عبر جوجل');
     }
@@ -98,7 +98,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
 
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {(mode === 'signup' || (mode === 'teacher' && isJoiningAsTeacher)) && (
+          {mode === 'signup' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 الاسم الكامل
@@ -155,12 +155,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-3 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 disabled:opacity-50"
+            className={`w-full py-3 rounded-lg transition-all duration-200 disabled:opacity-50 text-white ${
+              userRole === 'teacher'
+                ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
+                : 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800'
+            }`}
           >
-            {loading ? 'جاري التحميل...' : 
-             mode === 'signin' ? 'تسجيل الدخول' : 
-             mode === 'teacher' && !isJoiningAsTeacher ? 'تسجيل الدخول كمعلم' :
-             'إنشاء الحساب'}
+            {loading ? 'جاري التحميل...' : mode === 'signin' ? 'تسجيل الدخول' : 'إنشاء الحساب'}
           </button>
 
           <div className="relative flex items-center justify-center my-6">
@@ -183,31 +184,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
 
         <div className="mt-6 text-center">
           <p className="text-gray-600">
-            {mode === 'signin' ? 'ليس لديك حساب؟' : 
-             mode === 'teacher' ? 'لديك حساب كمعلم بالفعل؟' : 'لديك حساب بالفعل؟'}
+            {mode === 'signin' ? 'ليس لديك حساب؟' : 'لديك حساب بالفعل؟'}
             <button
               onClick={() => {
-                if (mode === 'signin') setMode('signup');
-                else if (mode === 'teacher') setMode('signin');
-                else setMode('signin');
+                setMode(mode === 'signin' ? 'signup' : 'signin');
               }}
               className="text-emerald-600 hover:text-emerald-700 font-medium mr-1"
             >
-              {mode === 'signin' ? 'إنشاء حساب جديد' : 
-               mode === 'teacher' ? 'تسجيل الدخول' : 'تسجيل الدخول'}
+              {mode === 'signin' ? 'إنشاء حساب جديد' : 'تسجيل الدخول'}
             </button>
           </p>
-          {mode === 'teacher' && (
-            <p className="text-gray-600 mt-2">
-              طالب؟
-              <button
-                onClick={() => setMode('signup')}
-                className="text-emerald-600 hover:text-emerald-700 font-medium mr-1"
-              >
-                سجل كطالب
-              </button>
-            </p>
-          )}
         </div>
       </div>
     </div>

@@ -5,16 +5,20 @@ import Features from './components/Features';
 import SearchPage from './components/SearchPage';
 import DonationPage from './components/DonationPage';
 import TeacherProfilePage from './components/TeacherProfilePage';
+import StudentDashboard from './components/StudentDashboard';
+import TeacherDashboard from './components/TeacherDashboard';
 import AuthModal from './components/AuthModal';
 import Footer from './components/Footer';
+import { useAuth } from './hooks/useAuth';
 
-type Page = 'home' | 'search' | 'teacherProfile' | 'donation';
+type Page = 'home' | 'search' | 'teacherProfile' | 'donation' | 'studentDashboard' | 'teacherDashboard';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup' | 'teacher'>('signin');
+  const { user, isAuthenticated } = useAuth();
 
   const navigateTo = (page: Page, teacherId: string | null = null) => {
     setCurrentPage(page);
@@ -28,6 +32,15 @@ function App() {
 
   const closeAuthModal = () => {
     setShowAuthModal(false);
+  };
+
+  const handleAuthSuccess = (userRole: 'student' | 'teacher') => {
+    closeAuthModal();
+    if (userRole === 'student') {
+      navigateTo('studentDashboard');
+    } else if (userRole === 'teacher') {
+      navigateTo('teacherDashboard');
+    }
   };
 
   const renderPage = () => {
@@ -55,6 +68,10 @@ function App() {
         ) : null;
       case 'donation':
         return <DonationPage onClose={() => navigateTo('home')} />;
+      case 'studentDashboard':
+        return <StudentDashboard onClose={() => navigateTo('home')} />;
+      case 'teacherDashboard':
+        return <TeacherDashboard onClose={() => navigateTo('home')} />;
       default:
         return (
           <>
@@ -79,10 +96,7 @@ function App() {
         isOpen={showAuthModal}
         onClose={closeAuthModal}
         initialMode={authMode}
-        onSuccess={() => {
-          closeAuthModal();
-          // Optionally navigate somewhere after successful auth
-        }}
+        onSuccess={handleAuthSuccess}
       />
     </div>
   );
