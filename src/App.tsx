@@ -14,14 +14,14 @@ function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [authMode, setAuthMode] = useState<'signin' | 'signup' | 'teacher'>('signin');
 
   const navigateTo = (page: Page, teacherId: string | null = null) => {
     setCurrentPage(page);
     setSelectedTeacherId(teacherId);
   };
 
-  const openAuthModal = (mode: 'signin' | 'signup') => {
+  const openAuthModal = (mode: 'signin' | 'signup' | 'teacher') => {
     setAuthMode(mode);
     setShowAuthModal(true);
   };

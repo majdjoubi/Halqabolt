@@ -10,10 +10,11 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onSuccess }) => {
-  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
+  const [mode, setMode] = useState<'signin' | 'signup' | 'teacher'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [isJoiningAsTeacher, setIsJoiningAsTeacher] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { signIn, signUp, signInWithGoogle, loading } = useAuth();
 
@@ -59,10 +60,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
 
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {mode === 'signin' ? 'تسجيل الدخول' : 'إنشاء حساب جديد'}
+            {mode === 'signin' ? 'تسجيل الدخول' : 
+             mode === 'teacher' ? 'تسجيل الدخول كمعلم' : 'إنشاء حساب جديد'}
           </h2>
           <p className="text-gray-600">
-            {mode === 'signin' ? 'أهلاً بك مرة أخرى' : 'انضم إلى منصة حلقة'}
+            {mode === 'signin' ? 'أهلاً بك مرة أخرى' : 
+             mode === 'teacher' ? 'انضم إلى فريق المعلمين المميزين' : 'انضم إلى منصة حلقة'}
           </p>
         </div>
 
@@ -71,9 +74,31 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
             <span className="block sm:inline">{error}</span>
           </div>
         )}
+        {mode === 'teacher' && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center space-x-2 space-x-reverse mb-3">
+              <input
+                type="checkbox"
+                id="joinAsTeacher"
+                checked={isJoiningAsTeacher}
+                onChange={(e) => setIsJoiningAsTeacher(e.target.checked)}
+                className="rounded border-blue-300 text-blue-600 focus:ring-blue-500"
+              />
+              <label htmlFor="joinAsTeacher" className="text-blue-800 font-medium">
+                أريد الانضمام كمعلم جديد
+              </label>
+            </div>
+            {isJoiningAsTeacher && (
+              <p className="text-blue-700 text-sm">
+                بعد التسجيل، ستتمكن من إكمال ملفك الشخصي كمعلم وانتظار الموافقة من الإدارة.
+              </p>
+            )}
+          </div>
+        )}
+
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {mode === 'signup' && (
+          {(mode === 'signup' || (mode === 'teacher' && isJoiningAsTeacher)) && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 الاسم الكامل
@@ -132,7 +157,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
             disabled={loading}
             className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-3 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 disabled:opacity-50"
           >
-            {loading ? 'جاري التحميل...' : mode === 'signin' ? 'تسجيل الدخول' : 'إنشاء الحساب'}
+            {loading ? 'جاري التحميل...' : 
+             mode === 'signin' ? 'تسجيل الدخول' : 
+             mode === 'teacher' && !isJoiningAsTeacher ? 'تسجيل الدخول' :
+             'إنشاء الحساب'}
           </button>
 
           <div className="relative flex items-center justify-center my-6">
@@ -155,14 +183,30 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
 
         <div className="mt-6 text-center">
           <p className="text-gray-600">
-            {mode === 'signin' ? 'ليس لديك حساب؟' : 'لديك حساب بالفعل؟'}
+            {mode === 'signin' ? 'ليس لديك حساب؟' : 
+             mode === 'teacher' ? 'لديك حساب بالفعل؟' : 'لديك حساب بالفعل؟'}
             <button
-              onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+              onClick={() => {
+                if (mode === 'signin') setMode('signup');
+                else if (mode === 'teacher') setMode('signin');
+                else setMode('signin');
+              }}
               className="text-emerald-600 hover:text-emerald-700 font-medium mr-1"
             >
               {mode === 'signin' ? 'إنشاء حساب جديد' : 'تسجيل الدخول'}
             </button>
           </p>
+          {mode === 'teacher' && (
+            <p className="text-gray-600 mt-2">
+              طالب؟
+              <button
+                onClick={() => setMode('signup')}
+                className="text-emerald-600 hover:text-emerald-700 font-medium mr-1"
+              >
+                سجل كطالب
+              </button>
+            </p>
+          )}
         </div>
       </div>
     </div>

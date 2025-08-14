@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 interface HeaderProps {
   navigateTo: (page: 'home' | 'search' | 'teacherProfile' | 'donation', teacherId?: string | null) => void;
   currentPage: 'home' | 'search' | 'teacherProfile' | 'donation';
-  onOpenAuth: (mode: 'signin' | 'signup') => void;
+  onOpenAuth: (mode: 'signin' | 'signup' | 'teacher') => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) => {
