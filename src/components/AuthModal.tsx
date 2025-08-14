@@ -61,7 +61,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             {mode === 'signin' ? 'تسجيل الدخول' : 
-             mode === 'teacher' ? 'تسجيل الدخول كمعلم' : 'إنشاء حساب جديد'}
+             mode === 'teacher' ? 'انضم كمعلم' : 'إنشاء حساب جديد'}
           </h2>
           <p className="text-gray-600">
             {mode === 'signin' ? 'أهلاً بك مرة أخرى' : 
@@ -159,7 +159,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
           >
             {loading ? 'جاري التحميل...' : 
              mode === 'signin' ? 'تسجيل الدخول' : 
-             mode === 'teacher' && !isJoiningAsTeacher ? 'تسجيل الدخول' :
+             mode === 'teacher' && !isJoiningAsTeacher ? 'تسجيل الدخول كمعلم' :
              'إنشاء الحساب'}
           </button>
 
@@ -184,7 +184,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             {mode === 'signin' ? 'ليس لديك حساب؟' : 
-             mode === 'teacher' ? 'لديك حساب بالفعل؟' : 'لديك حساب بالفعل؟'}
+             mode === 'teacher' ? 'لديك حساب كمعلم بالفعل؟' : 'لديك حساب بالفعل؟'}
             <button
               onClick={() => {
                 if (mode === 'signin') setMode('signup');
@@ -193,7 +193,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
               }}
               className="text-emerald-600 hover:text-emerald-700 font-medium mr-1"
             >
-              {mode === 'signin' ? 'إنشاء حساب جديد' : 'تسجيل الدخول'}
+              {mode === 'signin' ? 'إنشاء حساب جديد' : 
+               mode === 'teacher' ? 'تسجيل الدخول' : 'تسجيل الدخول'}
             </button>
           </p>
           {mode === 'teacher' && (

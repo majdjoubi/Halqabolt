@@ -32,14 +32,13 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
             {/* Logo */}
             <div className="flex items-center space-x-3 space-x-reverse">
               <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 p-2 rounded-xl shadow-md">
-                <img 
-                  src="/حلقة 2.png" 
-                  alt="شعار حلقة" 
-                  className="h-8 w-8 object-contain"
-                  onError={(e) => {
-                    // Fallback to icon if image fails to load
+                      onClick={() => {
+                        onOpenAuth('teacher');
+                        setIsMenuOpen(false);
+                      }}
+                      className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200"
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                      سجل الدخول كمعلم
                   }}
                 />
                 <BookOpen className="h-8 w-8 text-white hidden" />
@@ -102,11 +101,10 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                 </>
               )}
             </div>
-
-            {/* Mobile menu button */}
-            <button
+                  onClick={() => onOpenAuth('teacher')}
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               className="md:hidden p-2"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  سجل الدخول كمعلم
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
