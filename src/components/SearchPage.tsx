@@ -4,13 +4,14 @@ import { X, Search, Star, Clock, Users } from 'lucide-react';
 interface SearchPageProps {
   onClose: () => void;
   onSelectTeacher: (teacherId: string) => void;
+  onSelectTeacher: (teacherId: string) => void;
   showGroupLessonsOnly?: boolean;
 }
 
-const SearchPage: React.FC<SearchPageProps> = ({ onClose, showGroupLessonsOnly = false }) => {
+const SearchPage: React.FC<SearchPageProps> = ({ onClose, onSelectTeacher, showGroupLessonsOnly = false }) => {
   const mockTeachers = [
     {
-      id: 1,
+      id: '1',
       name: 'الشيخ أحمد محمود',
       specialization: 'متخصص في التجويد والقراءات',
       rating: 4.9,
@@ -20,7 +21,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose, showGroupLessonsOnly =
       availability: 'متاح اليوم'
     },
     {
-      id: 2,
+      id: '2',
       name: 'الأستاذة فاطمة السيد',
       specialization: 'تحفيظ القرآن للأطفال',
       rating: 4.8,
@@ -30,7 +31,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose, showGroupLessonsOnly =
       availability: 'متاحة غداً'
     },
     {
-      id: 3,
+      id: '3',
       name: 'الشيخ عمر حسان',
       specialization: 'التفسير وعلوم القرآن',
       rating: 5.0,
@@ -78,7 +79,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose, showGroupLessonsOnly =
           {mockTeachers.map((teacher) => (
             <div
               key={teacher.id}
-              onClick={() => onSelectTeacher(String(teacher.id))} // Convert to string as teacherId is uuid
+              onClick={() => onSelectTeacher(teacher.id)}
               className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer">
               <div className="p-6">
                 <div className="flex items-center space-x-4 space-x-reverse mb-4">

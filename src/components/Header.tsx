@@ -5,9 +5,10 @@ import { useAuth } from '../hooks/useAuth';
 interface HeaderProps {
   navigateTo: (page: 'home' | 'search' | 'teacherProfile' | 'donation', teacherId?: string | null) => void;
   currentPage: 'home' | 'search' | 'teacherProfile' | 'donation';
+  onOpenAuth: (mode: 'signin' | 'signup') => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage }) => {
+const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut, isAuthenticated } = useAuth();
 
@@ -17,13 +18,9 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage }) => {
 
   const handleStartLearning = () => {
     if (isAuthenticated) {
-      // إظهار الدروس الجماعية المتاحة للدرس المجاني
-      navigateTo('search'); // Assuming search page can show group lessons
+      navigateTo('search');
     } else {
-      // This will be handled by AuthModal directly now
-      // The AuthModal will be rendered by App.tsx based on a state passed from Header
-      // For now, we'll just open the signup modal.
-      navigateTo('home'); // Stay on home, AuthModal will open
+      onOpenAuth('signup');
     }
   };
 
@@ -62,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage }) => {
                 المعلمون
               </button>
               <button 
-                onClick={() => navigateTo('search')} // Assuming search page can filter for live lessons
+                onClick={() => navigateTo('search')}
                 className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
               >
                 الدروس الحية
@@ -79,9 +76,10 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage }) => {
             <div className="hidden md:flex items-center space-x-4 space-x-reverse">
               {user ? (
                 <div className="flex items-center space-x-4 space-x-reverse">
+                  <span className="text-gray-700">مرحباً، {user.email}</span>
                   <button
                     onClick={handleSignOut}
-                    className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200" // This button is not visible in the current desktop view
+                    className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
                   >
                     تسجيل الخروج
                   </button>
@@ -89,7 +87,7 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage }) => {
               ) : (
                 <>
                   <button
-                    onClick={() => navigateTo('home')} // AuthModal will open from App.tsx
+                    onClick={() => onOpenAuth('signin')}
                     className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
                   >
                     تسجيل الدخول
@@ -151,6 +149,7 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage }) => {
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                   {user ? (
                     <div className="space-y-2">
+                      <span className="text-gray-700 text-sm">مرحباً، {user.email}</span>
                       <button
                         onClick={() => navigateTo('search')}
                         className="text-emerald-600 hover:text-emerald-700 font-medium text-right w-full"
@@ -167,14 +166,20 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage }) => {
                   ) : (
                     <>
                       <button
-                        onClick={() => navigateTo('home')} // AuthModal will open from App.tsx
+                        onClick={() => {
+                          onOpenAuth('signin');
+                          setIsMenuOpen(false);
+                        }}
                         className="text-emerald-600 hover:text-emerald-700 font-medium text-right"
                       >
                         تسجيل الدخول
                       </button>
                       <button
                         data-start-learning
-                        onClick={handleStartLearning}
+                        onClick={() => {
+                          handleStartLearning();
+                          setIsMenuOpen(false);
+                        }}
                         className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200"
                       >
                         ابدأ درسك الأول مجاناً

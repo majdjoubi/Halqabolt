@@ -1,12 +1,8 @@
 import React from 'react';
 import { BookOpen, Users, Clock, Award, PlayCircle, Star } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
 
 const Hero = () => {
-  const { isAuthenticated } = useAuth();
-  
   const handleStartLearning = () => {
-    // سيتم التعامل مع هذا في Header component
     const startButton = document.querySelector('[data-start-learning]') as HTMLButtonElement;
     if (startButton) {
       startButton.click();

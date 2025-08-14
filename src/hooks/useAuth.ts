@@ -34,7 +34,7 @@ interface User {
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true); // Set to true initially to handle session loading
+  const [loading, setLoading] = useState(true);
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);
@@ -46,7 +46,13 @@ export const useAuth = () => {
 
   const signUp = async (email: string, password: string) => {
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        emailRedirectTo: window.location.origin
+      }
+    });
     setLoading(false);
     if (error) throw error;
     return data;
@@ -57,7 +63,7 @@ export const useAuth = () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin, // Redirects back to your app after sign-in
+        redirectTo: window.location.origin,
       },
     });
     setLoading(false);
@@ -86,7 +92,7 @@ export const useAuth = () => {
             .eq('user_id', supabaseUser.id)
             .single();
 
-          if (teacherData) {
+          if (teacherData && !teacherError) {
             currentUser.isTeacher = true;
             currentUser.teacherProfile = teacherData;
           }
@@ -98,7 +104,7 @@ export const useAuth = () => {
             .eq('user_id', supabaseUser.id)
             .single();
 
-          if (studentData) {
+          if (studentData && !studentError) {
             currentUser.isStudent = true;
             currentUser.studentProfile = studentData;
           }
@@ -113,11 +119,11 @@ export const useAuth = () => {
 
     // Initial session check
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) setLoading(false); // If no session, stop loading
+      if (!session) setLoading(false);
     });
 
     return () => {
-      authListener.unsubscribe();
+      authListener.subscription.unsubscribe();
     };
   }, []);
 
