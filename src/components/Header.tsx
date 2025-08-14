@@ -1,33 +1,29 @@
 import React, { useState } from 'react';
 import { BookOpen, Menu, X, User, Star, Clock } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import AuthModal from './AuthModal';
-import SearchPage from './SearchPage';
-import DonationPage from './DonationPage';
 
-const Header = () => {
+interface HeaderProps {
+  navigateTo: (page: 'home' | 'search' | 'teacherProfile' | 'donation', teacherId?: string | null) => void;
+  currentPage: 'home' | 'search' | 'teacherProfile' | 'donation';
+}
+
+const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [showSearchPage, setShowSearchPage] = useState(false);
-  const [showDonationPage, setShowDonationPage] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const { user, signOut, isAuthenticated } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
   };
 
-  const openAuthModal = (mode: 'signin' | 'signup') => {
-    setAuthMode(mode);
-    setIsAuthModalOpen(true);
-  };
-
   const handleStartLearning = () => {
     if (isAuthenticated) {
       // إظهار الدروس الجماعية المتاحة للدرس المجاني
-      setShowSearchPage(true);
+      navigateTo('search'); // Assuming search page can show group lessons
     } else {
-      openAuthModal('signup');
+      // This will be handled by AuthModal directly now
+      // The AuthModal will be rendered by App.tsx based on a state passed from Header
+      // For now, we'll just open the signup modal.
+      navigateTo('home'); // Stay on home, AuthModal will open
     }
   };
 
@@ -60,19 +56,19 @@ const Header = () => {
                 الرئيسية
               </a>
               <button 
-                onClick={() => setShowSearchPage(true)}
+                onClick={() => navigateTo('search')}
                 className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
               >
                 المعلمون
               </button>
               <button 
-                onClick={() => setShowSearchPage(true)}
+                onClick={() => navigateTo('search')} // Assuming search page can filter for live lessons
                 className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
               >
                 الدروس الحية
               </button>
               <button 
-                onClick={() => {/* سيتم إضافة صفحة التبرع لاحقاً */}}
+                onClick={() => navigateTo('donation')}
                 className="text-amber-600 hover:text-amber-700 font-medium transition-colors duration-200"
               >
                 تبرع الآن
@@ -85,7 +81,7 @@ const Header = () => {
                 <div className="flex items-center space-x-4 space-x-reverse">
                   <button
                     onClick={handleSignOut}
-                    className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
+                    className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200" // This button is not visible in the current desktop view
                   >
                     تسجيل الخروج
                   </button>
@@ -93,7 +89,7 @@ const Header = () => {
               ) : (
                 <>
                   <button
-                    onClick={() => openAuthModal('signin')}
+                    onClick={() => navigateTo('home')} // AuthModal will open from App.tsx
                     className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
                   >
                     تسجيل الدخول
@@ -126,8 +122,8 @@ const Header = () => {
                   الرئيسية
                 </a>
                 <button 
-                  onClick={() => {
-                    setShowSearchPage(true);
+                  onClick={() => { // Mobile menu items
+                    navigateTo('search');
                     setIsMenuOpen(false);
                   }}
                   className="text-gray-700 hover:text-emerald-600 font-medium text-right"
@@ -135,8 +131,8 @@ const Header = () => {
                   المعلمون
                 </button>
                 <button 
-                  onClick={() => {
-                    setShowSearchPage(true);
+                  onClick={() => { // Mobile menu items
+                    navigateTo('search');
                     setIsMenuOpen(false);
                   }}
                   className="text-gray-700 hover:text-emerald-600 font-medium text-right"
@@ -144,9 +140,9 @@ const Header = () => {
                   الدروس الحية
                 </button>
                 <button 
-                  onClick={() => {
+                  onClick={() => { // Mobile menu items
                     setIsMenuOpen(false);
-                    setShowDonationPage(true);
+                    navigateTo('donation');
                   }}
                   className="text-amber-600 hover:text-amber-700 font-medium text-right"
                 >
@@ -156,7 +152,7 @@ const Header = () => {
                   {user ? (
                     <div className="space-y-2">
                       <button
-                        onClick={() => setShowSearchPage(true)}
+                        onClick={() => navigateTo('search')}
                         className="text-emerald-600 hover:text-emerald-700 font-medium text-right w-full"
                       >
                         البحث عن معلمين
@@ -171,7 +167,7 @@ const Header = () => {
                   ) : (
                     <>
                       <button
-                        onClick={() => openAuthModal('signin')}
+                        onClick={() => navigateTo('home')} // AuthModal will open from App.tsx
                         className="text-emerald-600 hover:text-emerald-700 font-medium text-right"
                       >
                         تسجيل الدخول
@@ -190,29 +186,7 @@ const Header = () => {
             </div>
           )}
         </div>
-      </header>
-      
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        initialMode={authMode}
-        onSuccess={() => setShowSearchPage(true)}
-      />
-      
-      {showSearchPage && (
-        <div className="fixed inset-0 bg-white z-50">
-          <SearchPage 
-            onClose={() => setShowSearchPage(false)} 
-            showGroupLessonsOnly={isAuthenticated}
-          />
-        </div>
-      )}
-      
-      {showDonationPage && (
-        <div className="fixed inset-0 bg-white z-50">
-          <DonationPage onClose={() => setShowDonationPage(false)} />
-        </div>
-      )}
+      </header>      
     </>
   );
 };

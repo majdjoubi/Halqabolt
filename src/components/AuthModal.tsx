@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { X, Mail, Lock, User } from 'lucide-react';
 
 interface AuthModalProps {
@@ -12,21 +13,29 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState(''); // This is not used by Supabase Auth directly, but can be used for profile creation
+  const [error, setError] = useState<string | null>(null);
+  const { signIn, signUp, signInWithGoogle, loading } = useAuth();
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    
-    // محاكاة عملية تسجيل الدخول/التسجيل
-    setTimeout(() => {
-      setLoading(false);
+    setError(null);
+
+    try {
+      if (mode === 'signin') {
+        await signIn(email, password);
+      } else {
+        await signUp(email, password);
+        // Optionally, you can create a profile entry in 'public.users' or 'public.students'/'public.teachers' here
+        // For example: await supabase.from('students').insert({ user_id: data.user.id, name: name });
+      }
       onClose();
       if (onSuccess) onSuccess();
-    }, 1000);
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -48,6 +57,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
           </p>
         </div>
 
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-6">
           {mode === 'signup' && (
             <div>
@@ -108,6 +122,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
             className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-3 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 disabled:opacity-50"
           >
             {loading ? 'جاري التحميل...' : mode === 'signin' ? 'تسجيل الدخول' : 'إنشاء الحساب'}
+          </button>
+
+          <div className="relative flex items-center justify-center my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-gray-300"></span>
+            </div>
+            <div className="relative bg-white px-4 text-sm text-gray-500">أو</div>
+          </div>
+
+          <button type="button" onClick={signInWithGoogle} disabled={loading} className="w-full flex items-center justify-center bg-white border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-all duration-200 disabled:opacity-50">
+            <img src="https://www.svgrepo.com/show/355037/google.svg" alt="Google" className="h-5 w-5 ml-2" /> تسجيل الدخول باستخدام جوجل
           </button>
         </form>
 

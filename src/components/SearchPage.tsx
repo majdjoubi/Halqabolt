@@ -3,6 +3,7 @@ import { X, Search, Star, Clock, Users } from 'lucide-react';
 
 interface SearchPageProps {
   onClose: () => void;
+  onSelectTeacher: (teacherId: string) => void;
   showGroupLessonsOnly?: boolean;
 }
 
@@ -43,7 +44,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose, showGroupLessonsOnly =
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">
@@ -75,7 +76,10 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose, showGroupLessonsOnly =
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {mockTeachers.map((teacher) => (
-            <div key={teacher.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+            <div
+              key={teacher.id}
+              onClick={() => onSelectTeacher(String(teacher.id))} // Convert to string as teacherId is uuid
+              className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer">
               <div className="p-6">
                 <div className="flex items-center space-x-4 space-x-reverse mb-4">
                   <img
