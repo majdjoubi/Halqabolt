@@ -163,7 +163,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
             type="submit"
             onClick={() => setSelectedRole('teacher')}
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-              selectedRole === 'teacher'
+             selectedRole === 'teacher'
                 ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
                 : 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800'
             }`}
