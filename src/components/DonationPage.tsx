@@ -8,43 +8,15 @@ interface DonationPageProps {
 const DonationPage: React.FC<DonationPageProps> = ({ onClose }) => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState('');
-  const [selectedTeacher, setSelectedTeacher] = useState<string | null>(null);
 
   const predefinedAmounts = [25, 50, 100, 200, 500];
 
-  const mockTeachers = [
-    {
-      id: '1',
-      name: 'الشيخ أحمد محمود',
-      specialization: 'متخصص في التجويد والقراءات',
-      rating: 4.9,
-      students: 450,
-      image: 'https://images.pexels.com/photos/8923901/pexels-photo-8923901.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: '2',
-      name: 'الأستاذة فاطمة السيد',
-      specialization: 'تحفيظ القرآن للأطفال',
-      rating: 4.8,
-      students: 320,
-      image: 'https://images.pexels.com/photos/8923902/pexels-photo-8923902.jpeg?auto=compress&cs=tinysrgb&w=400'
-    },
-    {
-      id: '3',
-      name: 'الشيخ عمر حسان',
-      specialization: 'التفسير وعلوم القرآن',
-      rating: 5.0,
-      students: 680,
-      image: 'https://images.pexels.com/photos/8923903/pexels-photo-8923903.jpeg?auto=compress&cs=tinysrgb&w=400'
-    }
-  ];
-
   const handleDonate = () => {
     const amount = selectedAmount || parseFloat(customAmount);
-    if (amount && selectedTeacher) {
-      const teacherAmount = amount * 0.9;
+    if (amount) {
+      const teachersAmount = amount * 0.9;
       const platformAmount = amount * 0.1;
-      alert(`شكراً لك! سيتم توزيع تبرعك كالتالي:\n• ${teacherAmount} ريال للمعلم\n• ${platformAmount} ريال للمنصة`);
+      alert(`شكراً لك! سيتم توزيع تبرعك كالتالي:\n• ${teachersAmount} ريال للمعلمين (بالتساوي حسب عملهم)\n• ${platformAmount} ريال للمنصة`);
     }
   };
 
@@ -73,12 +45,12 @@ const DonationPage: React.FC<DonationPageProps> = ({ onClose }) => {
         <div className="bg-gradient-to-r from-emerald-50 to-blue-50 rounded-2xl p-8 mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">ادعم معلمي القرآن الكريم</h2>
           <p className="text-gray-700 text-lg mb-6">
-            تبرعك يساعد المعلمين على تقديم تعليم مجاني للطلاب المحتاجين ونشر تعليم القرآن الكريم
+            تبرعك يساعد جميع المعلمين على تقديم تعليم مجاني للطلاب المحتاجين ونشر تعليم القرآن الكريم. يتم توزيع التبرعات بالتساوي على جميع المعلمين حسب عملهم في الشهر.
           </p>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-white p-6 rounded-xl shadow-sm">
               <div className="text-3xl font-bold text-emerald-600 mb-2">90%</div>
-              <p className="text-gray-700">من تبرعك يذهب مباشرة للمعلم المختار</p>
+              <p className="text-gray-700">من تبرعك يذهب لجميع المعلمين بالتساوي</p>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-sm">
               <div className="text-3xl font-bold text-blue-600 mb-2">10%</div>
@@ -87,43 +59,35 @@ const DonationPage: React.FC<DonationPageProps> = ({ onClose }) => {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Teacher Selection */}
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-6">اختر المعلم للتبرع له</h3>
-            <div className="space-y-4">
-              {mockTeachers.map((teacher) => (
-                <div
-                  key={teacher.id}
-                  onClick={() => setSelectedTeacher(teacher.id)}
-                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
-                    selectedTeacher === teacher.id
-                      ? 'border-emerald-500 bg-emerald-50'
-                      : 'border-gray-200 hover:border-emerald-300'
-                  }`}
-                >
-                  <div className="flex items-center space-x-4 space-x-reverse">
-                    <img
-                      src={teacher.image}
-                      alt={teacher.name}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                    <div className="flex-1">
-                      <h4 className="font-bold text-gray-900">{teacher.name}</h4>
-                      <p className="text-gray-600 text-sm">{teacher.specialization}</p>
-                      <div className="flex items-center space-x-2 space-x-reverse mt-1">
-                        <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                        <span className="text-sm">{teacher.rating}</span>
-                        <Users className="h-4 w-4 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-600">{teacher.students} طالب</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+        {/* How Distribution Works */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+          <h3 className="text-2xl font-bold text-gray-900 mb-6">كيف يتم توزيع التبرعات؟</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="bg-emerald-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Users className="h-8 w-8 text-emerald-600" />
+              </div>
+              <h4 className="font-bold text-gray-900 mb-2">التوزيع العادل</h4>
+              <p className="text-gray-600 text-sm">يتم توزيع 90% من التبرع على جميع المعلمين بالتساوي</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-blue-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Star className="h-8 w-8 text-blue-600" />
+              </div>
+              <h4 className="font-bold text-gray-900 mb-2">حسب الأداء</h4>
+              <p className="text-gray-600 text-sm">التوزيع يعتمد على عدد الساعات والطلاب في الشهر</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-amber-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Heart className="h-8 w-8 text-amber-600" />
+              </div>
+              <h4 className="font-bold text-gray-900 mb-2">دعم شامل</h4>
+              <p className="text-gray-600 text-sm">تبرعك يدعم جميع المعلمين ويحفزهم على العطاء</p>
             </div>
           </div>
+        </div>
 
+        <div className="max-w-2xl mx-auto">
           {/* Donation Amount */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h3 className="text-xl font-bold text-gray-900 mb-6">اختر مبلغ التبرع</h3>
@@ -169,12 +133,12 @@ const DonationPage: React.FC<DonationPageProps> = ({ onClose }) => {
             </div>
 
             {/* Donation Breakdown */}
-            {(selectedAmount || customAmount) && selectedTeacher && (
+            {(selectedAmount || customAmount) && (
               <div className="bg-gray-50 rounded-xl p-4 mb-6">
                 <h4 className="font-bold text-gray-900 mb-3">توزيع التبرع:</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span>للمعلم (90%):</span>
+                    <span>للمعلمين (90%):</span>
                     <span className="font-bold text-emerald-600">
                       {((selectedAmount || parseFloat(customAmount)) * 0.9).toFixed(2)} ريال
                     </span>
@@ -196,7 +160,7 @@ const DonationPage: React.FC<DonationPageProps> = ({ onClose }) => {
             {/* Donate Button */}
             <button
               onClick={handleDonate}
-              disabled={!selectedTeacher || (!selectedAmount && !customAmount)}
+              disabled={!selectedAmount && !customAmount}
               className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-4 rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 space-x-reverse"
             >
               <CreditCard className="h-5 w-5" />
