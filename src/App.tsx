@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Features from './components/Features';
@@ -19,6 +20,16 @@ function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const { user, isAuthenticated } = useAuth();
+
+  // Hide loading screen when app is ready
+  useEffect(() => {
+    const loading = document.getElementById('loading');
+    if (loading) {
+      setTimeout(() => {
+        loading.style.display = 'none';
+      }, 500);
+    }
+  }, []);
 
   const navigateTo = (page: Page, teacherId: string | null = null) => {
     setCurrentPage(page);
