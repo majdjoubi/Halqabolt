@@ -49,9 +49,12 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8 space-x-reverse">
-              <a href="#home" className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200">
+              <button 
+                onClick={() => navigateTo('home')}
+                className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
+              >
                 الرئيسية
-              </a>
+              </button>
               <button 
                 onClick={() => navigateTo('search')}
                 className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
@@ -115,9 +118,15 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
           {isMenuOpen && (
             <div className="md:hidden border-t border-gray-200 py-4">
               <nav className="flex flex-col space-y-4">
-                <a href="#home" className="text-gray-700 hover:text-emerald-600 font-medium">
+                <button 
+                  onClick={() => {
+                    navigateTo('home');
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-gray-700 hover:text-emerald-600 font-medium text-right"
+                >
                   الرئيسية
-                </a>
+                </button>
                 <button 
                   onClick={() => {
                     navigateTo('search');
