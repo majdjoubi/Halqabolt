@@ -4,7 +4,6 @@ import { X, Search, Star, Clock, Users } from 'lucide-react';
 interface SearchPageProps {
   onClose: () => void;
   onSelectTeacher: (teacherId: string) => void;
-  onSelectTeacher: (teacherId: string) => void;
   showGroupLessonsOnly?: boolean;
 }
 

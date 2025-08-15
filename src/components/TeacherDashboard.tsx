@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { User, BookOpen, Star, Clock, Calendar, Settings, Upload, Camera, Award, Globe } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, BookOpen, Star, Clock, Calendar, Upload, Camera, Award, Globe, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { supabase } from '../lib/supabase';
 
 interface TeacherDashboardProps {
   onClose: () => void;
@@ -51,7 +50,6 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
   };
 
   const handleSaveProfile = async () => {
-    // Here you would save to Supabase
     alert('تم حفظ البيانات بنجاح!');
   };
 
@@ -64,9 +62,9 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
             <h1 className="text-2xl font-bold text-gray-900">لوحة تحكم المعلم</h1>
             <button
               onClick={onClose}
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
-              العودة للرئيسية
+              <X className="h-6 w-6" />
             </button>
           </div>
         </div>

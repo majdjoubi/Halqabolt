@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Star, Users, BookOpen, DollarSign, Award, Globe, Clock } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { database } from '../lib/database';
 
 interface TeacherProfilePageProps {
   teacherId: string;
@@ -30,18 +30,18 @@ const TeacherProfilePage: React.FC<TeacherProfilePageProps> = ({ teacherId, onCl
   useEffect(() => {
     const fetchTeacher = async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('teachers')
-        .select('*')
-        .eq('id', teacherId)
-        .single();
-
-      if (error) {
-        setError(error.message);
+      try {
+        const data = await database.getTeacher(teacherId);
+        if (data) {
+          setTeacher(data);
+          setError(null);
+        } else {
+          setError('لم يتم العثور على المعلم');
+          setTeacher(null);
+        }
+      } catch (err: any) {
+        setError(err.message || 'حدث خطأ أثناء تحميل بيانات المعلم');
         setTeacher(null);
-      } else {
-        setTeacher(data);
-        setError(null);
       }
       setLoading(false);
     };

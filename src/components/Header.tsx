@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { BookOpen, Menu, X, User, Star, Clock } from 'lucide-react';
+import { BookOpen, Menu, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 interface HeaderProps {
   navigateTo: (page: 'home' | 'search' | 'teacherProfile' | 'donation', teacherId?: string | null) => void;
   currentPage: 'home' | 'search' | 'teacherProfile' | 'donation';
-  onOpenAuth: (mode: 'signin' | 'signup' | 'teacher') => void;
+  onOpenAuth: (mode: 'signin' | 'signup') => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) => {
@@ -83,10 +83,10 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                     تسجيل الدخول
                   </button>
                   <button
-                    onClick={() => onOpenAuth('teacher')}
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                    onClick={handleStartLearning}
+                    className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                   >
-                    سجل الدخول كمعلم
+                    ابدأ التعلم
                   </button>
                 </>
               )}

@@ -1,130 +1,53 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { User as SupabaseUser } from '@supabase/supabase-js';
+import { auth } from '../lib/database';
 
 interface User {
   id: string;
   email: string;
-  isTeacher?: boolean;
-  teacherProfile?: {
-    id: string;
-    name: string;
-    specialization: string;
-    experience_years: number;
-    rating: number;
-    students_count: number;
-    hourly_rate: number;
-    bio: string;
-    certificates: string[];
-    languages: string[];
-    profile_image_url: string;
-    is_verified: boolean;
-  };
-  isStudent?: boolean;
-  studentProfile?: {
-    id: string;
-    name: string;
-    age: number;
-    level: string;
-    goals: string[];
-    preferred_schedule: string;
-    profile_image_url: string;
-  };
+  role: 'student' | 'teacher';
+  profile: any;
 }
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, role: 'student' | 'teacher') => {
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) throw error;
-    return data;
+    try {
+      const userData = await auth.signIn(email, password, role);
+      setUser(userData);
+      return userData;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, role: 'student' | 'teacher') => {
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({ 
-      email, 
-      password,
-      options: {
-        emailRedirectTo: window.location.origin
-      }
-    });
-    setLoading(false);
-    if (error) throw error;
-    return data;
-  };
-
-  const signInWithGoogle = async () => {
-    setLoading(true);
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-    setLoading(false);
-    if (error) throw error;
-    return data;
+    try {
+      const userData = await auth.signUp(email, password, role);
+      setUser(userData);
+      return userData;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signOut = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.signOut();
-    setLoading(false);
-    if (error) throw error;
+    try {
+      await auth.signOut();
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session) {
-          const supabaseUser = session.user;
-          let currentUser: User = { id: supabaseUser.id, email: supabaseUser.email || '' };
-
-          // Check if user is a teacher
-          const { data: teacherData, error: teacherError } = await supabase
-            .from('teachers')
-            .select('*')
-            .eq('user_id', supabaseUser.id)
-            .single();
-
-          if (teacherData && !teacherError) {
-            currentUser.isTeacher = true;
-            currentUser.teacherProfile = teacherData;
-          }
-
-          // Check if user is a student
-          const { data: studentData, error: studentError } = await supabase
-            .from('students')
-            .select('*')
-            .eq('user_id', supabaseUser.id)
-            .single();
-
-          if (studentData && !studentError) {
-            currentUser.isStudent = true;
-            currentUser.studentProfile = studentData;
-          }
-
-          setUser(currentUser);
-        } else {
-          setUser(null);
-        }
-        setLoading(false);
-      }
-    );
-
-    // Initial session check
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) setLoading(false);
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    const currentUser = auth.getCurrentUser();
+    setUser(currentUser);
+    setLoading(false);
   }, []);
 
   return {
@@ -133,7 +56,6 @@ export const useAuth = () => {
     isAuthenticated: !!user,
     signIn,
     signUp,
-    signInWithGoogle,
     signOut,
   };
 };

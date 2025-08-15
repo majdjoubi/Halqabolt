@@ -17,7 +17,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup' | 'teacher'>('signin');
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const { user, isAuthenticated } = useAuth();
 
   const navigateTo = (page: Page, teacherId: string | null = null) => {
@@ -25,7 +25,7 @@ function App() {
     setSelectedTeacherId(teacherId);
   };
 
-  const openAuthModal = (mode: 'signin' | 'signup' | 'teacher') => {
+  const openAuthModal = (mode: 'signin' | 'signup') => {
     setAuthMode(mode);
     setShowAuthModal(true);
   };

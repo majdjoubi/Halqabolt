@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { User, BookOpen, Star, Clock, Calendar, Settings, Upload, Camera } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, BookOpen, Star, Clock, Calendar, Camera, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { supabase } from '../lib/supabase';
 
 interface StudentDashboardProps {
   onClose: () => void;
@@ -19,7 +18,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
     profile_image_url: ''
   });
 
-  const [bookings, setBookings] = useState([
+  const [bookings] = useState([
     {
       id: '1',
       teacher_name: 'الشيخ أحمد محمود',
@@ -58,7 +57,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
   };
 
   const handleSaveProfile = async () => {
-    // Here you would save to Supabase
     alert('تم حفظ البيانات بنجاح!');
   };
 
@@ -71,9 +69,9 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
             <h1 className="text-2xl font-bold text-gray-900">لوحة تحكم الطالب</h1>
             <button
               onClick={onClose}
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
-              العودة للرئيسية
+              <X className="h-6 w-6" />
             </button>
           </div>
         </div>
