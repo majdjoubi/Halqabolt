@@ -3,8 +3,8 @@ import { BookOpen, Menu, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 interface HeaderProps {
-  navigateTo: (page: 'home' | 'search' | 'teacherProfile' | 'donation', teacherId?: string | null) => void;
-  currentPage: 'home' | 'search' | 'teacherProfile' | 'donation';
+  navigateTo: (page: 'home' | 'search' | 'teacherProfile' | 'donation' | 'studentDashboard' | 'teacherDashboard', teacherId?: string | null) => void;
+  currentPage: 'home' | 'search' | 'teacherProfile' | 'donation' | 'studentDashboard' | 'teacherDashboard';
   onOpenAuth: (mode: 'signin' | 'signup') => void;
 }
 

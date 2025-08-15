@@ -44,6 +44,21 @@ export const useAuth = () => {
     }
   };
 
+  const updateProfile = async (profileData: any) => {
+    if (!user) return null;
+    
+    setLoading(true);
+    try {
+      const updatedUser = await auth.updateUserProfile(user.id, profileData);
+      if (updatedUser) {
+        setUser(updatedUser);
+      }
+      return updatedUser;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const currentUser = auth.getCurrentUser();
     setUser(currentUser);
@@ -57,5 +72,6 @@ export const useAuth = () => {
     signIn,
     signUp,
     signOut,
+    updateProfile,
   };
 };

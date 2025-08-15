@@ -87,7 +87,7 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
                   </button>
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mt-3">{user?.email}</h3>
-                <p className="text-gray-600">معلم</p>
+                <p className="text-gray-600">{user?.profile?.name ? `${user.profile.name} - معلم` : 'معلم'}</p>
               </div>
 
               {/* Stats */}

@@ -143,6 +143,24 @@ export const auth = {
     }
     
     return null;
+  },
+
+  updateUserProfile: async (userId: string, profileData: any): Promise<User | null> => {
+    if (!currentUser || currentUser.id !== userId) return null;
+    
+    // Update current user
+    currentUser.profile = { ...currentUser.profile, ...profileData };
+    localStorage.setItem('user', JSON.stringify(currentUser));
+    
+    // Update in users list
+    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    const userIndex = existingUsers.findIndex((u: User) => u.id === userId);
+    if (userIndex !== -1) {
+      existingUsers[userIndex] = currentUser;
+      localStorage.setItem('users', JSON.stringify(existingUsers));
+    }
+    
+    return currentUser;
   }
 };
 

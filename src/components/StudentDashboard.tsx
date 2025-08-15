@@ -94,7 +94,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
                   </button>
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mt-3">{user?.email}</h3>
-                <p className="text-gray-600">طالب</p>
+                <p className="text-gray-600">{user?.profile?.name ? `${user.profile.name} - طالب` : 'طالب'}</p>
               </div>
 
               <nav className="space-y-2">
