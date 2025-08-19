@@ -67,22 +67,6 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
               </button>
             </nav>
 
-            {/* CTA Buttons */}
-            <div className="hidden md:flex items-center space-x-4 space-x-reverse">
-              <button
-                onClick={() => onOpenAuth('signin')}
-                className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
-              >
-                تسجيل الدخول
-              </button>
-              <button
-                onClick={handleStartLearning}
-                className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-              >
-                ابدأ التعلم
-              </button>
-            </div>
-
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -132,26 +116,6 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                 >
                   تبرع الآن
                 </button>
-                <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
-                  <button
-                    onClick={() => {
-                      onOpenAuth('signin');
-                      setIsMenuOpen(false);
-                    }}
-                    className="text-emerald-600 hover:text-emerald-700 font-medium text-right"
-                  >
-                    تسجيل الدخول
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleStartLearning();
-                      setIsMenuOpen(false);
-                    }}
-                    className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200"
-                  >
-                    ابدأ التعلم
-                  </button>
-                </div>
               </nav>
             </div>
           )}
