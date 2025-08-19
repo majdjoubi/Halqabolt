@@ -3,152 +3,31 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Declare supabase at top level
-let supabase: any;
-
-// Check if environment variables are properly configured
-if (!supabaseUrl || !supabaseAnonKey || 
-    supabaseUrl === 'https://your-project-ref.supabase.co' || 
-    supabaseUrl === 'https://placeholder-url.supabase.co' ||
-    supabaseAnonKey === 'your-anon-key-here' ||
-    supabaseAnonKey === 'placeholder-anon-key') {
-  console.log('🔧 Supabase في وضع التطوير - يرجى إعداد متغيرات البيئة للإنتاج');
-  // Create a mock client that won't make actual requests
-  supabase = {
-    auth: {
-      signUp: (credentials: any) => {
-        console.log('🔧 Mock signup:', credentials.email);
-        return Promise.resolve({ 
-          data: { 
-            user: { 
-              id: 'mock-user-' + Date.now(), 
-              email: credentials.email,
-              user_metadata: credentials.options?.data || {}
-            } 
-          }, 
-          error: null 
-        });
-      },
-      signInWithPassword: (credentials: any) => {
-        console.log('🔧 Mock signin:', credentials.email);
-        return Promise.resolve({ 
-          data: { 
-            user: { 
-              id: 'mock-user-' + Date.now(), 
-              email: credentials.email,
-              user_metadata: { role: 'student' }
-            } 
-          }, 
-          error: null 
-        });
-      },
-      signOut: () => Promise.resolve({ error: null }),
-      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
-      signInWithOAuth: (options: any) => {
-        console.log('🔧 Mock OAuth signin:', options.provider, options.options?.queryParams?.role);
-        return Promise.resolve({ 
-          data: { 
-            provider: options.provider,
-            url: `https://mock-oauth-url.com?role=${options.options?.queryParams?.role || 'student'}`
-          }, 
-          error: null 
-        });
-      }
-    },
-    from: () => ({
-      select: () => ({ 
-        eq: () => ({ 
-          single: () => Promise.resolve({ 
-            data: { 
-              id: 'mock-profile-' + Date.now(), 
-              name: 'مستخدم تجريبي',
-              user_id: 'mock-user-' + Date.now()
-            }, 
-            error: null 
-          }) 
-        }) 
-      }),
-      insert: () => ({ 
-        select: () => ({ 
-          single: () => Promise.resolve({ 
-            data: { 
-              id: 'mock-profile-' + Date.now(), 
-              name: 'مستخدم تجريبي',
-              user_id: 'mock-user-' + Date.now()
-            }, 
-            error: null 
-          }) 
-        }) 
-      }),
-      upsert: () => ({ 
-        select: () => ({ 
-          single: () => Promise.resolve({ 
-            data: { 
-              id: 'mock-profile-' + Date.now(), 
-              name: 'مستخدم تجريبي',
-              user_id: 'mock-user-' + Date.now()
-            }, 
-            error: null 
-          }) 
-        }) 
-      })
-    })
-  };
-} else {
-  supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: false,
-      flowType: 'pkce'
-    },
-    db: {
-      schema: 'public'
-    },
-    global: {
-      headers: {
-        'X-Client-Info': 'halqa-platform'
-      }
-    }
-  });
-
-  // Test connection only if properly configured
-  supabase.from('teachers').select('count', { count: 'exact', head: true })
-    .then(({ error }: any) => {
-      if (error) {
-        console.error('❌ Supabase connection failed:', error.message);
-      } else {
-        console.log('✅ Supabase connected successfully');
-      }
-    })
-    .catch(() => {
-      console.warn('⚠️ Supabase connection test failed - this is normal if tables don\'t exist yet');
-    });
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables. Please check your .env file.');
 }
 
-// Google OAuth helper functions
-export const signInWithGoogle = async (role: 'student' | 'teacher') => {
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: `${window.location.origin}`,
-      queryParams: {
-        role: role
-      }
-    }
-  });
-  
-  if (error) {
-    console.error('Google OAuth error:', error);
-    throw error;
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce'
   }
-  
-  return data;
-};
+});
 
-// Export the supabase client
-export { supabase };
+// Test connection
+supabase.from('teachers').select('count', { count: 'exact', head: true })
+  .then(({ error }) => {
+    if (error) {
+      console.error('❌ Supabase connection failed:', error.message);
+    } else {
+      console.log('✅ Supabase connected successfully');
+    }
+  })
+  .catch(() => {
+    console.warn('⚠️ Supabase connection test failed - this is normal if tables don\'t exist yet');
+  });
 
 // Database types
 export interface User {
@@ -185,6 +64,7 @@ export interface TeacherProfile extends UserProfile {
   is_verified: boolean;
   rating: number;
   students_count: number;
+  availability_status: string;
 }
 
 export interface Lesson {

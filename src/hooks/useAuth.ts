@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import type { User } from '@supabase/supabase-js';
+import type { User, Session } from '@supabase/supabase-js';
 
 interface UserProfile {
   id: string;
@@ -9,6 +9,22 @@ interface UserProfile {
   profile_image_url?: string;
   created_at: string;
   updated_at: string;
+  // Student specific fields
+  age?: number;
+  level?: 'beginner' | 'intermediate' | 'advanced';
+  goals?: string[];
+  preferred_schedule?: string;
+  // Teacher specific fields
+  specialization?: string;
+  experience_years?: number;
+  hourly_rate?: number;
+  bio?: string;
+  certificates?: string[];
+  languages?: string[];
+  is_verified?: boolean;
+  rating?: number;
+  students_count?: number;
+  availability_status?: string;
 }
 
 interface AppUser {
@@ -22,12 +38,12 @@ export const useAuth = () => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const signUp = async (email: string, password: string, role: 'student' | 'teacher', name: string = '') => {
+  const signUp = async (email: string, password: string, role: 'student' | 'teacher', name: string) => {
     console.log('🔵 Starting signup process:', { email, role, name });
     setLoading(true);
     
     try {
-      // Sign up with Supabase Auth
+      // Step 1: Sign up with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -50,13 +66,12 @@ export const useAuth = () => {
 
       console.log('🟢 Auth signup successful:', authData.user.id);
 
-      // Wait a moment for auth to be fully processed
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Step 2: Wait for auth to be processed
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Create profile in appropriate table with retry mechanism
-      let profileData = null;
+      // Step 3: Create profile in appropriate table
       const tableName = role === 'teacher' ? 'teachers' : 'students';
-      const newProfileData = {
+      const profileData = {
         user_id: authData.user.id,
         name: name,
         ...(role === 'teacher' ? {
@@ -68,7 +83,8 @@ export const useAuth = () => {
           languages: ['العربية'],
           is_verified: false,
           rating: 0.0,
-          students_count: 0
+          students_count: 0,
+          availability_status: 'available'
         } : {
           age: null,
           level: 'beginner',
@@ -77,60 +93,27 @@ export const useAuth = () => {
         })
       };
 
-      // Try to create profile with retries
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        console.log(`🔵 Attempting to create profile (attempt ${attempt}/3)`);
-        
-        const { data, error } = await supabase
-          .from(tableName)
-          .insert([newProfileData])
-          .select()
-          .single();
+      console.log('🔵 Creating profile in table:', tableName);
+      
+      const { data: profileResult, error: profileError } = await supabase
+        .from(tableName)
+        .insert([profileData])
+        .select()
+        .single();
 
-        if (!error && data) {
-          profileData = data;
-          console.log('🟢 Profile created successfully:', data);
-          break;
-        } else {
-          console.error(`🔴 Profile creation attempt ${attempt} failed:`, error);
-          
-          if (attempt === 3) {
-            console.error('🔴 All profile creation attempts failed');
-            // Don't throw error, continue with temporary profile
-          } else {
-            // Wait before retry
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-        }
+      if (profileError) {
+        console.error('🔴 Profile creation error:', profileError);
+        // Don't throw error, continue with basic user info
+        console.warn('⚠️ Profile creation failed, user can complete profile later');
+      } else {
+        console.log('🟢 Profile created successfully:', profileResult);
       }
 
       const appUser: AppUser = {
         id: authData.user.id,
         email: authData.user.email!,
         role: role,
-        profile: profileData || { 
-          id: 'temp-' + authData.user.id, 
-          user_id: authData.user.id, 
-          name: name,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          ...(role === 'teacher' ? {
-            specialization: 'معلم قرآن كريم',
-            experience_years: 0,
-            hourly_rate: 50,
-            bio: 'معلم قرآن كريم مبتدئ',
-            certificates: [],
-            languages: ['العربية'],
-            is_verified: false,
-            rating: 0.0,
-            students_count: 0
-          } : {
-            age: null,
-            level: 'beginner',
-            goals: [],
-            preferred_schedule: ''
-          })
-        }
+        profile: profileResult || undefined
       };
 
       setUser(appUser);
@@ -145,12 +128,12 @@ export const useAuth = () => {
     }
   };
 
-  const signIn = async (email: string, password: string, role: 'student' | 'teacher') => {
-    console.log('🔵 Starting signin process:', { email, role });
+  const signIn = async (email: string, password: string) => {
+    console.log('🔵 Starting signin process:', { email });
     setLoading(true);
     
     try {
-      // Sign in with Supabase Auth
+      // Step 1: Sign in with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -167,14 +150,11 @@ export const useAuth = () => {
 
       console.log('🟢 Auth signin successful:', authData.user.id);
 
-      // Get user role from metadata or use attempted role
-      const userRole = authData.user.user_metadata?.role || role;
+      // Step 2: Get user role and profile
+      const userRole = authData.user.user_metadata?.role || 'student';
       
-      // Use the actual user role from the database instead of throwing error
-      const actualRole = userRole;
-
-      // Get profile from appropriate table
-      const tableName = actualRole === 'teacher' ? 'teachers' : 'students';
+      // Step 3: Get profile from appropriate table
+      const tableName = userRole === 'teacher' ? 'teachers' : 'students';
       const { data: profileData, error: profileError } = await supabase
         .from(tableName)
         .select('*')
@@ -183,13 +163,12 @@ export const useAuth = () => {
 
       if (profileError && profileError.code !== 'PGRST116') {
         console.error('🔴 Profile fetch error:', profileError);
-        // Don't throw error, user can create profile later
       }
 
       const appUser: AppUser = {
         id: authData.user.id,
         email: authData.user.email!,
-        role: actualRole,
+        role: userRole,
         profile: profileData || undefined
       };
 
@@ -225,36 +204,6 @@ export const useAuth = () => {
     }
   };
 
-  const signInWithGoogle = async (role: 'student' | 'teacher') => {
-    console.log('🔵 Starting Google OAuth signin:', { role });
-    setLoading(true);
-    
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}`,
-          queryParams: {
-            role: role
-          }
-        }
-      });
-      
-      if (error) {
-        console.error('🔴 Google OAuth error:', error);
-        throw error;
-      }
-      
-      console.log('🟢 Google OAuth initiated successfully');
-      return data;
-    } catch (error: any) {
-      console.error('🔴 Google OAuth error:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const updateProfile = async (profileData: any) => {
     if (!user) return null;
     
@@ -264,36 +213,19 @@ export const useAuth = () => {
     try {
       const tableName = user.role === 'teacher' ? 'teachers' : 'students';
       
-      // Try to update/create profile with retries
-      let data = null;
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        console.log(`🔵 Attempting to update profile (attempt ${attempt}/3)`);
-        
-        const { data: result, error } = await supabase
-          .from(tableName)
-          .upsert({
-            user_id: user.id,
-            ...profileData,
-            updated_at: new Date().toISOString()
-          })
-          .select()
-          .single();
+      const { data, error } = await supabase
+        .from(tableName)
+        .upsert({
+          user_id: user.id,
+          ...profileData,
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
 
-        if (!error && result) {
-          data = result;
-          console.log('🟢 Profile updated successfully:', result);
-          break;
-        } else {
-          console.error(`🔴 Profile update attempt ${attempt} failed:`, error);
-          
-          if (attempt === 3) {
-            console.error('🔴 All profile update attempts failed');
-            throw error;
-          } else {
-            // Wait before retry
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-        }
+      if (error) {
+        console.error('🔴 Profile update error:', error);
+        throw error;
       }
 
       const updatedUser = { ...user, profile: data };
@@ -321,28 +253,7 @@ export const useAuth = () => {
 
       if (session?.user) {
         console.log('🟢 Found existing session:', session.user.id);
-        // Get role from URL params (for OAuth) or user metadata
-        const urlParams = new URLSearchParams(window.location.search);
-        const roleFromUrl = urlParams.get('role') as 'student' | 'teacher' | null;
-        const userRole = roleFromUrl || session.user.user_metadata?.role || 'student';
-        
-        // Get profile
-        const tableName = userRole === 'teacher' ? 'teachers' : 'students';
-        supabase
-          .from(tableName)
-          .select('*')
-          .eq('user_id', session.user.id)
-          .single()
-          .then(({ data: profileData }) => {
-            const appUser: AppUser = {
-              id: session.user.id,
-              email: session.user.email!,
-              role: userRole,
-              profile: profileData || undefined
-            };
-            setUser(appUser);
-            setLoading(false);
-          });
+        handleAuthUser(session.user);
       } else {
         console.log('🟡 No existing session found');
         setLoading(false);
@@ -357,37 +268,38 @@ export const useAuth = () => {
         setUser(null);
         setLoading(false);
       } else if (event === 'SIGNED_IN' && session?.user) {
-        // Get role from URL params (for OAuth) or user metadata
-        const urlParams = new URLSearchParams(window.location.search);
-        const roleFromUrl = urlParams.get('role') as 'student' | 'teacher' | null;
-        const userRole = roleFromUrl || session.user.user_metadata?.role || 'student';
-        const tableName = userRole === 'teacher' ? 'teachers' : 'students';
-        
-        const { data: profileData } = await supabase
-          .from(tableName)
-          .select('*')
-          .eq('user_id', session.user.id)
-          .single();
-
-        const appUser: AppUser = {
-          id: session.user.id,
-          email: session.user.email!,
-          role: userRole,
-          profile: profileData || undefined
-        };
-        
-        setUser(appUser);
-        setLoading(false);
-        
-        // Clean up URL params after successful OAuth
-        if (roleFromUrl) {
-          window.history.replaceState({}, document.title, window.location.pathname);
-        }
+        await handleAuthUser(session.user);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const handleAuthUser = async (authUser: User) => {
+    try {
+      const userRole = authUser.user_metadata?.role || 'student';
+      const tableName = userRole === 'teacher' ? 'teachers' : 'students';
+      
+      const { data: profileData } = await supabase
+        .from(tableName)
+        .select('*')
+        .eq('user_id', authUser.id)
+        .single();
+
+      const appUser: AppUser = {
+        id: authUser.id,
+        email: authUser.email!,
+        role: userRole,
+        profile: profileData || undefined
+      };
+      
+      setUser(appUser);
+    } catch (error) {
+      console.error('🔴 Error handling auth user:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return {
     user,
@@ -395,7 +307,6 @@ export const useAuth = () => {
     isAuthenticated: !!user,
     signIn,
     signUp,
-    signInWithGoogle,
     signOut,
     updateProfile,
   };
