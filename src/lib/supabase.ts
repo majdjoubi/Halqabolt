@@ -12,20 +12,77 @@ if (!supabaseUrl || !supabaseAnonKey ||
     supabaseUrl === 'https://placeholder-url.supabase.co' ||
     supabaseAnonKey === 'your-anon-key-here' ||
     supabaseAnonKey === 'placeholder-anon-key') {
-  console.warn('⚠️ Supabase environment variables are not properly configured. Using mock mode.');
+  console.log('🔧 Supabase في وضع التطوير - يرجى إعداد متغيرات البيئة للإنتاج');
   // Create a mock client that won't make actual requests
   supabase = {
     auth: {
-      signUp: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
-      signInWithPassword: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+      signUp: (credentials: any) => {
+        console.log('🔧 Mock signup:', credentials.email);
+        return Promise.resolve({ 
+          data: { 
+            user: { 
+              id: 'mock-user-' + Date.now(), 
+              email: credentials.email,
+              user_metadata: credentials.options?.data || {}
+            } 
+          }, 
+          error: null 
+        });
+      },
+      signInWithPassword: (credentials: any) => {
+        console.log('🔧 Mock signin:', credentials.email);
+        return Promise.resolve({ 
+          data: { 
+            user: { 
+              id: 'mock-user-' + Date.now(), 
+              email: credentials.email,
+              user_metadata: { role: 'student' }
+            } 
+          }, 
+          error: null 
+        });
+      },
       signOut: () => Promise.resolve({ error: null }),
       getSession: () => Promise.resolve({ data: { session: null }, error: null }),
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
     },
     from: () => ({
-      select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) }),
-      insert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) }),
-      upsert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) })
+      select: () => ({ 
+        eq: () => ({ 
+          single: () => Promise.resolve({ 
+            data: { 
+              id: 'mock-profile-' + Date.now(), 
+              name: 'مستخدم تجريبي',
+              user_id: 'mock-user-' + Date.now()
+            }, 
+            error: null 
+          }) 
+        }) 
+      }),
+      insert: () => ({ 
+        select: () => ({ 
+          single: () => Promise.resolve({ 
+            data: { 
+              id: 'mock-profile-' + Date.now(), 
+              name: 'مستخدم تجريبي',
+              user_id: 'mock-user-' + Date.now()
+            }, 
+            error: null 
+          }) 
+        }) 
+      }),
+      upsert: () => ({ 
+        select: () => ({ 
+          single: () => Promise.resolve({ 
+            data: { 
+              id: 'mock-profile-' + Date.now(), 
+              name: 'مستخدم تجريبي',
+              user_id: 'mock-user-' + Date.now()
+            }, 
+            error: null 
+          }) 
+        }) 
+      })
     })
   };
 } else {

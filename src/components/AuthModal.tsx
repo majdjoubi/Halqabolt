@@ -55,14 +55,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
           onClick={onClose}
           className="absolute top-4 left-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
         >
-          {loading ? (
-            <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              جاري التحميل...
-            </div>
-          ) : (
-            mode === 'signin' ? 'تسجيل الدخول' : 'إنشاء الحساب'
-          )}
+          <X className="h-6 w-6" />
         </button>
 
         <div className="text-center mb-8">
@@ -109,14 +102,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
               : 'سيتم مراجعة طلبك والموافقة عليه قبل البدء في التدريس'
             }
           </p>
-          {selectedRole === 'teacher' && mode === 'signup' && (
-            <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-              <p className="text-xs text-amber-700">
-                <strong>ملاحظة:</strong> التسجيل كمعلم يتطلب مراجعة الشهادات والمؤهلات. 
-                ستحتاج لرفع شهاداتك بعد التسجيل وانتظار الموافقة قبل البدء في التدريس.
-              </p>
-            </div>
-          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -183,7 +168,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
                 : 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800'
             }`}
           >
-            {loading ? 'جاري التحميل...' : mode === 'signin' ? 'تسجيل الدخول' : 'إنشاء الحساب'}
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white ml-2"></div>
+                جاري التحميل...
+              </div>
+            ) : (
+              mode === 'signin' ? 'تسجيل الدخول' : 'إنشاء الحساب'
+            )}
           </button>
         </form>
 
@@ -201,6 +193,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
             </button>
           </p>
         </div>
+
+        {error && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-700 text-sm">{error}</p>
+          </div>
+        )}
       </div>
     </div>
   );
