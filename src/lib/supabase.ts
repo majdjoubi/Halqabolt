@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Declare supabase at top level
+let supabase: any;
+
 // Check if environment variables are properly configured
 if (!supabaseUrl || !supabaseAnonKey || 
     supabaseUrl === 'https://your-project-ref.supabase.co' || 
@@ -11,7 +14,7 @@ if (!supabaseUrl || !supabaseAnonKey ||
     supabaseAnonKey === 'placeholder-anon-key') {
   console.warn('⚠️ Supabase environment variables are not properly configured. Using mock mode.');
   // Create a mock client that won't make actual requests
-  export const supabase = {
+  supabase = {
     auth: {
       signUp: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
       signInWithPassword: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
@@ -26,7 +29,7 @@ if (!supabaseUrl || !supabaseAnonKey ||
     })
   };
 } else {
-  export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       autoRefreshToken: true,
       persistSession: true,
@@ -45,7 +48,7 @@ if (!supabaseUrl || !supabaseAnonKey ||
 
   // Test connection only if properly configured
   supabase.from('teachers').select('count', { count: 'exact', head: true })
-    .then(({ error }) => {
+    .then(({ error }: any) => {
       if (error) {
         console.error('❌ Supabase connection failed:', error.message);
       } else {
@@ -56,6 +59,9 @@ if (!supabaseUrl || !supabaseAnonKey ||
       console.warn('⚠️ Supabase connection test failed - this is normal if tables don\'t exist yet');
     });
 }
+
+// Export the supabase client
+export { supabase };
 
 // Database types
 export interface User {
