@@ -5,6 +5,7 @@ import { testSupabaseConnection, isSupabaseConfigured } from '../lib/supabase';
 const ConnectionStatus = () => {
   const [status, setStatus] = useState<'checking' | 'connected' | 'disconnected' | 'not-configured'>('checking');
   const [details, setDetails] = useState<string>('');
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     checkConnection();
@@ -64,6 +65,10 @@ const ConnectionStatus = () => {
     }
   };
 
+  if (!isVisible) {
+    return null;
+  }
+
   return (
     <div className={`fixed top-4 left-4 z-50 p-3 rounded-lg border ${getStatusColor()} shadow-lg max-w-sm`}>
       <div className="flex items-center space-x-2 space-x-reverse">
@@ -76,21 +81,30 @@ const ConnectionStatus = () => {
           </div>
           <div className="text-xs opacity-75">{details}</div>
         </div>
-        <button 
-          onClick={checkConnection}
-          className="text-xs px-2 py-1 rounded bg-white bg-opacity-50 hover:bg-opacity-75 transition-colors"
-        >
-          إعادة فحص
-        </button>
+        <div className="flex flex-col space-y-1">
+          <button 
+            onClick={checkConnection}
+            className="text-xs px-2 py-1 rounded bg-white bg-opacity-50 hover:bg-opacity-75 transition-colors"
+          >
+            إعادة فحص
+          </button>
+          <button 
+            onClick={() => setIsVisible(false)}
+            className="text-xs px-2 py-1 rounded bg-white bg-opacity-50 hover:bg-opacity-75 transition-colors"
+          >
+            إخفاء
+          </button>
+        </div>
       </div>
       
       {status === 'not-configured' && (
         <div className="mt-2 text-xs">
           <div className="font-medium mb-1">خطوات الإعداد:</div>
-          <ol className="list-decimal list-inside space-y-1 opacity-75">
+          <ol className="list-decimal list-inside space-y-1 opacity-75 text-right">
             <li>أنشئ مشروع في supabase.com</li>
             <li>انسخ URL و Anon Key</li>
-            <li>أضفهما كمتغيرات بيئة</li>
+            <li>أضفهما كمتغيرات بيئة في Vercel</li>
+            <li>أعد نشر التطبيق</li>
           </ol>
         </div>
       )}

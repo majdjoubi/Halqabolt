@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Features from './components/Features';
+import Footer from './components/Footer';
 import SearchPage from './components/SearchPage';
 import DonationPage from './components/DonationPage';
 import TeacherProfilePage from './components/TeacherProfilePage';
@@ -10,6 +11,7 @@ import StudentDashboard from './components/StudentDashboard';
 import TeacherDashboard from './components/TeacherDashboard';
 import AuthModal from './components/AuthModal';
 import ConnectionStatus from './components/ConnectionStatus';
+import { isSupabaseConfigured } from './lib/supabase';
 
 type Page = 'home' | 'search' | 'teacherProfile' | 'donation' | 'studentDashboard' | 'teacherDashboard';
 
@@ -92,6 +94,9 @@ function App() {
 
   return (
     <div className="min-h-screen" dir="rtl">
+      {/* Connection Status - only show if Supabase is not configured */}
+      {!isSupabaseConfigured() && <ConnectionStatus />}
+      
       <Header 
         navigateTo={navigateTo} 
         currentPage={currentPage}

@@ -7,9 +7,16 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key
 // Log environment variables for debugging (only in development)
 if (import.meta.env.DEV) {
   console.log('🔧 Supabase Config Check:');
-  console.log('URL:', supabaseUrl ? '✅ Set' : '❌ Missing');
-  console.log('Key:', supabaseAnonKey ? '✅ Set' : '❌ Missing');
+  console.log('URL:', supabaseUrl && supabaseUrl !== 'https://your-project.supabase.co' ? '✅ Set' : '❌ Missing');
+  console.log('Key:', supabaseAnonKey && supabaseAnonKey !== 'your-anon-key-here' ? '✅ Set' : '❌ Missing');
   console.log('Environment:', import.meta.env.MODE);
+  
+  if (!isSupabaseConfigured()) {
+    console.log('⚠️ Supabase غير مُعد بشكل صحيح');
+    console.log('يرجى إعداد متغيرات البيئة التالية:');
+    console.log('- VITE_SUPABASE_URL');
+    console.log('- VITE_SUPABASE_ANON_KEY');
+  }
 }
 
 // Check if Supabase is configured
