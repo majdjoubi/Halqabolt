@@ -1,43 +1,163 @@
 import { useState, useEffect } from 'react';
-import { auth } from '../lib/database';
+import { supabase } from '../lib/supabase';
+import type { User } from '@supabase/supabase-js';
 
-interface User {
+interface UserProfile {
+  id: string;
+  user_id: string;
+  name: string;
+  profile_image_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface AppUser {
   id: string;
   email: string;
   role: 'student' | 'teacher';
-  profile: any;
+  profile?: UserProfile;
 }
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const signIn = async (email: string, password: string, role: 'student' | 'teacher') => {
-    console.log('🔵 useAuth signIn called:', { email, role });
+  const signUp = async (email: string, password: string, role: 'student' | 'teacher', name: string = '') => {
+    console.log('🔵 Starting signup process:', { email, role, name });
+    setLoading(true);
+    
     try {
-      setLoading(true);
-      const userData = await auth.signIn(email, password, role);
-      console.log('🔵 useAuth signIn userData:', userData);
-      setUser(userData);
-      return userData;
+      // Sign up with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            role: role,
+            name: name
+          }
+        }
+      });
+
+      if (authError) {
+        console.error('🔴 Auth signup error:', authError);
+        throw new Error(authError.message);
+      }
+
+      if (!authData.user) {
+        throw new Error('فشل في إنشاء الحساب');
+      }
+
+      console.log('🟢 Auth signup successful:', authData.user.id);
+
+      // Create profile in appropriate table
+      const tableName = role === 'teacher' ? 'teachers' : 'students';
+      const profileData = {
+        user_id: authData.user.id,
+        name: name,
+        ...(role === 'teacher' ? {
+          specialization: '',
+          experience_years: 0,
+          hourly_rate: 0,
+          bio: '',
+          certificates: [],
+          languages: ['العربية'],
+          is_verified: false,
+          rating: 0.0,
+          students_count: 0
+        } : {
+          age: null,
+          level: 'beginner',
+          goals: [],
+          preferred_schedule: ''
+        })
+      };
+
+      const { data: profileData, error: profileError } = await supabase
+        .from(tableName)
+        .insert([profileData])
+        .select()
+        .single();
+
+      if (profileError) {
+        console.error('🔴 Profile creation error:', profileError);
+        // Don't throw error here, profile can be created later
+      }
+
+      const appUser: AppUser = {
+        id: authData.user.id,
+        email: authData.user.email!,
+        role: role,
+        profile: profileData || undefined
+      };
+
+      setUser(appUser);
+      console.log('🟢 Signup completed successfully');
+      return appUser;
+
     } catch (error: any) {
-      console.error('🔴 Sign in error in hook:', error);
+      console.error('🔴 Signup error:', error);
       throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const signUp = async (email: string, password: string, role: 'student' | 'teacher', name: string = '') => {
-    console.log('🔵 useAuth signUp called:', { email, role, name });
+  const signIn = async (email: string, password: string, role: 'student' | 'teacher') => {
+    console.log('🔵 Starting signin process:', { email, role });
+    setLoading(true);
+    
     try {
-      setLoading(true);
-      const userData = await auth.signUp(email, password, role, name);
-      console.log('🔵 useAuth signUp userData:', userData);
-      setUser(userData);
-      return userData;
+      // Sign in with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (authError) {
+        console.error('🔴 Auth signin error:', authError);
+        throw new Error(authError.message);
+      }
+
+      if (!authData.user) {
+        throw new Error('فشل في تسجيل الدخول');
+      }
+
+      console.log('🟢 Auth signin successful:', authData.user.id);
+
+      // Get user role from metadata or use attempted role
+      const userRole = authData.user.user_metadata?.role || role;
+      
+      if (userRole !== role) {
+        throw new Error(`هذا الحساب مسجل كـ ${userRole === 'teacher' ? 'معلم' : 'طالب'}. يرجى اختيار النوع الصحيح.`);
+      }
+
+      // Get profile from appropriate table
+      const tableName = userRole === 'teacher' ? 'teachers' : 'students';
+      const { data: profileData, error: profileError } = await supabase
+        .from(tableName)
+        .select('*')
+        .eq('user_id', authData.user.id)
+        .single();
+
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error('🔴 Profile fetch error:', profileError);
+        // Don't throw error, user can create profile later
+      }
+
+      const appUser: AppUser = {
+        id: authData.user.id,
+        email: authData.user.email!,
+        role: userRole,
+        profile: profileData || undefined
+      };
+
+      setUser(appUser);
+      console.log('🟢 Signin completed successfully');
+      return appUser;
+
     } catch (error: any) {
-      console.error('🔴 Sign up error in hook:', error);
+      console.error('🔴 Signin error:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -45,12 +165,20 @@ export const useAuth = () => {
   };
 
   const signOut = async () => {
+    console.log('🔵 Starting signout process');
+    setLoading(true);
+    
     try {
-      setLoading(true);
-      await auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('🔴 Signout error:', error);
+        throw error;
+      }
+      
       setUser(null);
+      console.log('🟢 Signout successful');
     } catch (error) {
-      console.error('Sign out error:', error);
+      console.error('🔴 Signout error:', error);
     } finally {
       setLoading(false);
     }
@@ -59,37 +187,106 @@ export const useAuth = () => {
   const updateProfile = async (profileData: any) => {
     if (!user) return null;
     
+    console.log('🔵 Updating profile:', profileData);
+    setLoading(true);
+    
     try {
-      setLoading(true);
-      const updatedUser = await auth.updateUserProfile(user.id, user.role, profileData);
-      if (updatedUser) {
-        setUser(updatedUser);
+      const tableName = user.role === 'teacher' ? 'teachers' : 'students';
+      const { data, error } = await supabase
+        .from(tableName)
+        .upsert({
+          user_id: user.id,
+          ...profileData,
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('🔴 Profile update error:', error);
+        throw error;
       }
+
+      const updatedUser = { ...user, profile: data };
+      setUser(updatedUser);
+      console.log('🟢 Profile updated successfully');
       return updatedUser;
     } catch (error) {
-      console.error('Update profile error:', error);
-      return null;
+      console.error('🔴 Profile update error:', error);
+      throw error;
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    // Initialize auth state
-    const initializeAuth = async () => {
-      setLoading(true);
-      try {
-        const currentUser = await auth.getCurrentUser();
-        setUser(currentUser);
-      } catch (error) {
-        console.error('Auth initialization error:', error);
-        setUser(null);
-      } finally {
+    console.log('🔵 Initializing auth state');
+    
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('🔴 Session error:', error);
+        setLoading(false);
+        return;
+      }
+
+      if (session?.user) {
+        console.log('🟢 Found existing session:', session.user.id);
+        const userRole = session.user.user_metadata?.role || 'student';
+        
+        // Get profile
+        const tableName = userRole === 'teacher' ? 'teachers' : 'students';
+        supabase
+          .from(tableName)
+          .select('*')
+          .eq('user_id', session.user.id)
+          .single()
+          .then(({ data: profileData }) => {
+            const appUser: AppUser = {
+              id: session.user.id,
+              email: session.user.email!,
+              role: userRole,
+              profile: profileData || undefined
+            };
+            setUser(appUser);
+            setLoading(false);
+          });
+      } else {
+        console.log('🟡 No existing session found');
         setLoading(false);
       }
-    };
+    });
 
-    initializeAuth();
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔵 Auth state changed:', event);
+      
+      if (event === 'SIGNED_OUT' || !session) {
+        setUser(null);
+        setLoading(false);
+      } else if (event === 'SIGNED_IN' && session?.user) {
+        const userRole = session.user.user_metadata?.role || 'student';
+        const tableName = userRole === 'teacher' ? 'teachers' : 'students';
+        
+        const { data: profileData } = await supabase
+          .from(tableName)
+          .select('*')
+          .eq('user_id', session.user.id)
+          .single();
+
+        const appUser: AppUser = {
+          id: session.user.id,
+          email: session.user.email!,
+          role: userRole,
+          profile: profileData || undefined
+        };
+        
+        setUser(appUser);
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   return {

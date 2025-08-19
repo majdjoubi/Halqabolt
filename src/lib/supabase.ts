@@ -1,28 +1,40 @@
-// Simplified Supabase client - only used when properly configured
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Only create client if both URL and key are provided
-export const supabase = supabaseUrl && supabaseAnonKey 
-  ? createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: false
-      }
-    })
-  : null;
-
-// Log configuration status
-if (supabase) {
-  console.log('✅ Supabase client created successfully');
-} else {
-  console.log('🟡 Supabase not configured - using mock data');
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables. Please check your .env file.');
 }
 
-// Database types (keep for future use)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
+    flowType: 'pkce'
+  },
+  db: {
+    schema: 'public'
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'halqa-platform'
+    }
+  }
+});
+
+// Test connection
+supabase.from('teachers').select('count', { count: 'exact', head: true })
+  .then(({ error }) => {
+    if (error) {
+      console.error('❌ Supabase connection failed:', error.message);
+    } else {
+      console.log('✅ Supabase connected successfully');
+    }
+  });
+
+// Database types
 export interface User {
   id: string;
   email: string;
@@ -59,27 +71,27 @@ export interface TeacherProfile extends UserProfile {
   students_count: number;
 }
 
-export interface Session {
+export interface Lesson {
   id: string;
   teacher_id: string;
   title: string;
   description?: string;
-  scheduled_at: string;
+  type: 'individual' | 'group' | 'memorization' | 'tajweed';
   duration_minutes: number;
   price: number;
   max_students: number;
-  session_type: 'individual' | 'group';
-  status: 'scheduled' | 'completed' | 'cancelled';
+  is_active: boolean;
   created_at: string;
-  updated_at: string;
 }
 
 export interface Booking {
   id: string;
   student_id: string;
-  session_id: string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  payment_status: 'pending' | 'paid' | 'refunded';
+  lesson_id: string;
+  teacher_id: string;
+  scheduled_at: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  meeting_url?: string;
+  notes?: string;
   created_at: string;
-  updated_at: string;
 }

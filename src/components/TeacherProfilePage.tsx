@@ -31,14 +31,21 @@ const TeacherProfilePage: React.FC<TeacherProfilePageProps> = ({ teacherId, onCl
     const fetchTeacher = async () => {
       setLoading(true);
       try {
+        console.log('🔵 Fetching teacher:', teacherId);
+        
         const { data, error } = await supabase
           .from('teachers')
           .select('*')
           .eq('id', teacherId)
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('🔴 Teacher fetch error:', error);
+          throw error;
+        }
+        
         if (data) {
+          console.log('🟢 Teacher fetched successfully:', data);
           setTeacher(data);
           setError(null);
         } else {
@@ -46,6 +53,7 @@ const TeacherProfilePage: React.FC<TeacherProfilePageProps> = ({ teacherId, onCl
           setTeacher(null);
         }
       } catch (err: any) {
+        console.error('🔴 Teacher fetch error:', err);
         setError(err.message || 'حدث خطأ أثناء تحميل بيانات المعلم');
         setTeacher(null);
       }
