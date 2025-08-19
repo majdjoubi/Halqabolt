@@ -10,7 +10,7 @@ const resources = {
       liveLessons: 'الدروس الحية',
       donate: 'تبرع الآن',
       startLearning: 'ابدأ التعلم الآن',
-      appName: 'حلقة', // Added appName
+      appName: 'حلقة',
       
       // Hero Section
       heroTitle: 'تعلم القرآن الكريم عن بُعد',
@@ -18,7 +18,7 @@ const resources = {
       startFirstLesson: 'ابدأ درسك الأول مجاناً',
       
       // Features
-      whyChoose: 'لماذا تختار حلقة؟',
+      whyChoose: 'لماذا تختار',
       featuresSubtitle: 'نقدم لك تجربة تعليمية فريدة تجمع بين التقنية الحديثة والمنهجية الأصيلة في تعليم القرآن الكريم',
       
       // Auth
@@ -48,7 +48,7 @@ const resources = {
       liveLessons: 'Live Lessons',
       donate: 'Donate Now',
       startLearning: 'Start Learning Now',
-      appName: 'Halaqah', // Added appName
+      appName: 'Halaqah',
       
       // Hero Section
       heroTitle: 'Learn Quran Online',
@@ -56,7 +56,7 @@ const resources = {
       startFirstLesson: 'Start Your First Free Lesson',
       
       // Features
-      whyChoose: 'Why Choose Halaqah?',
+      whyChoose: 'Why Choose',
       featuresSubtitle: 'We provide you with a unique learning experience that combines modern technology with authentic methodology in Quran education',
       
       // Auth
