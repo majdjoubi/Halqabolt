@@ -81,9 +81,6 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                 <div className="flex items-center space-x-4 space-x-reverse">
                   <span className="text-gray-700">
                     مرحباً، {user.profile?.name || user.email}
-                    <span className="text-xs text-gray-500 mr-2">
-                      ({user.role === 'student' ? 'طالب' : 'معلم'})
-                    </span>
                   </span>
                   <button
                     onClick={handleSignOut}
