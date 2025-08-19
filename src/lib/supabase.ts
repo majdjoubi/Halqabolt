@@ -1,14 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 // Check if Supabase is configured
 export const isSupabaseConfigured = () => {
-  return !!(supabaseUrl && supabaseAnonKey && 
-    supabaseUrl !== 'your_supabase_project_url' && 
-    supabaseAnonKey !== 'your_supabase_anon_key');
+  const hasUrl = supabaseUrl && supabaseUrl !== 'https://your-project.supabase.co' && supabaseUrl.includes('supabase.co');
+  const hasKey = supabaseAnonKey && supabaseAnonKey !== 'your-anon-key-here' && supabaseAnonKey.length > 50;
+  return !!(hasUrl && hasKey);
 };
 
 // Create Supabase client

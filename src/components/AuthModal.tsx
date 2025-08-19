@@ -62,12 +62,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
     setError('');
 
     if (!isSupabaseConfigured()) {
-      setError('يرجى إعداد Supabase أولاً في متغيرات البيئة');
+      setError('يرجى إعداد Supabase أولاً. راجع التعليمات أعلاه.');
       return;
     }
 
     if (!connectionStatus?.supabase) {
-      setError('لا يمكن الاتصال بخادم المصادقة');
+      setError('لا يمكن الاتصال بـ Supabase. تأكد من صحة البيانات في ملف .env');
       return;
     }
 
@@ -136,6 +136,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
         {connectionStatus && !testingConnections && (
           <div className="mb-6 p-4 bg-gray-50 rounded-lg">
             <h4 className="font-semibold text-gray-900 mb-3">حالة الاتصالات:</h4>
+            {!isSupabaseConfigured() && (
+              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-amber-800 text-sm font-medium">⚠️ يرجى إعداد Supabase أولاً:</p>
+                <ol className="text-amber-700 text-xs mt-2 mr-4 list-decimal">
+                  <li>أنشئ مشروع في <a href="https://supabase.com" target="_blank" className="underline">supabase.com</a></li>
+                  <li>انسخ Project URL و Anon Key</li>
+                  <li>أضفهما في ملف .env</li>
+                </ol>
+              </div>
+            )}
             <div className="space-y-2 text-sm">
               <div className="flex items-center justify-between">
                 <span>Supabase (قاعدة البيانات)</span>
