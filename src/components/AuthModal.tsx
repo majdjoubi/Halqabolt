@@ -139,12 +139,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
           </div>
         </div>
 
-              ? 'ستتمكن من البحث عن المعلمين وحجز الدروس فوراً'
-              : 'سيتم مراجعة طلبك والموافقة عليه قبل البدء في التدريس'
-            }
-          </p>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-6">
           {mode === 'signup' && (
             <div>
