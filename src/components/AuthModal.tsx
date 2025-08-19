@@ -111,6 +111,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
           </div>
           <p className="text-xs text-gray-500 mt-2">
             {selectedRole === 'student' 
+              ? 'ستتمكن من البحث عن المعلمين وحجز الدروس فوراً'
+              : 'سيتم مراجعة طلبك والموافقة عليه قبل البدء في التدريس'
+            }
+          </p>
+        </div>
+
         {/* Google Sign In Button */}
         <button
           onClick={handleGoogleSignIn}
