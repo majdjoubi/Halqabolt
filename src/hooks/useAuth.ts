@@ -52,7 +52,7 @@ export const useAuth = () => {
 
       // Create profile in appropriate table
       const tableName = role === 'teacher' ? 'teachers' : 'students';
-      const profileData = {
+      const newProfileData = {
         user_id: authData.user.id,
         name: name,
         ...(role === 'teacher' ? {
@@ -75,7 +75,7 @@ export const useAuth = () => {
 
       const { data: profileData, error: profileError } = await supabase
         .from(tableName)
-        .insert([profileData])
+        .insert([newProfileData])
         .select()
         .single();
 
