@@ -117,6 +117,26 @@ if (!supabaseUrl || !supabaseAnonKey ||
     });
 }
 
+// Google OAuth helper functions
+export const signInWithGoogle = async (role: 'student' | 'teacher') => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}`,
+      queryParams: {
+        role: role
+      }
+    }
+  });
+  
+  if (error) {
+    console.error('Google OAuth error:', error);
+    throw error;
+  }
+  
+  return data;
+};
+
 // Export the supabase client
 export { supabase };
 

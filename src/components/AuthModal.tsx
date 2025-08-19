@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { X, Mail, Lock, User } from 'lucide-react';
+import { X, Mail, Lock, User, Chrome } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -16,7 +16,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const { signIn, signUp, loading } = useAuth();
+  const { signIn, signUp, signInWithGoogle, loading } = useAuth();
 
   if (!isOpen) return null;
 
@@ -48,6 +48,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    
+    if (loading) return;
+    
+    try {
+      await signInWithGoogle(selectedRole);
+      // Note: The modal will close automatically when auth state changes
+    } catch (err: any) {
+      console.error('🔴 Google auth error:', err);
+      setError(err.message || 'حدث خطأ أثناء تسجيل الدخول عبر Google');
+    }
+  };
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-md w-full p-8 relative">
@@ -98,6 +111,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
           </div>
           <p className="text-xs text-gray-500 mt-2">
             {selectedRole === 'student' 
+        {/* Google Sign In Button */}
+        <button
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          className="w-full mb-6 bg-white border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 disabled:opacity-50 flex items-center justify-center space-x-3 space-x-reverse"
+        >
+          <Chrome className="h-5 w-5 text-red-500" />
+          <span>
+            {mode === 'signin' ? 'تسجيل الدخول' : 'إنشاء حساب'} عبر Google
+          </span>
+        </button>
+
+        {/* Divider */}
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">أو</span>
+          </div>
+        </div>
+
               ? 'ستتمكن من البحث عن المعلمين وحجز الدروس فوراً'
               : 'سيتم مراجعة طلبك والموافقة عليه قبل البدء في التدريس'
             }

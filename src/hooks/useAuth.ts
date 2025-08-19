@@ -184,6 +184,36 @@ export const useAuth = () => {
     }
   };
 
+  const signInWithGoogle = async (role: 'student' | 'teacher') => {
+    console.log('🔵 Starting Google OAuth signin:', { role });
+    setLoading(true);
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}`,
+          queryParams: {
+            role: role
+          }
+        }
+      });
+      
+      if (error) {
+        console.error('🔴 Google OAuth error:', error);
+        throw error;
+      }
+      
+      console.log('🟢 Google OAuth initiated successfully');
+      return data;
+    } catch (error: any) {
+      console.error('🔴 Google OAuth error:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const updateProfile = async (profileData: any) => {
     if (!user) return null;
     
@@ -232,7 +262,10 @@ export const useAuth = () => {
 
       if (session?.user) {
         console.log('🟢 Found existing session:', session.user.id);
-        const userRole = session.user.user_metadata?.role || 'student';
+        // Get role from URL params (for OAuth) or user metadata
+        const urlParams = new URLSearchParams(window.location.search);
+        const roleFromUrl = urlParams.get('role') as 'student' | 'teacher' | null;
+        const userRole = roleFromUrl || session.user.user_metadata?.role || 'student';
         
         // Get profile
         const tableName = userRole === 'teacher' ? 'teachers' : 'students';
@@ -265,7 +298,10 @@ export const useAuth = () => {
         setUser(null);
         setLoading(false);
       } else if (event === 'SIGNED_IN' && session?.user) {
-        const userRole = session.user.user_metadata?.role || 'student';
+        // Get role from URL params (for OAuth) or user metadata
+        const urlParams = new URLSearchParams(window.location.search);
+        const roleFromUrl = urlParams.get('role') as 'student' | 'teacher' | null;
+        const userRole = roleFromUrl || session.user.user_metadata?.role || 'student';
         const tableName = userRole === 'teacher' ? 'teachers' : 'students';
         
         const { data: profileData } = await supabase
@@ -283,6 +319,11 @@ export const useAuth = () => {
         
         setUser(appUser);
         setLoading(false);
+        
+        // Clean up URL params after successful OAuth
+        if (roleFromUrl) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
       }
     });
 
@@ -295,6 +336,7 @@ export const useAuth = () => {
     isAuthenticated: !!user,
     signIn,
     signUp,
+    signInWithGoogle,
     signOut,
     updateProfile,
   };
