@@ -3,17 +3,23 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Check if environment variables are properly configured
-const isSupabaseConfigured = supabaseUrl && 
-  supabaseAnonKey && 
-  supabaseUrl !== 'your_supabase_project_url' &&
-  supabaseUrl !== 'https://placeholder-url.supabase.co' &&
-  supabaseAnonKey !== 'your_supabase_anon_key' &&
-  !supabaseUrl.includes('placeholder');
+// Check if environment variables are properly configured with real values
+const isSupabaseConfigured = () => {
+  return supabaseUrl && 
+    supabaseAnonKey && 
+    supabaseUrl !== 'your_supabase_project_url' &&
+    supabaseUrl !== 'https://placeholder-url.supabase.co' &&
+    supabaseUrl !== 'https://your-project-ref.supabase.co' &&
+    supabaseAnonKey !== 'your_supabase_anon_key' &&
+    supabaseAnonKey !== 'your-actual-anon-key' &&
+    !supabaseUrl.includes('placeholder') &&
+    !supabaseUrl.includes('your-project-ref') &&
+    !supabaseAnonKey.includes('your-actual');
+};
 
 let supabase: any;
 
-if (!isSupabaseConfigured) {
+if (!isSupabaseConfigured()) {
   console.warn('🔧 Supabase environment variables not configured. Using development mode.');
   console.warn('📝 To use real Supabase, create a .env file with:');
   console.warn('   VITE_SUPABASE_URL=https://your-project-ref.supabase.co');
@@ -22,33 +28,33 @@ if (!isSupabaseConfigured) {
   // Create a mock client for development
   supabase = {
     auth: {
-      signUp: () => Promise.resolve({ 
+      signUp: async () => ({ 
         data: { user: null }, 
         error: { message: 'Supabase not configured. Please set up your .env file.' } 
       }),
-      signInWithPassword: () => Promise.resolve({ 
+      signInWithPassword: async () => ({ 
         data: { user: null }, 
         error: { message: 'Supabase not configured. Please set up your .env file.' } 
       }),
-      signOut: () => Promise.resolve({ error: null }),
-      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      signOut: async () => ({ error: null }),
+      getSession: async () => ({ data: { session: null }, error: null }),
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
     },
     from: () => ({
       select: () => ({ 
         eq: () => ({ 
-          single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } })
+          single: async () => ({ data: null, error: { message: 'Supabase not configured' } })
         }),
-        order: () => Promise.resolve({ data: [], error: null })
+        order: async () => ({ data: [], error: null })
       }),
       insert: () => ({ 
         select: () => ({ 
-          single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } })
+          single: async () => ({ data: null, error: { message: 'Supabase not configured' } })
         })
       }),
       upsert: () => ({ 
         select: () => ({ 
-          single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } })
+          single: async () => ({ data: null, error: { message: 'Supabase not configured' } })
         })
       })
     })
@@ -64,20 +70,22 @@ if (!isSupabaseConfigured) {
   });
 
   // Test connection
-  supabase.from('teachers').select('count', { count: 'exact', head: true })
-    .then(({ error }: any) => {
-      if (error) {
-        console.error('❌ Supabase connection failed:', error.message);
-      } else {
-        console.log('✅ Supabase connected successfully');
-      }
-    })
-    .catch((error: any) => {
-      console.warn('⚠️ Supabase connection test failed:', error.message);
-    });
+  setTimeout(() => {
+    supabase.from('teachers').select('count', { count: 'exact', head: true })
+      .then(({ error }: any) => {
+        if (error) {
+          console.error('❌ Supabase connection failed:', error.message);
+        } else {
+          console.log('✅ Supabase connected successfully');
+        }
+      })
+      .catch((error: any) => {
+        console.warn('⚠️ Supabase connection test failed:', error.message);
+      });
+  }, 1000);
 }
 
-export { supabase };
+export { supabase, isSupabaseConfigured };
 // Database types
 export interface User {
   id: string;
