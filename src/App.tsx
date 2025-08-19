@@ -47,11 +47,8 @@ function App() {
 
   const handleAuthSuccess = (userRole: 'student' | 'teacher') => {
     closeAuthModal();
-    if (userRole === 'student') {
-      navigateTo('studentDashboard');
-    } else if (userRole === 'teacher') {
-      navigateTo('teacherDashboard');
-    }
+    // Stay on home page after successful auth to show the updated interface
+    // User can navigate to dashboard using the new buttons
   };
 
   const renderPage = () => {
@@ -100,6 +97,24 @@ function App() {
         currentPage={currentPage}
         onOpenAuth={openAuthModal}
       />
+      
+      {/* Hidden buttons for Hero component to trigger navigation */}
+      <button 
+        data-start-learning 
+        onClick={() => openAuthModal('signup')} 
+        className="hidden"
+      />
+      <button 
+        data-search-teachers 
+        onClick={() => navigateTo('search')} 
+        className="hidden"
+      />
+      <button 
+        data-dashboard 
+        onClick={() => navigateTo(user?.role === 'student' ? 'studentDashboard' : 'teacherDashboard')} 
+        className="hidden"
+      />
+      
       {renderPage()}
       {currentPage === 'home' && <Footer />}
       

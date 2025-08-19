@@ -55,6 +55,7 @@ export const useAuth = () => {
       const newProfileData = {
         user_id: authData.user.id,
         name: name,
+        email: email,
         ...(role === 'teacher' ? {
           specialization: '',
           experience_years: 0,
@@ -81,14 +82,20 @@ export const useAuth = () => {
 
       if (profileError) {
         console.error('🔴 Profile creation error:', profileError);
-        // Don't throw error here, profile can be created later
+        console.warn('⚠️ Profile will be created later if needed');
       }
 
       const appUser: AppUser = {
         id: authData.user.id,
         email: authData.user.email!,
         role: role,
-        profile: profileData || undefined
+        profile: profileData || { 
+          id: 'temp-' + Date.now(), 
+          user_id: authData.user.id, 
+          name: name,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
       };
 
       setUser(appUser);

@@ -78,13 +78,29 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
             {/* CTA Buttons */}
             <div className="hidden md:flex items-center space-x-4 space-x-reverse">
               {user ? (
-                <div className="flex items-center space-x-4 space-x-reverse">
-                  <span className="text-gray-700">
-                    مرحباً، {user.profile?.name || user.email}
-                  </span>
+                <div className="flex items-center space-x-6 space-x-reverse">
+                  <div className="flex items-center space-x-3 space-x-reverse">
+                    <div className="w-8 h-8 bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      {(user.profile?.name || user.email).charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <span className="text-gray-900 font-medium">
+                        {user.profile?.name || user.email.split('@')[0]}
+                      </span>
+                      <div className="text-xs text-gray-500">
+                        {user.role === 'student' ? 'طالب' : 'معلم'}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => navigateTo(user.role === 'student' ? 'studentDashboard' : 'teacherDashboard')}
+                    className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
+                  >
+                    لوحة التحكم
+                  </button>
                   <button
                     onClick={handleSignOut}
-                    className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
+                    className="text-gray-600 hover:text-gray-700 font-medium transition-colors duration-200"
                   >
                     تسجيل الخروج
                   </button>
@@ -159,21 +175,43 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                   {user ? (
                     <div className="space-y-2">
-                      <span className="text-gray-700 text-sm">
-                        مرحباً، {user.profile?.name || user.email}
-                        <span className="text-xs text-gray-500 block">
-                          ({user.role === 'student' ? 'طالب' : 'معلم'})
-                        </span>
-                      </span>
+                      <div className="flex items-center space-x-3 space-x-reverse p-2 bg-gray-50 rounded-lg">
+                        <div className="w-10 h-10 bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-full flex items-center justify-center text-white font-bold">
+                          {(user.profile?.name || user.email).charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <span className="text-gray-900 font-medium block">
+                            {user.profile?.name || user.email.split('@')[0]}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {user.role === 'student' ? 'طالب' : 'معلم'}
+                          </span>
+                        </div>
+                      </div>
                       <button
-                        onClick={() => navigateTo('search')}
+                        onClick={() => {
+                          navigateTo(user.role === 'student' ? 'studentDashboard' : 'teacherDashboard');
+                          setIsMenuOpen(false);
+                        }}
                         className="text-emerald-600 hover:text-emerald-700 font-medium text-right w-full"
+                      >
+                        لوحة التحكم
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigateTo('search');
+                          setIsMenuOpen(false);
+                        }}
+                        className="text-emerald-600 hover:text-emerald-700 font-medium text-right"
                       >
                         البحث عن معلمين
                       </button>
                       <button
-                        onClick={handleSignOut}
-                        className="text-emerald-600 hover:text-emerald-700 font-medium text-right"
+                        onClick={() => {
+                          handleSignOut();
+                          setIsMenuOpen(false);
+                        }}
+                        className="text-gray-600 hover:text-gray-700 font-medium text-right"
                       >
                         تسجيل الخروج
                       </button>

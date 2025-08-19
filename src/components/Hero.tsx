@@ -1,11 +1,30 @@
 import React from 'react';
 import { BookOpen, Users, Clock, Award, PlayCircle, Star } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 const Hero = () => {
+  const { user, isAuthenticated } = useAuth();
+
   const handleStartLearning = () => {
-    const startButton = document.querySelector('[data-start-learning]') as HTMLButtonElement;
-    if (startButton) {
-      startButton.click();
+    if (isAuthenticated) {
+      // Navigate to search page if already logged in
+      const searchButton = document.querySelector('[data-search-teachers]') as HTMLButtonElement;
+      if (searchButton) {
+        searchButton.click();
+      }
+    } else {
+      // Open auth modal if not logged in
+      const startButton = document.querySelector('[data-start-learning]') as HTMLButtonElement;
+      if (startButton) {
+        startButton.click();
+      }
+    }
+  };
+
+  const handleBrowseTeachers = () => {
+    const searchButton = document.querySelector('[data-search-teachers]') as HTMLButtonElement;
+    if (searchButton) {
+      searchButton.click();
     }
   };
 
@@ -15,31 +34,78 @@ const Hero = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Text Content */}
           <div className="text-center lg:text-right">
-            <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              تعلم{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-800">
-                القرآن الكريم
-              </span>{' '}
-              عن بُعد
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-              انضم إلى آلاف الطلاب الذين يتعلمون تلاوة وتجويد القرآن الكريم مع أفضل المعلمين المعتمدين
-              في جلسات فردية وجماعية تفاعلية
-            </p>
+            {isAuthenticated ? (
+              <>
+                <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                  مرحباً بك{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-800">
+                    {user?.profile?.name || user?.email?.split('@')[0]}
+                  </span>
+                </h1>
+                <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                  ابدأ رحلتك في تعلم القرآن الكريم مع أفضل المعلمين المعتمدين
+                  في جلسات فردية وجماعية تفاعلية
+                </p>
+              </>
+            ) : (
+              <>
+                <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                  تعلم{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-800">
+                    القرآن الكريم
+                  </span>{' '}
+                  عن بُعد
+                </h1>
+                <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                  انضم إلى آلاف الطلاب الذين يتعلمون تلاوة وتجويد القرآن الكريم مع أفضل المعلمين المعتمدين
+                  في جلسات فردية وجماعية تفاعلية
+                </p>
+              </>
+            )}
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
-              <button 
-                onClick={handleStartLearning}
-                data-start-learning
-                className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-lg font-semibold"
-              >
-                <PlayCircle className="inline-block ml-2 h-6 w-6" />
-                ابدأ درسك الأول مجاناً
-              </button>
-              <button className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white px-8 py-4 rounded-xl transition-all duration-300 text-lg font-semibold">
-                تصفح المعلمين
-              </button>
+              {isAuthenticated ? (
+                <>
+                  <button 
+                    onClick={handleBrowseTeachers}
+                    data-search-teachers
+                    className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-lg font-semibold"
+                  >
+                    <BookOpen className="inline-block ml-2 h-6 w-6" />
+                    ابحث عن معلم
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const dashboardButton = document.querySelector('[data-dashboard]') as HTMLButtonElement;
+                      if (dashboardButton) {
+                        dashboardButton.click();
+                      }
+                    }}
+                    className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white px-8 py-4 rounded-xl transition-all duration-300 text-lg font-semibold"
+                  >
+                    لوحة التحكم
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    onClick={handleStartLearning}
+                    data-start-learning
+                    className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-lg font-semibold"
+                  >
+                    <PlayCircle className="inline-block ml-2 h-6 w-6" />
+                    ابدأ درسك الأول مجاناً
+                  </button>
+                  <button 
+                    onClick={handleBrowseTeachers}
+                    data-search-teachers
+                    className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white px-8 py-4 rounded-xl transition-all duration-300 text-lg font-semibold"
+                  >
+                    تصفح المعلمين
+                  </button>
+                </>
+              )}
             </div>
 
           </div>
