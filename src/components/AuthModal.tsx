@@ -66,7 +66,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
       if (mode === 'signin') {
         console.log('🔵 AuthModal calling signIn...');
         await signIn(email.trim(), password);
-      } else {
+        if (err.message?.includes('يجب إعداد Supabase أولاً')) {
+          errorMessage = 'يجب إعداد اتصال قاعدة البيانات أولاً. يرجى التواصل مع المطور.';
+        } else if (err.message?.includes('User already registered')) {
         console.log('🔵 AuthModal calling signUp...');
         await signUp(email.trim(), password, selectedRole, name.trim());
       }
@@ -76,6 +78,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
       // Small delay to ensure UI updates properly
       setTimeout(() => {
         onClose();
+        } else if (err.message?.includes('Supabase not configured')) {
+          errorMessage = 'يجب إعداد اتصال قاعدة البيانات أولاً. يرجى التواصل مع المطور.';
         if (onSuccess) {
           onSuccess(selectedRole);
         }

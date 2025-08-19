@@ -2,6 +2,19 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
 
+// Check if Supabase is properly configured
+const isSupabaseConfigured = () => {
+  const url = import.meta.env.VITE_SUPABASE_URL;
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  
+  return url && 
+    key && 
+    url !== 'your_supabase_project_url' &&
+    url !== 'https://placeholder-url.supabase.co' &&
+    key !== 'your_supabase_anon_key' &&
+    !url.includes('placeholder');
+};
+
 interface UserProfile {
   id: string;
   user_id: string;
@@ -40,6 +53,12 @@ export const useAuth = () => {
 
   const signUp = async (email: string, password: string, role: 'student' | 'teacher', name: string) => {
     console.log('🔵 Starting signup process:', { email, role, name });
+    
+    // Check if Supabase is configured
+    if (!isSupabaseConfigured()) {
+      throw new Error('يجب إعداد Supabase أولاً. يرجى إضافة متغيرات البيئة في ملف .env');
+    }
+    
     setLoading(true);
     
     try {
@@ -130,6 +149,12 @@ export const useAuth = () => {
 
   const signIn = async (email: string, password: string) => {
     console.log('🔵 Starting signin process:', { email });
+    
+    // Check if Supabase is configured
+    if (!isSupabaseConfigured()) {
+      throw new Error('يجب إعداد Supabase أولاً. يرجى إضافة متغيرات البيئة في ملف .env');
+    }
+    
     setLoading(true);
     
     try {
