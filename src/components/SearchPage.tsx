@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Search, Star, Clock, Users } from 'lucide-react';
+import { useTeachers } from '../hooks/useTeachers';
 
 interface SearchPageProps {
   onClose: () => void;
@@ -8,38 +9,12 @@ interface SearchPageProps {
 }
 
 const SearchPage: React.FC<SearchPageProps> = ({ onClose, onSelectTeacher, showGroupLessonsOnly = false }) => {
-  const mockTeachers = [
-    {
-      id: '1',
-      name: 'الشيخ أحمد محمود',
-      specialization: 'متخصص في التجويد والقراءات',
-      rating: 4.9,
-      students: 450,
-      price: 25,
-      image: 'https://images.pexels.com/photos/8923901/pexels-photo-8923901.jpeg?auto=compress&cs=tinysrgb&w=400',
-      availability: 'متاح اليوم'
-    },
-    {
-      id: '2',
-      name: 'الأستاذة فاطمة السيد',
-      specialization: 'تحفيظ القرآن للأطفال',
-      rating: 4.8,
-      students: 320,
-      price: 20,
-      image: 'https://images.pexels.com/photos/8923902/pexels-photo-8923902.jpeg?auto=compress&cs=tinysrgb&w=400',
-      availability: 'متاحة غداً'
-    },
-    {
-      id: '3',
-      name: 'الشيخ عمر حسان',
-      specialization: 'التفسير وعلوم القرآن',
-      rating: 5.0,
-      students: 680,
-      price: 30,
-      image: 'https://images.pexels.com/photos/8923903/pexels-photo-8923903.jpeg?auto=compress&cs=tinysrgb&w=400',
-      availability: 'متاح الآن'
-    }
-  ];
+  const { teachers, loading, error, searchTeachers } = useTeachers();
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    searchTeachers(query);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -68,14 +43,40 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose, onSelectTeacher, showG
             type="text"
             placeholder="ابحث عن معلم أو تخصص..."
             className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            onChange={handleSearch}
           />
         </div>
       </div>
 
       {/* Teachers Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        {loading && (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">جاري تحميل المعلمين...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="text-center py-12">
+            <p className="text-red-600 mb-4">خطأ: {error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+            >
+              إعادة المحاولة
+            </button>
+          </div>
+        )}
+
+        {!loading && !error && teachers.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-600">لا توجد معلمين متاحين حالياً</p>
+          </div>
+        )}
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockTeachers.map((teacher) => (
+          {teachers.map((teacher) => (
             <div
               key={teacher.id}
               onClick={() => onSelectTeacher(teacher.id)}
@@ -83,7 +84,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose, onSelectTeacher, showG
               <div className="p-6">
                 <div className="flex items-center space-x-4 space-x-reverse mb-4">
                   <img
-                    src={teacher.image}
+                    src={teacher.profile_image_url || 'https://images.pexels.com/photos/8923901/pexels-photo-8923901.jpeg?auto=compress&cs=tinysrgb&w=400'}
                     alt={teacher.name}
                     className="w-16 h-16 rounded-full object-cover"
                   />
@@ -101,17 +102,17 @@ const SearchPage: React.FC<SearchPageProps> = ({ onClose, onSelectTeacher, showG
                     </div>
                     <div className="flex items-center space-x-1 space-x-reverse text-gray-600">
                       <Users className="h-4 w-4" />
-                      <span className="text-sm">{teacher.students} طالب</span>
+                      <span className="text-sm">{teacher.students_count} طالب</span>
                     </div>
                   </div>
 
                   <div className="flex items-center space-x-2 space-x-reverse">
                     <Clock className="h-4 w-4 text-emerald-600" />
-                    <span className="text-sm text-emerald-600 font-medium">{teacher.availability}</span>
+                    <span className="text-sm text-emerald-600 font-medium">{teacher.availability_status}</span>
                   </div>
 
                   <div className="text-lg font-bold text-gray-900">
-                    {teacher.price} ريال / ساعة
+                    {teacher.hourly_rate} ريال / ساعة
                   </div>
                 </div>
 

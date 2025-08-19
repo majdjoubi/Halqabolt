@@ -7,15 +7,15 @@ interface StudentDashboardProps {
 }
 
 const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [studentData, setStudentData] = useState({
-    name: '',
-    age: '',
-    level: 'beginner',
-    goals: [] as string[],
-    preferred_schedule: '',
-    profile_image_url: ''
+    name: user?.profile?.name || '',
+    age: user?.profile?.age || '',
+    level: user?.profile?.level || 'beginner',
+    goals: user?.profile?.goals || [] as string[],
+    preferred_schedule: user?.profile?.preferred_schedule || '',
+    profile_image_url: user?.profile?.profile_image_url || ''
   });
 
   const [bookings] = useState([
@@ -57,7 +57,12 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
   };
 
   const handleSaveProfile = async () => {
-    alert('تم حفظ البيانات بنجاح!');
+    try {
+      await updateProfile(studentData);
+      alert('تم حفظ البيانات بنجاح!');
+    } catch (error: any) {
+      alert('حدث خطأ أثناء حفظ البيانات: ' + error.message);
+    }
   };
 
   return (

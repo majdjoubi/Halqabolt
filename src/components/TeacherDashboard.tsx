@@ -7,18 +7,18 @@ interface TeacherDashboardProps {
 }
 
 const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const [teacherData, setTeacherData] = useState({
-    name: '',
-    specialization: '',
-    experience_years: 0,
-    hourly_rate: 0,
-    bio: '',
-    certificates: [] as string[],
-    languages: ['العربية'],
-    profile_image_url: ''
+    name: user?.profile?.name || '',
+    specialization: user?.profile?.specialization || '',
+    experience_years: user?.profile?.experience_years || 0,
+    hourly_rate: user?.profile?.hourly_rate || 0,
+    bio: user?.profile?.bio || '',
+    certificates: user?.profile?.certificates || [] as string[],
+    languages: user?.profile?.languages || ['العربية'],
+    profile_image_url: user?.profile?.profile_image_url || ''
   });
 
   const [newCertificate, setNewCertificate] = useState('');
@@ -52,10 +52,10 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
 
   const handleSaveProfile = async () => {
     try {
-      // Save profile data
+      await updateProfile(teacherData);
       alert('تم حفظ البيانات بنجاح! سيتم مراجعة ملفك الشخصي قريباً.');
-    } catch (error) {
-      alert('حدث خطأ أثناء حفظ البيانات');
+    } catch (error: any) {
+      alert('حدث خطأ أثناء حفظ البيانات: ' + error.message);
     }
   };
 
