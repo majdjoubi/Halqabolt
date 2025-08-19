@@ -56,13 +56,6 @@ const Hero = () => {
                 <PlayCircle className="inline-block ml-2 h-6 w-6" />
                 {isAuthenticated ? 'ابدأ درسك الأول مجاناً' : 'ابدأ درسك الأول مجاناً'}
               </button>
-              <button 
-                onClick={handleBrowseTeachers}
-                data-search-teachers
-                className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white px-8 py-4 rounded-xl transition-all duration-300 text-lg font-semibold"
-              >
-                تصفح المعلمين
-              </button>
             </div>
 
           </div>
