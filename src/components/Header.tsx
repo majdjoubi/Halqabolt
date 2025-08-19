@@ -54,18 +54,9 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
             {/* Logo */}
             <div className="flex items-center space-x-3 space-x-reverse">
               <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 p-2 rounded-xl shadow-md">
-                <img 
-                  src="/حلقة 2.png" 
-                  alt="شعار حلقة" 
-                  className="h-8 w-8 object-contain"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                  }}
-                />
-                <BookOpen className="h-8 w-8 text-white hidden" />
+                <BookOpen className="h-8 w-8 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-emerald-700">حلقة</h1>
+              <h1 className="text-2xl font-bold text-emerald-700">{t('appName')}</h1>
             </div>
 
             {/* Desktop Navigation */}
