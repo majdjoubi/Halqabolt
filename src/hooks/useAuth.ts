@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { supabase, isSupabaseConfigured, testSupabaseConnection } from '../lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
 
 interface UserProfile {
@@ -41,8 +41,16 @@ export const useAuth = () => {
   const signUp = async (email: string, password: string, role: 'student' | 'teacher', name: string) => {
     console.log('🔵 Starting signup process:', { email, role, name });
     
+    setLoading(true);
+    
     try {
-      setLoading(true);
+      // Test connection first
+      if (isSupabaseConfigured()) {
+        const isConnected = await testSupabaseConnection();
+        if (!isConnected) {
+          throw new Error('لا يمكن الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.');
+        }
+      }
       
       // Check if Supabase is configured
       if (!isSupabaseConfigured()) {
@@ -153,8 +161,16 @@ export const useAuth = () => {
   const signIn = async (email: string, password: string) => {
     console.log('🔵 Starting signin process:', { email });
     
+    setLoading(true);
+    
     try {
-      setLoading(true);
+      // Test connection first
+      if (isSupabaseConfigured()) {
+        const isConnected = await testSupabaseConnection();
+        if (!isConnected) {
+          throw new Error('لا يمكن الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.');
+        }
+      }
       
       // Check if Supabase is configured
       if (!isSupabaseConfigured()) {

@@ -10,6 +10,23 @@ console.log('🔧 Supabase Config Check:', {
   keyLength: supabaseAnonKey?.length || 0
 });
 
+// Test connection function
+const testSupabaseConnection = async () => {
+  try {
+    const response = await fetch(`${supabaseUrl}/rest/v1/`, {
+      method: 'GET',
+      headers: {
+        'apikey': supabaseAnonKey,
+        'Authorization': `Bearer ${supabaseAnonKey}`
+      }
+    });
+    return response.ok;
+  } catch (error) {
+    console.warn('🔴 Supabase connection test failed:', error);
+    return false;
+  }
+};
+
 // Check if environment variables are properly configured with real values
 const isSupabaseConfigured = () => {
   return supabaseUrl && 
@@ -72,30 +89,32 @@ if (!isSupabaseConfigured()) {
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: false,
-      flowType: 'implicit'
+      flowType: 'pkce'
     },
     db: {
       schema: 'public',
+    },
+    global: {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      }
     }
   });
 
-  // Test connection
-  setTimeout(() => {
-    supabase.auth.getSession()
-      .then(({ error }: any) => {
-        if (error) {
-          console.warn('⚠️ Supabase auth test failed:', error.message);
-        } else {
-          console.log('✅ Supabase auth connected successfully');
-        }
-      })
-      .catch((error: any) => {
-        console.warn('⚠️ Auth test failed, but app will continue:', error.message);
-      });
-  }, 1000);
+  // Test connection with better error handling
+  setTimeout(async () => {
+    const isConnected = await testSupabaseConnection();
+    if (isConnected) {
+      console.log('✅ Supabase connected successfully');
+    } else {
+      console.warn('⚠️ Supabase connection failed - using fallback mode');
+    }
+  }, 500);
 }
 
-export { supabase, isSupabaseConfigured };
+export { supabase, isSupabaseConfigured, testSupabaseConnection };
 // Database types
 export interface User {
   id: string;

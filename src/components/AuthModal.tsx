@@ -84,7 +84,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
       // Provide user-friendly error messages
       let errorMessage = 'حدث خطأ أثناء المصادقة';
       
-      if (err.message?.includes('User already registered')) {
+      if (err.message?.includes('لا يمكن الاتصال بالخادم')) {
+        errorMessage = err.message;
+      } else if (err.message?.includes('User already registered')) {
         errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل';
       } else if (err.message?.includes('Invalid login credentials')) {
         errorMessage = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
@@ -94,7 +96,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
         errorMessage = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
       } else if (err.message?.includes('Unable to validate email address')) {
         errorMessage = 'البريد الإلكتروني غير صحيح';
-      } else if (err.message?.includes('fetch')) {
+      } else if (err.message?.includes('fetch') || err.message?.includes('network') || err.message?.includes('Failed to fetch')) {
         errorMessage = 'مشكلة في الاتصال بالخادم. يرجى المحاولة مرة أخرى.';
       } else if (err.message) {
         errorMessage = err.message;
