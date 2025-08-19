@@ -62,10 +62,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
     try {
       if (mode === 'signin') {
         console.log('🔵 AuthModal calling signIn...');
-        await signIn(email.trim(), password);
+        const result = await signIn(email.trim(), password);
+        console.log('🟢 SignIn result:', result);
       } else {
         console.log('🔵 AuthModal calling signUp...');
-        await signUp(email.trim(), password, selectedRole, name.trim());
+        const result = await signUp(email.trim(), password, selectedRole, name.trim());
+        console.log('🟢 SignUp result:', result);
       }
       
       console.log('🟢 AuthModal auth successful, closing modal...');

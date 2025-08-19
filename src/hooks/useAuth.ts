@@ -41,9 +41,9 @@ export const useAuth = () => {
   const signUp = async (email: string, password: string, role: 'student' | 'teacher', name: string) => {
     console.log('🔵 Starting signup process:', { email, role, name });
     
-    setLoading(true);
-    
     try {
+      setLoading(true);
+      
       // Check if Supabase is configured
       if (!isSupabaseConfigured()) {
         console.warn('⚠️ Supabase not configured, using mock signup');
@@ -153,9 +153,9 @@ export const useAuth = () => {
   const signIn = async (email: string, password: string) => {
     console.log('🔵 Starting signin process:', { email });
     
-    setLoading(true);
-    
     try {
+      setLoading(true);
+      
       // Check if Supabase is configured
       if (!isSupabaseConfigured()) {
         console.warn('⚠️ Supabase not configured, using mock signin');
