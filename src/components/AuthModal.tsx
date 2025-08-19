@@ -65,6 +65,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
           <p className="text-gray-600">
             {mode === 'signin' ? 'أهلاً بك مرة أخرى' : 'انضم إلى منصة حلقة'}
           </p>
+          
+          {/* Environment Check */}
+          {(!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) && (
+            <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+              ⚠️ Supabase غير مكون بشكل صحيح. يرجى إعداد متغيرات البيئة.
+            </div>
+          )}
         </div>
 
         {error && (

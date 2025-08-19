@@ -5,6 +5,12 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   base: '/',
+  server: {
+    headers: {
+      'Cross-Origin-Embedder-Policy': 'credentialless',
+      'Cross-Origin-Opener-Policy': 'same-origin'
+    }
+  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

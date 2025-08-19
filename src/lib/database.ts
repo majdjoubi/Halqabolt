@@ -88,6 +88,11 @@ export const auth = {
   signIn: async (email: string, password: string, role: 'student' | 'teacher') => {
     console.log('🔵 Starting signIn:', { email, role });
     try {
+      // Check if Supabase is properly configured
+      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        throw new Error('Supabase is not configured. Please set up your environment variables.');
+      }
+
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -95,7 +100,13 @@ export const auth = {
 
       console.log('🔵 Auth response:', { authData: !!authData.user, error: authError });
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error('🔴 Auth error:', authError);
+        if (authError.message.includes('Invalid login credentials')) {
+          throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+        }
+        throw new Error(authError.message);
+      }
       if (!authData.user) throw new Error('Failed to sign in');
 
       // Check if user's registered role matches the attempted login role
