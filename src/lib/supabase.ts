@@ -1,41 +1,28 @@
+// Simplified Supabase client - only used when properly configured
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('❌ Missing Supabase environment variables');
-  console.error('VITE_SUPABASE_URL:', supabaseUrl ? 'Set' : 'Missing');
-  console.error('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'Set' : 'Missing');
+// Only create client if both URL and key are provided
+export const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false
+      }
+    })
+  : null;
+
+// Log configuration status
+if (supabase) {
+  console.log('✅ Supabase client created successfully');
+} else {
+  console.log('🟡 Supabase not configured - using mock data');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false
-  },
-  global: {
-    headers: {
-      'X-Client-Info': 'halaqah-platform'
-    }
-  }
-});
-
-// Test connection
-supabase.from('teachers').select('count', { count: 'exact', head: true })
-  .then(({ error }) => {
-    if (error) {
-      console.error('❌ Supabase connection test failed:', error.message);
-    } else {
-      console.log('✅ Supabase connected successfully');
-    }
-  })
-  .catch((err) => {
-    console.error('❌ Supabase connection error:', err);
-  });
-
-// Database types
+// Database types (keep for future use)
 export interface User {
   id: string;
   email: string;

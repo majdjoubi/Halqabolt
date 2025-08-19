@@ -1,409 +1,178 @@
-import { supabase } from './supabase';
-import type { User, UserProfile, StudentProfile, TeacherProfile, Session, Booking } from './supabase';
-
-// Authentication functions
-export const auth = {
+// Mock database for development without Supabase
+const mockAuth = {
   signUp: async (email: string, password: string, role: 'student' | 'teacher', name: string = '') => {
-    console.log('🔵 Starting signUp:', { email, role, name });
-    try {
-      // Check if user already exists with different role
-      const { data: existingUser } = await supabase.auth.signInWithPassword({
-        email,
-        password: 'dummy' // This will fail but we just want to check if user exists
-      });
-      
-      // If user exists, check their current role
-      if (existingUser?.user) {
-        const currentRole = existingUser.user.user_metadata?.role;
-        if (currentRole && currentRole !== role) {
-          throw new Error(`هذا البريد الإلكتروني مسجل بالفعل كـ ${currentRole === 'student' ? 'طالب' : 'معلم'}. لا يمكن التسجيل بدور مختلف.`);
-        }
+    console.log('🔵 Mock signUp:', { email, role, name });
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    return {
+      id: `mock-${Date.now()}`,
+      email,
+      role,
+      profile: {
+        name,
+        ...(role === 'teacher' ? {
+          specialization: '',
+          experience_years: 0,
+          hourly_rate: 0,
+          bio: '',
+          certificates: [],
+          languages: ['العربية'],
+          is_verified: false,
+          rating: 0,
+          students_count: 0
+        } : {
+          age: null,
+          level: 'beginner' as const,
+          goals: [],
+          preferred_schedule: ''
+        })
       }
-
-      // Sign up with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            role,
-            name
-          }
-        }
-      });
-
-      if (authError) throw authError;
-      if (!authData.user) throw new Error('Failed to create user');
-
-      // Create user profile based on role
-      const profileData = role === 'teacher' 
-        ? {
-            user_id: authData.user.id,
-            name,
-            specialization: '',
-            experience_years: 0,
-            hourly_rate: 0,
-            bio: '',
-            certificates: [],
-            languages: ['العربية'],
-            is_verified: false, // Teachers need approval
-            approval_status: 'pending', // New field for approval process
-            rating: 0,
-            students_count: 0
-          }
-        : {
-            user_id: authData.user.id,
-            name,
-            age: null,
-            level: 'beginner' as const,
-            goals: [],
-            preferred_schedule: ''
-          };
-
-      const tableName = role === 'teacher' ? 'teachers' : 'students';
-      const { error: profileError } = await supabase
-        .from(tableName)
-        .insert([profileData]);
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        throw new Error('فشل في إنشاء الملف الشخصي');
-      }
-
-      return {
-        id: authData.user.id,
-        email: authData.user.email!,
-        role,
-        profile: profileData
-      };
-    } catch (error: any) {
-      console.error('Sign up error:', error);
-      if (error.message.includes('User already registered')) {
-        throw new Error('هذا البريد الإلكتروني مسجل بالفعل');
-      }
-      throw new Error(error.message || 'فشل في إنشاء الحساب');
-    }
+    };
   },
 
   signIn: async (email: string, password: string, role: 'student' | 'teacher') => {
-    console.log('🔵 Starting signIn:', { email, role });
-    try {
-      // Check if Supabase is properly configured
-      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-        throw new Error('Supabase is not configured. Please set up your environment variables.');
-      }
-
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    console.log('🔵 Mock signIn:', { email, role });
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Mock validation
+    if (email === 'test@example.com' && password === '123456') {
+      return {
+        id: `mock-${role}-user`,
         email,
-        password
-      });
-
-      console.log('🔵 Auth response:', { authData: !!authData.user, error: authError });
-
-      if (authError) {
-        console.error('🔴 Auth error:', authError);
-        if (authError.message.includes('Invalid login credentials')) {
-          throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+        role,
+        profile: {
+          name: role === 'student' ? 'طالب تجريبي' : 'معلم تجريبي',
+          ...(role === 'teacher' ? {
+            specialization: 'تجويد وقراءات',
+            experience_years: 5,
+            hourly_rate: 25,
+            bio: 'معلم تجريبي',
+            certificates: ['شهادة تجريبية'],
+            languages: ['العربية'],
+            is_verified: true,
+            rating: 4.5,
+            students_count: 10
+          } : {
+            age: 25,
+            level: 'intermediate' as const,
+            goals: ['تحسين التلاوة'],
+            preferred_schedule: 'مساءً'
+          })
         }
-        throw new Error(authError.message);
-      }
-      if (!authData.user) throw new Error('Failed to sign in');
-
-      // Check if user's registered role matches the attempted login role
-      const userRole = authData.user.user_metadata?.role;
-      console.log('🔵 User metadata role:', userRole, 'Attempted role:', role);
-      
-      if (userRole && userRole !== role) {
-        console.log('🔴 Role mismatch, signing out');
-        await supabase.auth.signOut(); // Sign out immediately
-        throw new Error(`هذا الحساب مسجل كـ ${userRole === 'student' ? 'طالب' : 'معلم'}. يرجى اختيار الدور الصحيح.`);
-      }
-      
-      // If no role in metadata, use the attempted role (for backward compatibility)
-      const actualRole = userRole || role;
-      console.log('🔵 Using role:', actualRole);
-      
-      // Get user profile
-      const tableName = actualRole === 'teacher' ? 'teachers' : 'students';
-      console.log('🔵 Fetching from table:', tableName);
-      
-      const { data: profileData, error: profileError } = await supabase
-        .from(tableName)
-        .select('*')
-        .eq('user_id', authData.user.id)
-        .single();
-
-      console.log('🔵 Profile response:', { profileData: !!profileData, error: profileError });
-
-      if (profileError && profileError.code !== 'PGRST116') {
-        console.error('Profile fetch error:', profileError);
-        throw new Error('فشل في جلب بيانات الملف الشخصي');
-      }
-
-      const result = {
-        id: authData.user.id,
-        email: authData.user.email!,
-        role: actualRole,
-        profile: profileData || {}
       };
-      
-      console.log('🟢 SignIn successful:', result);
-      return result;
-    } catch (error: any) {
-      console.error('🔴 Sign in error:', error);
-      throw new Error(error.message || 'فشل في تسجيل الدخول');
     }
+    
+    throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
   },
 
   signOut: async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-    } catch (error: any) {
-      console.error('Sign out error:', error);
-      throw new Error(error.message || 'فشل في تسجيل الخروج');
-    }
+    console.log('🔵 Mock signOut');
+    await new Promise(resolve => setTimeout(resolve, 500));
   },
 
   getCurrentUser: async () => {
-    console.log('🔵 Getting current user...');
-    try {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) {
-        if (error.message === 'Auth session missing!') {
-          console.log('🟡 No auth session (user not logged in)');
-          return null;
-        }
-        throw error;
-      }
-      if (!user) {
-        console.log('🟡 No user found');
-        return null;
-      }
-
-      console.log('🔵 Found user:', user.id, user.email);
-
-      // Try to get role from user metadata first
-      const role = user.user_metadata?.role;
-      if (!role) {
-        console.log('🟡 No role in metadata');
-        return null;
-      }
-
-      console.log('🔵 User role:', role);
-
-      // Get user profile
-      const tableName = role === 'teacher' ? 'teachers' : 'students';
-      console.log('🔵 Fetching profile from:', tableName);
-      
-      const { data: profileData, error: profileError } = await supabase
-        .from(tableName)
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      console.log('🔵 Profile data:', { profileData: !!profileData, error: profileError });
-
-      if (profileError) {
-        console.error('Profile fetch error:', profileError);
-        if (profileError.code === 'PGRST116') {
-          throw new Error('الملف الشخصي غير موجود. يرجى التواصل مع الدعم الفني.');
-        }
-      }
-
-      // For teachers, check if they are approved
-      if (role === 'teacher' && profileData && !profileData.is_verified) {
-        const approvalStatus = profileData.approval_status || 'pending';
-        if (approvalStatus === 'pending') {
-          throw new Error('حسابك كمعلم قيد المراجعة. سيتم إشعارك عند الموافقة.');
-        } else if (approvalStatus === 'rejected') {
-          throw new Error('تم رفض طلب التسجيل كمعلم. يرجى التواصل مع الدعم الفني.');
-        }
-      }
-      return {
-        id: user.id,
-        email: user.email!,
-        role,
-        profile: profileData || {}
-      };
-    } catch (error: any) {
-      console.error('Get current user error:', error);
-      return null;
-    }
+    console.log('🔵 Mock getCurrentUser');
+    // Return null for now (no persistent login in mock)
+    return null;
   },
 
   updateUserProfile: async (userId: string, role: 'student' | 'teacher', profileData: any) => {
-    try {
-      const tableName = role === 'teacher' ? 'teachers' : 'students';
-      
-      const { data, error } = await supabase
-        .from(tableName)
-        .update({
-          ...profileData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', userId)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      const result = {
-        id: userId,
-        email: '', // We don't have email in profile update
-        role,
-        profile: data
-      };
-      
-      console.log('🟢 getCurrentUser successful:', result);
-      return result;
-    } catch (error: any) {
-      console.error('Update profile error:', error);
-      throw new Error(error.message || 'فشل في تحديث الملف الشخصي');
-    }
+    console.log('🔵 Mock updateUserProfile:', { userId, role, profileData });
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    return {
+      id: userId,
+      email: 'mock@example.com',
+      role,
+      profile: profileData
+    };
   }
 };
 
-// Database functions
-export const database = {
-  getTeachers: async (): Promise<TeacherProfile[]> => {
-    try {
-      const { data, error } = await supabase
-        .from('teachers')
-        .select('*')
-        .eq('is_verified', true)
-        .order('rating', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
-    } catch (error: any) {
-      console.error('Get teachers error:', error);
-      return [];
-    }
-  },
-
-  getTeacher: async (id: string): Promise<TeacherProfile | null> => {
-    try {
-      const { data, error } = await supabase
-        .from('teachers')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      return data;
-    } catch (error: any) {
-      console.error('🔴 Get current user error:', error);
-      return null;
-    }
-  },
-
-  getSessions: async (teacherId?: string): Promise<Session[]> => {
-    try {
-      let query = supabase
-        .from('sessions')
-        .select('*')
-        .eq('status', 'scheduled')
-        .gte('scheduled_at', new Date().toISOString())
-        .order('scheduled_at', { ascending: true });
-
-      if (teacherId) {
-        query = query.eq('teacher_id', teacherId);
+const mockDatabase = {
+  getTeachers: async () => {
+    console.log('🔵 Mock getTeachers');
+    return [
+      {
+        id: '1',
+        user_id: 'mock-teacher-1',
+        name: 'الشيخ أحمد محمود',
+        specialization: 'متخصص في التجويد والقراءات',
+        experience_years: 15,
+        rating: 4.9,
+        students_count: 450,
+        hourly_rate: 25,
+        bio: 'معلم قرآن كريم بخبرة 15 سنة، حاصل على إجازات في القراءات العشر.',
+        certificates: ['إجازة في رواية حفص عن عاصم', 'شهادة التجويد المتقدم'],
+        languages: ['العربية', 'الإنجليزية'],
+        profile_image_url: 'https://images.pexels.com/photos/8923901/pexels-photo-8923901.jpeg?auto=compress&cs=tinysrgb&w=400',
+        is_verified: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: '2',
+        user_id: 'mock-teacher-2',
+        name: 'الأستاذة فاطمة السيد',
+        specialization: 'تحفيظ القرآن للأطفال',
+        experience_years: 10,
+        rating: 4.8,
+        students_count: 320,
+        hourly_rate: 20,
+        bio: 'متخصصة في تعليم الأطفال وتحفيظهم القرآن الكريم بطرق تفاعلية ومبتكرة.',
+        certificates: ['إجازة في القرآن الكريم', 'دبلوم تعليم الأطفال'],
+        languages: ['العربية', 'الفرنسية'],
+        profile_image_url: 'https://images.pexels.com/photos/8923902/pexels-photo-8923902.jpeg?auto=compress&cs=tinysrgb&w=400',
+        is_verified: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data || [];
-    } catch (error: any) {
-      console.error('Get sessions error:', error);
-      return [];
-    }
+    ];
   },
 
-  createSession: async (sessionData: Omit<Session, 'id' | 'created_at' | 'updated_at'>): Promise<Session | null> => {
-    try {
-      const { data, error } = await supabase
-        .from('sessions')
-        .insert([{
-          ...sessionData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }])
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    } catch (error: any) {
-      console.error('Create session error:', error);
-      throw new Error(error.message || 'فشل في إنشاء الحصة');
-    }
+  getTeacher: async (id: string) => {
+    console.log('🔵 Mock getTeacher:', id);
+    const teachers = await mockDatabase.getTeachers();
+    return teachers.find(t => t.id === id) || null;
   },
 
-  bookSession: async (studentId: string, sessionId: string): Promise<Booking | null> => {
-    try {
-      const { data, error } = await supabase
-        .from('bookings')
-        .insert([{
-          student_id: studentId,
-          session_id: sessionId,
-          status: 'pending',
-          payment_status: 'pending',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }])
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    } catch (error: any) {
-      console.error('Book session error:', error);
-      throw new Error(error.message || 'فشل في حجز الحصة');
-    }
+  getSessions: async (teacherId?: string) => {
+    console.log('🔵 Mock getSessions:', teacherId);
+    return [];
   },
 
-  getStudentBookings: async (studentId: string): Promise<Booking[]> => {
-    try {
-      const { data, error } = await supabase
-        .from('bookings')
-        .select(`
-          *,
-          lessons (
-            *,
-            teachers (name, specialization)
-          )
-        `)
-        .eq('student_id', studentId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
-    } catch (error: any) {
-      console.error('Get student bookings error:', error);
-      return [];
-    }
+  createSession: async (sessionData: any) => {
+    console.log('🔵 Mock createSession:', sessionData);
+    return null;
   },
 
-  getTeacherBookings: async (teacherId: string): Promise<Booking[]> => {
-    try {
-      const { data, error } = await supabase
-        .from('bookings')
-        .select(`
-          *,
-          lessons!inner (
-            *
-          ),
-          students (name)
-        `)
-        .eq('lessons.teacher_id', teacherId)
-        .order('created_at', { ascending: false });
+  bookSession: async (studentId: string, sessionId: string) => {
+    console.log('🔵 Mock bookSession:', { studentId, sessionId });
+    return null;
+  },
 
-      if (error) throw error;
-      return data || [];
-    } catch (error: any) {
-      console.error('Get teacher bookings error:', error);
-      return [];
-    }
+  getStudentBookings: async (studentId: string) => {
+    console.log('🔵 Mock getStudentBookings:', studentId);
+    return [];
+  },
+
+  getTeacherBookings: async (teacherId: string) => {
+    console.log('🔵 Mock getTeacherBookings:', teacherId);
+    return [];
   }
 };
+
+// Check if Supabase is configured
+const isSupabaseConfigured = () => {
+  const url = import.meta.env.VITE_SUPABASE_URL;
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  return !!(url && key && url !== '' && key !== '');
+};
+
+// Export the appropriate implementation
+export const auth = mockAuth;
+export const database = mockDatabase;
+
+console.log('🟡 Using mock database (Supabase not configured)');

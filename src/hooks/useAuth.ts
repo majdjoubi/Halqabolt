@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { auth } from '../lib/database';
-import { supabase } from '../lib/supabase';
 
 interface User {
   id: string;
@@ -15,8 +14,8 @@ export const useAuth = () => {
 
   const signIn = async (email: string, password: string, role: 'student' | 'teacher') => {
     console.log('🔵 useAuth signIn called:', { email, role });
-    setLoading(true);
     try {
+      setLoading(true);
       const userData = await auth.signIn(email, password, role);
       console.log('🔵 useAuth signIn userData:', userData);
       setUser(userData);
@@ -25,15 +24,14 @@ export const useAuth = () => {
       console.error('🔴 Sign in error in hook:', error);
       throw error;
     } finally {
-      console.log('🔵 useAuth signIn finally - setting loading to false');
       setLoading(false);
     }
   };
 
   const signUp = async (email: string, password: string, role: 'student' | 'teacher', name: string = '') => {
     console.log('🔵 useAuth signUp called:', { email, role, name });
-    setLoading(true);
     try {
+      setLoading(true);
       const userData = await auth.signUp(email, password, role, name);
       console.log('🔵 useAuth signUp userData:', userData);
       setUser(userData);
@@ -42,16 +40,17 @@ export const useAuth = () => {
       console.error('🔴 Sign up error in hook:', error);
       throw error;
     } finally {
-      console.log('🔵 useAuth signUp finally - setting loading to false');
       setLoading(false);
     }
   };
 
   const signOut = async () => {
-    setLoading(true);
     try {
+      setLoading(true);
       await auth.signOut();
       setUser(null);
+    } catch (error) {
+      console.error('Sign out error:', error);
     } finally {
       setLoading(false);
     }
@@ -60,13 +59,16 @@ export const useAuth = () => {
   const updateProfile = async (profileData: any) => {
     if (!user) return null;
     
-    setLoading(true);
     try {
+      setLoading(true);
       const updatedUser = await auth.updateUserProfile(user.id, user.role, profileData);
       if (updatedUser) {
         setUser(updatedUser);
       }
       return updatedUser;
+    } catch (error) {
+      console.error('Update profile error:', error);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -75,6 +77,7 @@ export const useAuth = () => {
   useEffect(() => {
     // Initialize auth state
     const initializeAuth = async () => {
+      setLoading(true);
       try {
         const currentUser = await auth.getCurrentUser();
         setUser(currentUser);
@@ -87,25 +90,6 @@ export const useAuth = () => {
     };
 
     initializeAuth();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        setUser(null);
-      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        try {
-          const currentUser = await auth.getCurrentUser();
-          setUser(currentUser);
-        } catch (error) {
-          console.error('Auth state change error:', error);
-          setUser(null);
-        }
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, []);
 
   return {

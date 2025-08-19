@@ -55,7 +55,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
           onClick={onClose}
           className="absolute top-4 left-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
         >
-          <X className="h-5 w-5" />
+          {loading ? (
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              جاري التحميل...
+            </div>
+          ) : (
+            mode === 'signin' ? 'تسجيل الدخول' : 'إنشاء الحساب'
+          )}
         </button>
 
         <div className="text-center mb-8">
@@ -73,12 +80,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
             </div>
           )}
         </div>
-
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4" role="alert">
-            <span className="block sm:inline">{error}</span>
+        {/* Demo Mode Notice */}
+        <div className="mt-4 p-3 bg-blue-100 border border-blue-400 text-blue-700 rounded-lg text-sm">
+          <div className="font-semibold mb-1">🚀 وضع التجربة</div>
+          <div className="text-xs">
+            للتجربة: البريد الإلكتروني: <code>test@example.com</code> | كلمة المرور: <code>123456</code>
           </div>
-        )}
+        </div>
 
         {/* Role Toggle */}
         <div className="mb-6">
