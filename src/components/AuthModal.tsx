@@ -101,6 +101,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
         errorMessage = 'البريد الإلكتروني غير صحيح';
       } else if (err.message?.includes('Supabase not configured')) {
         errorMessage = 'يجب إعداد اتصال قاعدة البيانات أولاً. يرجى التواصل مع المطور.';
+      } else if (err.message?.includes('يجب إعداد Supabase أولاً')) {
+        errorMessage = 'النظام في وضع التطوير. يرجى إعداد متغيرات Supabase للحصول على مصادقة حقيقية.';
       } else if (err.message) {
         errorMessage = err.message;
       }
