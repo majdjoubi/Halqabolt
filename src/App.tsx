@@ -9,7 +9,6 @@ import TeacherProfilePage from './components/TeacherProfilePage';
 import StudentDashboard from './components/StudentDashboard';
 import TeacherDashboard from './components/TeacherDashboard';
 import AuthModal from './components/AuthModal';
-import Footer from './components/Footer';
 import ConnectionStatus from './components/ConnectionStatus';
 
 type Page = 'home' | 'search' | 'teacherProfile' | 'donation' | 'studentDashboard' | 'teacherDashboard';
@@ -93,7 +92,6 @@ function App() {
 
   return (
     <div className="min-h-screen" dir="rtl">
-      <ConnectionStatus />
       <Header 
         navigateTo={navigateTo} 
         currentPage={currentPage}
