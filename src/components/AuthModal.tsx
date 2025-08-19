@@ -140,10 +140,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
               <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                 <p className="text-amber-800 text-sm font-medium">⚠️ يرجى إعداد Supabase أولاً:</p>
                 <ol className="text-amber-700 text-xs mt-2 mr-4 list-decimal">
-                  <li>أنشئ مشروع في <a href="https://supabase.com" target="_blank" className="underline">supabase.com</a></li>
-                  <li>انسخ Project URL و Anon Key</li>
-                  <li>أضفهما في ملف .env</li>
+                  <li>أنشئ مشروع جديد في <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="underline font-bold">supabase.com</a></li>
+                  <li>من Settings → API، انسخ:</li>
+                  <li className="mr-4">• Project URL</li>
+                  <li className="mr-4">• anon/public key</li>
+                  <li>أضفهما كمتغيرات بيئة في المنصة</li>
+                  <li>أنشئ الجداول باستخدام SQL Editor</li>
                 </ol>
+                <div className="mt-3 p-2 bg-amber-100 rounded text-xs">
+                  <strong>مثال على متغيرات البيئة:</strong><br/>
+                  VITE_SUPABASE_URL=https://xxx.supabase.co<br/>
+                  VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                </div>
               </div>
             )}
             <div className="space-y-2 text-sm">

@@ -12,7 +12,8 @@ export const useAuth = () => {
 
     const initializeAuth = async () => {
       if (!isSupabaseConfigured() || !supabase) {
-        console.log('🔴 Supabase not configured, skipping auth initialization');
+        console.log('🔴 Supabase غير مُعد - تخطي تهيئة المصادقة');
+        console.log('تحقق من متغيرات البيئة: VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY');
         if (mounted) {
           setInitializing(false);
         }
@@ -25,7 +26,15 @@ export const useAuth = () => {
         // Test connection first
         const isConnected = await testSupabaseConnection();
         if (!isConnected) {
-          throw new Error('Cannot connect to Supabase');
+          console.error('🔴 لا يمكن الاتصال بـ Supabase');
+          console.log('تأكد من:');
+          console.log('1. صحة متغيرات البيئة');
+          console.log('2. أن مشروع Supabase نشط');
+          console.log('3. أن الجداول موجودة في قاعدة البيانات');
+          if (mounted) {
+            setInitializing(false);
+          }
+          return;
         }
 
         // Get initial session
