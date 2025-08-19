@@ -1,14 +1,23 @@
 import React from 'react';
 import { BookOpen, Users, Clock, Award, PlayCircle, Star } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 const Hero = () => {
-  const user = null;
-  const isAuthenticated = false;
+  const { user, isAuthenticated } = useAuth();
 
   const handleStartLearning = () => {
-    const startButton = document.querySelector('[data-start-learning]') as HTMLButtonElement;
-    if (startButton) {
-      startButton.click();
+    if (isAuthenticated) {
+      // إذا كان مسجل دخول، اذهب لصفحة المعلمين
+      const searchButton = document.querySelector('[data-search-teachers]') as HTMLButtonElement;
+      if (searchButton) {
+        searchButton.click();
+      }
+    } else {
+      // إذا لم يكن مسجل دخول، افتح نافذة التسجيل
+      const startButton = document.querySelector('[data-start-learning]') as HTMLButtonElement;
+      if (startButton) {
+        startButton.click();
+      }
     }
   };
 
@@ -45,7 +54,7 @@ const Hero = () => {
                 className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-lg font-semibold"
               >
                 <PlayCircle className="inline-block ml-2 h-6 w-6" />
-                ابدأ درسك الأول مجاناً
+                {isAuthenticated ? 'ابدأ درسك الأول مجاناً' : 'ابدأ درسك الأول مجاناً'}
               </button>
               <button 
                 onClick={handleBrowseTeachers}

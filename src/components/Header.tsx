@@ -73,12 +73,6 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   onClick={() => navigateTo('search')}
                   className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
                 >
-                  المعلمون
-                </button>
-                <button 
-                  onClick={() => navigateTo('search')}
-                  className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
-                >
                   الدروس الحية
                 </button>
                 <button 
@@ -156,15 +150,6 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   className="text-gray-700 hover:text-emerald-600 font-medium text-right"
                 >
                   الرئيسية
-                </button>
-                <button 
-                  onClick={() => {
-                    navigateTo('search');
-                    setIsMenuOpen(false);
-                  }}
-                  className="text-gray-700 hover:text-emerald-600 font-medium text-right"
-                >
-                  المعلمون
                 </button>
                 <button 
                   onClick={() => {
