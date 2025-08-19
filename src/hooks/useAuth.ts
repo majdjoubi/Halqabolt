@@ -128,12 +128,11 @@ export const useAuth = () => {
       // Get user role from metadata or use attempted role
       const userRole = authData.user.user_metadata?.role || role;
       
-      if (userRole !== role) {
-        throw new Error(`هذا الحساب مسجل كـ ${userRole === 'teacher' ? 'معلم' : 'طالب'}. يرجى اختيار النوع الصحيح.`);
-      }
+      // Use the actual user role from the database instead of throwing error
+      const actualRole = userRole;
 
       // Get profile from appropriate table
-      const tableName = userRole === 'teacher' ? 'teachers' : 'students';
+      const tableName = actualRole === 'teacher' ? 'teachers' : 'students';
       const { data: profileData, error: profileError } = await supabase
         .from(tableName)
         .select('*')
@@ -148,7 +147,7 @@ export const useAuth = () => {
       const appUser: AppUser = {
         id: authData.user.id,
         email: authData.user.email!,
-        role: userRole,
+        role: actualRole,
         profile: profileData || undefined
       };
 

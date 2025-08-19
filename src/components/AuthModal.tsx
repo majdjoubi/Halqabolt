@@ -40,6 +40,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
       console.log('🟢 AuthModal auth successful, closing modal...');
       onClose();
       if (onSuccess) {
+        // Get the actual role from the auth result
         onSuccess(selectedRole);
       }
     } catch (err: any) {
