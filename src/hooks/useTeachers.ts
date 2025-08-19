@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 export interface Teacher {
   id: string;
@@ -29,7 +29,11 @@ export const useTeachers = () => {
     setError(null);
     
     try {
-      console.log('🔵 Fetching teachers from Supabase...');
+      if (!isSupabaseConfigured() || !supabase) {
+        throw new Error('Supabase غير مُعد');
+      }
+
+      console.log('🔵 جلب المعلمين من Supabase...');
       
       const { data, error } = await supabase
         .from('teachers')
@@ -38,14 +42,14 @@ export const useTeachers = () => {
         .order('rating', { ascending: false });
 
       if (error) {
-        console.error('🔴 Teachers fetch error:', error);
+        console.error('🔴 خطأ في جلب المعلمين:', error);
         throw error;
       }
 
-      console.log('🟢 Teachers fetched successfully:', data?.length || 0, 'teachers');
+      console.log('🟢 تم جلب المعلمين بنجاح:', data?.length || 0, 'معلم');
       setTeachers(data || []);
     } catch (err: any) {
-      console.error('🔴 Teachers fetch error:', err);
+      console.error('🔴 خطأ في جلب المعلمين:', err);
       setError(err.message || 'حدث خطأ أثناء تحميل المعلمين');
       
       // Fallback to mock data if Supabase fails
@@ -104,7 +108,7 @@ export const useTeachers = () => {
       ];
       
       setTeachers(mockTeachers);
-      console.log('🟡 Using mock teachers data as fallback');
+      console.log('🟡 استخدام بيانات وهمية للمعلمين');
     } finally {
       setLoading(false);
     }
@@ -120,7 +124,11 @@ export const useTeachers = () => {
     setError(null);
     
     try {
-      console.log('🔵 Searching teachers:', query);
+      if (!isSupabaseConfigured() || !supabase) {
+        throw new Error('Supabase غير مُعد');
+      }
+
+      console.log('🔵 البحث عن المعلمين:', query);
       
       const { data, error } = await supabase
         .from('teachers')
@@ -130,14 +138,14 @@ export const useTeachers = () => {
         .order('rating', { ascending: false });
 
       if (error) {
-        console.error('🔴 Teachers search error:', error);
+        console.error('🔴 خطأ في البحث عن المعلمين:', error);
         throw error;
       }
 
-      console.log('🟢 Teachers search completed:', data?.length || 0, 'results');
+      console.log('🟢 تم البحث عن المعلمين:', data?.length || 0, 'نتيجة');
       setTeachers(data || []);
     } catch (err: any) {
-      console.error('🔴 Teachers search error:', err);
+      console.error('🔴 خطأ في البحث عن المعلمين:', err);
       setError(err.message || 'حدث خطأ أثناء البحث');
     } finally {
       setLoading(false);

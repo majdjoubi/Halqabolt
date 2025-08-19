@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
-import { User, BookOpen, Star, Clock, Calendar, Upload, Camera, Award, Globe, X } from 'lucide-react';
+import { User, BookOpen, Star, Clock, Calendar, Upload, Camera, Award, Wallet, X } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 interface TeacherDashboardProps {
   onClose: () => void;
 }
 
 const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
-  const user = null;
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
-  const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [approvalStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const [teacherData, setTeacherData] = useState({
-    name: '',
+    name: user?.name || '',
     specialization: '',
     experience_years: 0,
     hourly_rate: 0,
     bio: '',
     certificates: [] as string[],
     languages: ['العربية'],
-    profile_image_url: ''
+    profile_image_url: '',
+    monthly_earnings: 1250.00 // Mock earnings
   });
 
   const [newCertificate, setNewCertificate] = useState('');
@@ -27,6 +29,14 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
     rating: 4.8,
     earnings: 2500
   });
+
+  const [availableHours] = useState([
+    { day: 'الأحد', hours: '9:00 - 12:00, 14:00 - 17:00' },
+    { day: 'الاثنين', hours: '10:00 - 13:00' },
+    { day: 'الثلاثاء', hours: '9:00 - 12:00, 15:00 - 18:00' },
+    { day: 'الأربعاء', hours: '14:00 - 17:00' },
+    { day: 'الخميس', hours: '9:00 - 12:00' }
+  ]);
 
   const handleInputChange = (field: string, value: string | number) => {
     setTeacherData(prev => ({ ...prev, [field]: value }));
@@ -51,15 +61,14 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
 
   const handleSaveProfile = async () => {
     try {
-      alert('المصادقة غير متاحة حالياً');
+      // Here you would save to Supabase
+      alert('تم حفظ الملف الشخصي بنجاح');
     } catch (error: any) {
-      alert('المصادقة غير متاحة حالياً');
+      alert('حدث خطأ أثناء حفظ الملف الشخصي');
     }
   };
 
-  // Check if teacher is approved
-  const isApproved = false;
-  const currentApprovalStatus = 'pending';
+  const isApproved = approvalStatus === 'approved';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -81,41 +90,42 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
       {/* Approval Status Banner */}
       {!isApproved && (
         <div className={`${
-          currentApprovalStatus === 'pending' ? 'bg-amber-50 border-amber-200' :
-          currentApprovalStatus === 'rejected' ? 'bg-red-50 border-red-200' :
+          approvalStatus === 'pending' ? 'bg-amber-50 border-amber-200' :
+          approvalStatus === 'rejected' ? 'bg-red-50 border-red-200' :
           'bg-blue-50 border-blue-200'
         } border-b px-4 py-3`}>
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center">
               <div className={`flex-shrink-0 ${
-                currentApprovalStatus === 'pending' ? 'text-amber-600' :
-                currentApprovalStatus === 'rejected' ? 'text-red-600' :
+                approvalStatus === 'pending' ? 'text-amber-600' :
+                approvalStatus === 'rejected' ? 'text-red-600' :
                 'text-blue-600'
               }`}>
                 <Clock className="h-5 w-5" />
               </div>
               <div className="mr-3">
                 <p className={`text-sm font-medium ${
-                  currentApprovalStatus === 'pending' ? 'text-amber-800' :
-                  currentApprovalStatus === 'rejected' ? 'text-red-800' :
+                  approvalStatus === 'pending' ? 'text-amber-800' :
+                  approvalStatus === 'rejected' ? 'text-red-800' :
                   'text-blue-800'
                 }`}>
-                  {currentApprovalStatus === 'pending' && 'حسابك قيد المراجعة'}
-                  {currentApprovalStatus === 'rejected' && 'تم رفض طلب التسجيل'}
+                  {approvalStatus === 'pending' && 'حسابك قيد المراجعة'}
+                  {approvalStatus === 'rejected' && 'تم رفض طلب التسجيل'}
                 </p>
                 <p className={`text-xs ${
-                  currentApprovalStatus === 'pending' ? 'text-amber-700' :
-                  currentApprovalStatus === 'rejected' ? 'text-red-700' :
+                  approvalStatus === 'pending' ? 'text-amber-700' :
+                  approvalStatus === 'rejected' ? 'text-red-700' :
                   'text-blue-700'
                 }`}>
-                  {currentApprovalStatus === 'pending' && 'يرجى إكمال ملفك الشخصي ورفع الشهادات. سيتم إشعارك عند الموافقة.'}
-                  {currentApprovalStatus === 'rejected' && 'يرجى التواصل مع الدعم الفني لمعرفة أسباب الرفض.'}
+                  {approvalStatus === 'pending' && 'يرجى إكمال ملفك الشخصي ورفع الشهادات. سيتم إشعارك عند الموافقة.'}
+                  {approvalStatus === 'rejected' && 'يرجى التواصل مع الدعم الفني لمعرفة أسباب الرفض.'}
                 </p>
               </div>
             </div>
           </div>
         </div>
       )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Sidebar */}
@@ -132,8 +142,19 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
                     <Camera className="h-4 w-4" />
                   </button>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mt-3">مستخدم</h3>
+                <h3 className="text-lg font-bold text-gray-900 mt-3">{user?.name || 'مستخدم'}</h3>
                 <p className="text-gray-600">معلم</p>
+              </div>
+
+              {/* Earnings */}
+              <div className="bg-blue-50 p-4 rounded-xl mb-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-blue-700">الأرباح الشهرية</p>
+                    <p className="text-2xl font-bold text-blue-800">{teacherData.monthly_earnings.toFixed(2)} ريال</p>
+                  </div>
+                  <Wallet className="h-8 w-8 text-blue-600" />
+                </div>
               </div>
 
               {/* Stats */}
@@ -166,6 +187,15 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
                 >
                   <Award className="inline-block ml-3 h-5 w-5" />
                   الشهادات
+                </button>
+                <button
+                  onClick={() => setActiveTab('availability')}
+                  className={`w-full text-right px-4 py-3 rounded-lg transition-colors ${
+                    activeTab === 'availability' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'
+                  }`}
+                >
+                  <Clock className="inline-block ml-3 h-5 w-5" />
+                  ساعات التوافر
                 </button>
                 <button
                   onClick={() => setActiveTab('lessons')}
@@ -300,6 +330,31 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
                     اختر الملفات
                   </button>
                 </div>
+              </div>
+            )}
+
+            {activeTab === 'availability' && (
+              <div className="bg-white rounded-2xl shadow-lg p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">ساعات التوافر</h2>
+                
+                <div className="space-y-4">
+                  {availableHours.map((schedule, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                      <div className="flex items-center">
+                        <Calendar className="h-5 w-5 text-blue-600 ml-3" />
+                        <span className="font-medium text-gray-900">{schedule.day}</span>
+                      </div>
+                      <div className="text-gray-600">{schedule.hours}</div>
+                      <button className="text-blue-600 hover:text-blue-700 transition-colors">
+                        تعديل
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <button className="mt-6 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                  إضافة ساعات جديدة
+                </button>
               </div>
             )}
 

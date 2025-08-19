@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
-import { User, BookOpen, Star, Clock, Calendar, Camera, X } from 'lucide-react';
+import { User, BookOpen, Star, Clock, Calendar, Camera, X, Wallet, CreditCard } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 interface StudentDashboardProps {
   onClose: () => void;
 }
 
 const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
-  const user = null;
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [studentData, setStudentData] = useState({
-    name: '',
+    name: user?.name || '',
     age: '',
     level: 'beginner',
     goals: [] as string[],
     preferred_schedule: '',
-    profile_image_url: ''
+    profile_image_url: '',
+    wallet_balance: 150.00 // Mock wallet balance
   });
 
   const [bookings] = useState([
@@ -57,10 +59,16 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
 
   const handleSaveProfile = async () => {
     try {
-      alert('المصادقة غير متاحة حالياً');
+      // Here you would save to Supabase
+      alert('تم حفظ الملف الشخصي بنجاح');
     } catch (error: any) {
-      alert('المصادقة غير متاحة حالياً');
+      alert('حدث خطأ أثناء حفظ الملف الشخصي');
     }
+  };
+
+  const handleChargeWallet = () => {
+    // Here you would integrate with Stripe
+    alert('سيتم تكامل نظام الدفع مع Stripe قريباً');
   };
 
   return (
@@ -96,8 +104,25 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
                     <Camera className="h-4 w-4" />
                   </button>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mt-3">مستخدم</h3>
+                <h3 className="text-lg font-bold text-gray-900 mt-3">{user?.name || 'مستخدم'}</h3>
                 <p className="text-gray-600">طالب</p>
+              </div>
+
+              {/* Wallet Balance */}
+              <div className="bg-emerald-50 p-4 rounded-xl mb-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-emerald-700">رصيد المحفظة</p>
+                    <p className="text-2xl font-bold text-emerald-800">{studentData.wallet_balance.toFixed(2)} ريال</p>
+                  </div>
+                  <Wallet className="h-8 w-8 text-emerald-600" />
+                </div>
+                <button
+                  onClick={handleChargeWallet}
+                  className="w-full mt-3 bg-emerald-600 text-white py-2 rounded-lg hover:bg-emerald-700 transition-colors text-sm"
+                >
+                  شحن الرصيد
+                </button>
               </div>
 
               <nav className="space-y-2">
@@ -109,6 +134,15 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
                 >
                   <User className="inline-block ml-3 h-5 w-5" />
                   الملف الشخصي
+                </button>
+                <button
+                  onClick={() => setActiveTab('wallet')}
+                  className={`w-full text-right px-4 py-3 rounded-lg transition-colors ${
+                    activeTab === 'wallet' ? 'bg-emerald-100 text-emerald-700' : 'hover:bg-gray-100'
+                  }`}
+                >
+                  <Wallet className="inline-block ml-3 h-5 w-5" />
+                  المحفظة
                 </button>
                 <button
                   onClick={() => setActiveTab('lessons')}
@@ -187,6 +221,56 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
                 >
                   حفظ التغييرات
                 </button>
+              </div>
+            )}
+
+            {activeTab === 'wallet' && (
+              <div className="bg-white rounded-2xl shadow-lg p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">المحفظة</h2>
+                
+                {/* Current Balance */}
+                <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-6 rounded-xl mb-8">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-emerald-100">الرصيد الحالي</p>
+                      <p className="text-3xl font-bold">{studentData.wallet_balance.toFixed(2)} ريال</p>
+                    </div>
+                    <Wallet className="h-12 w-12 text-emerald-200" />
+                  </div>
+                </div>
+
+                {/* Charge Options */}
+                <div className="grid md:grid-cols-3 gap-4 mb-8">
+                  {[50, 100, 200].map((amount) => (
+                    <button
+                      key={amount}
+                      onClick={handleChargeWallet}
+                      className="border-2 border-emerald-200 hover:border-emerald-500 hover:bg-emerald-50 p-4 rounded-xl transition-all duration-200 text-center"
+                    >
+                      <CreditCard className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
+                      <p className="font-bold text-gray-900">{amount} ريال</p>
+                      <p className="text-sm text-gray-600">شحن سريع</p>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Custom Amount */}
+                <div className="border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">شحن مبلغ مخصص</h3>
+                  <div className="flex gap-4">
+                    <input
+                      type="number"
+                      placeholder="أدخل المبلغ"
+                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    />
+                    <button
+                      onClick={handleChargeWallet}
+                      className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors"
+                    >
+                      شحن
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 

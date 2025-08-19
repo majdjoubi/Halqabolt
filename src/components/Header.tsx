@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { BookOpen, Menu, X, User, Settings, LogOut, ChevronDown } from 'lucide-react';
+import { BookOpen, Menu, X, User, Settings, LogOut, ChevronDown, Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 
 interface HeaderProps {
@@ -9,8 +10,10 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) => {
+  const { t, i18n } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const { user, isAuthenticated, signOut } = useAuth();
 
   const handleStartLearning = () => {
@@ -27,7 +30,6 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
   };
 
   const handleAccountSettings = () => {
-    // Navigate to account settings
     if (user?.role === 'student') {
       navigateTo('studentDashboard');
     } else if (user?.role === 'teacher') {
@@ -35,6 +37,14 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
     }
     setIsUserMenuOpen(false);
   };
+
+  const toggleLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
+    document.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    setIsLangMenuOpen(false);
+  };
+
+  const currentLang = i18n.language;
 
   return (
     <>
@@ -49,7 +59,6 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   alt="شعار حلقة" 
                   className="h-8 w-8 object-contain"
                   onError={(e) => {
-                    // Fallback to icon if image fails to load
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
                   }}
@@ -61,31 +70,59 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center justify-center flex-1 space-x-8 space-x-reverse">
-              {/* Navigation Links */}
               <nav className="flex items-center space-x-6 space-x-reverse">
                 <button 
                   onClick={() => navigateTo('home')}
                   className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
                 >
-                  الرئيسية
+                  {t('home')}
                 </button>
                 <button 
                   onClick={() => navigateTo('search')}
                   className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
                 >
-                  الدروس الحية
+                  {t('liveLessons')}
                 </button>
                 <button 
                   onClick={() => navigateTo('donation')}
                   className="text-amber-600 hover:text-amber-700 font-medium transition-colors duration-200"
                 >
-                  تبرع الآن
+                  {t('donate')}
                 </button>
               </nav>
             </div>
 
-            {/* User Section - Always on the right */}
-            <div className="hidden md:flex items-center">
+            {/* Right Section */}
+            <div className="hidden md:flex items-center space-x-4 space-x-reverse">
+              {/* Language Switcher */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+                  className="flex items-center space-x-2 space-x-reverse px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <Globe className="h-4 w-4" />
+                  <span className="text-sm">{currentLang === 'ar' ? 'العربية' : 'English'}</span>
+                  <ChevronDown className="h-3 w-3" />
+                </button>
+                
+                {isLangMenuOpen && (
+                  <div className="absolute left-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <button
+                      onClick={() => toggleLanguage('ar')}
+                      className={`w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${currentLang === 'ar' ? 'bg-emerald-50 text-emerald-700' : ''}`}
+                    >
+                      العربية
+                    </button>
+                    <button
+                      onClick={() => toggleLanguage('en')}
+                      className={`w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${currentLang === 'en' ? 'bg-emerald-50 text-emerald-700' : ''}`}
+                    >
+                      English
+                    </button>
+                  </div>
+                )}
+              </div>
+
               {/* User Section */}
               {isAuthenticated && user ? (
                 <div className="relative">
@@ -98,7 +135,6 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                     <ChevronDown className="h-4 w-4" />
                   </button>
                   
-                  {/* User Dropdown Menu */}
                   {isUserMenuOpen && (
                     <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                       <button
@@ -124,7 +160,7 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   onClick={handleStartLearning}
                   className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                 >
-                  ابدأ التعلم الآن
+                  {t('startLearning')}
                 </button>
               )}
             </div>
@@ -149,7 +185,7 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   }}
                   className="text-gray-700 hover:text-emerald-600 font-medium text-right"
                 >
-                  الرئيسية
+                  {t('home')}
                 </button>
                 <button 
                   onClick={() => {
@@ -158,7 +194,7 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   }}
                   className="text-gray-700 hover:text-emerald-600 font-medium text-right"
                 >
-                  الدروس الحية
+                  {t('liveLessons')}
                 </button>
                 <button 
                   onClick={() => {
@@ -167,8 +203,26 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   }}
                   className="text-amber-600 hover:text-amber-700 font-medium text-right"
                 >
-                  تبرع الآن
+                  {t('donate')}
                 </button>
+                
+                <hr className="border-gray-200" />
+                
+                {/* Mobile Language Switcher */}
+                <div className="flex justify-center space-x-4 space-x-reverse">
+                  <button
+                    onClick={() => toggleLanguage('ar')}
+                    className={`px-3 py-1 rounded ${currentLang === 'ar' ? 'bg-emerald-100 text-emerald-700' : 'text-gray-600'}`}
+                  >
+                    العربية
+                  </button>
+                  <button
+                    onClick={() => toggleLanguage('en')}
+                    className={`px-3 py-1 rounded ${currentLang === 'en' ? 'bg-emerald-100 text-emerald-700' : 'text-gray-600'}`}
+                  >
+                    English
+                  </button>
+                </div>
                 
                 <hr className="border-gray-200" />
                 
@@ -207,7 +261,7 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                     }}
                     className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-3 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 font-semibold text-center"
                   >
-                    ابدأ التعلم الآن
+                    {t('startLearning')}
                   </button>
                 )}
               </nav>

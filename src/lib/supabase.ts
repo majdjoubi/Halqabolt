@@ -1,28 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key-here';
-
-// Log environment variables for debugging (only in development)
-if (import.meta.env.DEV) {
-  console.log('🔧 Supabase Config Check:');
-  console.log('URL:', supabaseUrl && supabaseUrl !== 'https://your-project.supabase.co' ? '✅ Set' : '❌ Missing');
-  console.log('Key:', supabaseAnonKey && supabaseAnonKey !== 'your-anon-key-here' ? '✅ Set' : '❌ Missing');
-  console.log('Environment:', import.meta.env.MODE);
-  
-  if (!isSupabaseConfigured()) {
-    console.log('⚠️ Supabase غير مُعد بشكل صحيح');
-    console.log('يرجى إعداد متغيرات البيئة التالية:');
-    console.log('- VITE_SUPABASE_URL');
-    console.log('- VITE_SUPABASE_ANON_KEY');
-  }
-}
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 // Check if Supabase is configured
 export const isSupabaseConfigured = () => {
-  const hasUrl = supabaseUrl && supabaseUrl !== 'https://your-project.supabase.co' && supabaseUrl.includes('supabase.co');
-  const hasKey = supabaseAnonKey && supabaseAnonKey !== 'your-anon-key-here' && supabaseAnonKey.length > 50;
+  const hasUrl = supabaseUrl && supabaseUrl !== '' && supabaseUrl.includes('supabase.co');
+  const hasKey = supabaseAnonKey && supabaseAnonKey !== '' && supabaseAnonKey.length > 50;
   return !!(hasUrl && hasKey);
 };
 
@@ -42,14 +27,11 @@ export const supabase = isSupabaseConfigured()
 export const testSupabaseConnection = async (): Promise<boolean> => {
   if (!supabase) {
     console.log('🔴 Supabase غير مُعد - يرجى إضافة متغيرات البيئة');
-    console.log('المطلوب: VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY');
     return false;
   }
 
   try {
     console.log('🔵 اختبار اتصال Supabase...');
-    console.log('URL:', supabaseUrl ? 'موجود' : 'مفقود');
-    console.log('Key:', supabaseAnonKey ? 'موجود' : 'مفقود');
     
     // Test REST API
     const { data, error } = await supabase
@@ -58,20 +40,11 @@ export const testSupabaseConnection = async (): Promise<boolean> => {
       .limit(1);
 
     if (error) {
-      console.error('🔴 خطأ في Supabase REST API:', error.message);
-      console.error('التفاصيل:', error);
+      console.error('🔴 خطأ في Supabase:', error.message);
       return false;
     }
 
-    // Test Auth API
-    const { data: { session }, error: authError } = await supabase.auth.getSession();
-    
-    if (authError) {
-      console.error('🔴 خطأ في Supabase Auth:', authError.message);
-    }
-    
     console.log('🟢 اتصال Supabase ناجح');
-    console.log('عدد المعلمين المتاحين:', data?.length || 0);
     return true;
   } catch (error) {
     console.error('🔴 فشل اتصال Supabase:', error);
@@ -79,68 +52,24 @@ export const testSupabaseConnection = async (): Promise<boolean> => {
   }
 };
 
-// GitHub integration
-export const testGitHubConnection = async (): Promise<boolean> => {
-  try {
-    console.log('🔵 Testing GitHub connection...');
-    
-    const response = await fetch('https://api.github.com/rate_limit');
-    if (response.ok) {
-      console.log('🟢 GitHub API accessible');
-      return true;
-    } else {
-      console.log('🔴 GitHub API not accessible');
-      return false;
-    }
-  } catch (error) {
-    console.error('🔴 GitHub connection failed:', error);
-    return false;
-  }
-};
-
-// Vercel integration
-export const testVercelConnection = async (): Promise<boolean> => {
-  try {
-    console.log('🔵 Testing Vercel connection...');
-    
-    const response = await fetch('https://api.vercel.com/v1/user', {
-      headers: {
-        'Authorization': `Bearer ${import.meta.env.VITE_VERCEL_TOKEN || 'test'}`
-      }
-    });
-    
-    // Even if unauthorized, if we get a response, Vercel is accessible
-    console.log('🟢 Vercel API accessible');
-    return true;
-  } catch (error) {
-    console.error('🔴 Vercel connection failed:', error);
-    return false;
-  }
-};
-
-// Initialize connections test
-export const initializeConnections = async () => {
-  console.log('🚀 Initializing all connections...');
-  
-  const results = await Promise.all([
+// Initialize connections for testing
+export const initializeConnections = async (): Promise<boolean[]> => {
+  const results = await Promise.allSettled([
     testSupabaseConnection(),
-    testGitHubConnection(),
-    testVercelConnection()
+    // Test GitHub API availability
+    fetch('https://api.github.com').then(() => true).catch(() => false),
+    // Test Vercel availability
+    fetch('https://vercel.com').then(() => true).catch(() => false)
   ]);
-  
-  console.log('📊 Connection Results:', {
-    supabase: results[0],
-    github: results[1],
-    vercel: results[2]
-  });
-  
-  return results;
+
+  return results.map(result => result.status === 'fulfilled' ? result.value : false);
 };
 
 // Types
 export interface User {
   id: string;
   email: string;
+  name?: string;
   role: 'student' | 'teacher';
   created_at: string;
   updated_at: string;
@@ -160,6 +89,7 @@ export interface StudentProfile extends UserProfile {
   level: 'beginner' | 'intermediate' | 'advanced';
   goals: string[];
   preferred_schedule?: string;
+  wallet_balance?: number;
 }
 
 export interface TeacherProfile extends UserProfile {
@@ -173,6 +103,7 @@ export interface TeacherProfile extends UserProfile {
   rating: number;
   students_count: number;
   availability_status: string;
+  monthly_earnings?: number;
 }
 
 export interface Lesson {
@@ -197,5 +128,27 @@ export interface Booking {
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   meeting_url?: string;
   notes?: string;
+  created_at: string;
+}
+
+export interface Review {
+  id: string;
+  student_id: string;
+  teacher_id: string;
+  booking_id: string;
+  rating: number;
+  comment?: string;
+  created_at: string;
+}
+
+export interface Subscription {
+  id: string;
+  student_id: string;
+  plan_name: string;
+  price: number;
+  billing_cycle: 'monthly' | 'yearly';
+  status: 'active' | 'cancelled' | 'expired';
+  starts_at: string;
+  ends_at: string;
   created_at: string;
 }

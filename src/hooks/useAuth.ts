@@ -13,7 +13,6 @@ export const useAuth = () => {
     const initializeAuth = async () => {
       if (!isSupabaseConfigured() || !supabase) {
         console.log('🔴 Supabase غير مُعد - تخطي تهيئة المصادقة');
-        console.log('تحقق من متغيرات البيئة: VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY');
         if (mounted) {
           setInitializing(false);
         }
@@ -21,16 +20,12 @@ export const useAuth = () => {
       }
 
       try {
-        console.log('🔵 Initializing auth...');
+        console.log('🔵 تهيئة المصادقة...');
         
         // Test connection first
         const isConnected = await testSupabaseConnection();
         if (!isConnected) {
           console.error('🔴 لا يمكن الاتصال بـ Supabase');
-          console.log('تأكد من:');
-          console.log('1. صحة متغيرات البيئة');
-          console.log('2. أن مشروع Supabase نشط');
-          console.log('3. أن الجداول موجودة في قاعدة البيانات');
           if (mounted) {
             setInitializing(false);
           }
@@ -41,9 +36,9 @@ export const useAuth = () => {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('🔴 Auth session error:', error);
+          console.error('🔴 خطأ في جلسة المصادقة:', error);
         } else if (session?.user) {
-          console.log('🟢 User session found:', session.user.email);
+          console.log('🟢 تم العثور على جلسة مستخدم:', session.user.email);
           if (mounted) {
             setUser({
               id: session.user.id,
@@ -55,18 +50,18 @@ export const useAuth = () => {
             });
           }
         } else {
-          console.log('🟡 No active session found');
+          console.log('🟡 لا توجد جلسة نشطة');
         }
 
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
-            console.log('🔄 Auth state changed:', event);
+            console.log('🔄 تغيير حالة المصادقة:', event);
             
             if (!mounted) return;
 
             if (event === 'SIGNED_IN' && session?.user) {
-              console.log('🟢 User signed in:', session.user.email);
+              console.log('🟢 تم تسجيل الدخول:', session.user.email);
               setUser({
                 id: session.user.id,
                 email: session.user.email || '',
@@ -76,10 +71,10 @@ export const useAuth = () => {
                 updated_at: new Date().toISOString()
               });
             } else if (event === 'SIGNED_OUT') {
-              console.log('🔴 User signed out');
+              console.log('🔴 تم تسجيل الخروج');
               setUser(null);
             } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-              console.log('🔄 Token refreshed for:', session.user.email);
+              console.log('🔄 تم تحديث الرمز المميز لـ:', session.user.email);
               setUser({
                 id: session.user.id,
                 email: session.user.email || '',
@@ -92,13 +87,12 @@ export const useAuth = () => {
           }
         );
 
-        // Cleanup subscription on unmount
         return () => {
           subscription.unsubscribe();
         };
 
       } catch (error: any) {
-        console.error('🔴 Auth initialization error:', error);
+        console.error('🔴 خطأ في تهيئة المصادقة:', error);
       } finally {
         if (mounted) {
           setInitializing(false);
@@ -106,10 +100,9 @@ export const useAuth = () => {
       }
     };
 
-    // Add timeout to prevent infinite loading
     const timeoutId = setTimeout(() => {
       if (mounted) {
-        console.log('⏰ Auth initialization timeout');
+        console.log('⏰ انتهت مهلة تهيئة المصادقة');
         setInitializing(false);
       }
     }, 5000);
@@ -126,12 +119,12 @@ export const useAuth = () => {
 
   const signIn = async (email: string, password: string) => {
     if (!supabase) {
-      return { error: 'Supabase not configured' };
+      return { error: 'Supabase غير مُعد' };
     }
 
     setLoading(true);
     try {
-      console.log('🔵 Signing in user:', email);
+      console.log('🔵 تسجيل دخول المستخدم:', email);
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -139,14 +132,14 @@ export const useAuth = () => {
       });
 
       if (error) {
-        console.error('🔴 Sign in error:', error);
+        console.error('🔴 خطأ في تسجيل الدخول:', error);
         return { error: error.message };
       }
 
-      console.log('🟢 Sign in successful');
+      console.log('🟢 تم تسجيل الدخول بنجاح');
       return { data };
     } catch (error: any) {
-      console.error('🔴 Sign in error:', error);
+      console.error('🔴 خطأ في تسجيل الدخول:', error);
       return { error: error.message || 'حدث خطأ أثناء تسجيل الدخول' };
     } finally {
       setLoading(false);
@@ -155,12 +148,12 @@ export const useAuth = () => {
 
   const signUp = async (email: string, password: string, userData: { name: string; role: 'student' | 'teacher' }) => {
     if (!supabase) {
-      return { error: 'Supabase not configured' };
+      return { error: 'Supabase غير مُعد' };
     }
 
     setLoading(true);
     try {
-      console.log('🔵 Signing up user:', email);
+      console.log('🔵 إنشاء حساب المستخدم:', email);
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -174,18 +167,18 @@ export const useAuth = () => {
       });
 
       if (error) {
-        console.error('🔴 Sign up error:', error);
+        console.error('🔴 خطأ في إنشاء الحساب:', error);
         return { error: error.message };
       }
 
-      console.log('🟢 Sign up successful');
+      console.log('🟢 تم إنشاء الحساب بنجاح');
       
-      // Wait a bit for the session to be established
+      // Wait for session to be established
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       return { data };
     } catch (error: any) {
-      console.error('🔴 Sign up error:', error);
+      console.error('🔴 خطأ في إنشاء الحساب:', error);
       return { error: error.message || 'حدث خطأ أثناء إنشاء الحساب' };
     } finally {
       setLoading(false);
@@ -199,45 +192,20 @@ export const useAuth = () => {
 
     setLoading(true);
     try {
-      console.log('🔵 Signing out user');
+      console.log('🔵 تسجيل خروج المستخدم');
       
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        console.error('🔴 Sign out error:', error);
+        console.error('🔴 خطأ في تسجيل الخروج:', error);
       } else {
-        console.log('🟢 Sign out successful');
+        console.log('🟢 تم تسجيل الخروج بنجاح');
         setUser(null);
       }
     } catch (error: any) {
-      console.error('🔴 Sign out error:', error);
+      console.error('🔴 خطأ في تسجيل الخروج:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const updateProfile = async (updates: Partial<User>) => {
-    if (!supabase || !user) {
-      return null;
-    }
-
-    try {
-      console.log('🔵 Updating user profile');
-      
-      const { data, error } = await supabase.auth.updateUser({
-        data: updates
-      });
-
-      if (error) {
-        console.error('🔴 Profile update error:', error);
-        return null;
-      }
-
-      console.log('🟢 Profile updated successfully');
-      return data;
-    } catch (error: any) {
-      console.error('🔴 Profile update error:', error);
-      return null;
     }
   };
 
@@ -249,6 +217,5 @@ export const useAuth = () => {
     signIn,
     signUp,
     signOut,
-    updateProfile,
   };
 };

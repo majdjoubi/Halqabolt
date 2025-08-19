@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Features from './components/Features';
@@ -12,16 +12,21 @@ import TeacherDashboard from './components/TeacherDashboard';
 import AuthModal from './components/AuthModal';
 import ConnectionStatus from './components/ConnectionStatus';
 import { isSupabaseConfigured } from './lib/supabase';
+import './lib/i18n'; // Initialize i18n
 
 type Page = 'home' | 'search' | 'teacherProfile' | 'donation' | 'studentDashboard' | 'teacherDashboard';
 
 function App() {
+  const { i18n } = useTranslation();
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-  const user = null;
-  const isAuthenticated = false;
+
+  // Set document direction based on language
+  useEffect(() => {
+    document.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+  }, [i18n.language]);
 
   // Hide loading screen when app is ready
   useEffect(() => {
@@ -49,8 +54,12 @@ function App() {
 
   const handleAuthSuccess = (userRole: 'student' | 'teacher') => {
     closeAuthModal();
-    // Stay on home page after successful auth to show the updated interface
-    // User can navigate to dashboard using the new buttons
+    // Navigate to appropriate dashboard after successful auth
+    if (userRole === 'student') {
+      navigateTo('studentDashboard');
+    } else if (userRole === 'teacher') {
+      navigateTo('teacherDashboard');
+    }
   };
 
   const renderPage = () => {
@@ -93,7 +102,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen" dir="rtl">
+    <div className="min-h-screen">
       {/* Connection Status - only show if Supabase is not configured */}
       {!isSupabaseConfigured() && <ConnectionStatus />}
       
@@ -114,14 +123,10 @@ function App() {
         onClick={() => navigateTo('search')} 
         className="hidden"
       />
-      <button 
-        data-dashboard 
-        onClick={() => navigateTo('studentDashboard')} 
-        className="hidden"
-      />
       
       {renderPage()}
       {currentPage === 'home' && <Footer />}
+      
       <AuthModal
         isOpen={showAuthModal}
         onClose={closeAuthModal}

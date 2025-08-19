@@ -6,22 +6,22 @@ import './index.css';
 
 // Error boundary for better error handling
 class ErrorBoundary extends React.Component {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(error: any) {
     console.error('Error boundary caught:', error);
     return { hasError: true };
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(error: any, errorInfo: any) {
     console.error('Error caught by boundary:', error, errorInfo);
   }
 
   render() {
-    if (this.state.hasError) {
+    if ((this.state as any).hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="text-center">
@@ -38,7 +38,7 @@ class ErrorBoundary extends React.Component {
       );
     }
 
-    return this.props.children;
+    return (this.props as any).children;
   }
 }
 
