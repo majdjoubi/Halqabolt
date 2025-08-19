@@ -1,24 +1,23 @@
 import React, { useState } from 'react';
 import { User, BookOpen, Star, Clock, Calendar, Upload, Camera, Award, Globe, X } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
 
 interface TeacherDashboardProps {
   onClose: () => void;
 }
 
 const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
-  const { user, updateProfile } = useAuth();
+  const user = null;
   const [activeTab, setActiveTab] = useState('profile');
   const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const [teacherData, setTeacherData] = useState({
-    name: user?.profile?.name || '',
-    specialization: user?.profile?.specialization || '',
-    experience_years: user?.profile?.experience_years || 0,
-    hourly_rate: user?.profile?.hourly_rate || 0,
-    bio: user?.profile?.bio || '',
-    certificates: user?.profile?.certificates || [] as string[],
-    languages: user?.profile?.languages || ['العربية'],
-    profile_image_url: user?.profile?.profile_image_url || ''
+    name: '',
+    specialization: '',
+    experience_years: 0,
+    hourly_rate: 0,
+    bio: '',
+    certificates: [] as string[],
+    languages: ['العربية'],
+    profile_image_url: ''
   });
 
   const [newCertificate, setNewCertificate] = useState('');
@@ -52,16 +51,15 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
 
   const handleSaveProfile = async () => {
     try {
-      await updateProfile(teacherData);
-      alert('تم حفظ البيانات بنجاح! سيتم مراجعة ملفك الشخصي قريباً.');
+      alert('المصادقة غير متاحة حالياً');
     } catch (error: any) {
-      alert('حدث خطأ أثناء حفظ البيانات: ' + error.message);
+      alert('المصادقة غير متاحة حالياً');
     }
   };
 
   // Check if teacher is approved
-  const isApproved = user?.profile?.is_verified || false;
-  const currentApprovalStatus = user?.profile?.approval_status || 'pending';
+  const isApproved = false;
+  const currentApprovalStatus = 'pending';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -134,8 +132,8 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
                     <Camera className="h-4 w-4" />
                   </button>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mt-3">{user?.email}</h3>
-                <p className="text-gray-600">{user?.profile?.name ? `${user.profile.name} - معلم` : 'معلم'}</p>
+                <h3 className="text-lg font-bold text-gray-900 mt-3">مستخدم</h3>
+                <p className="text-gray-600">معلم</p>
               </div>
 
               {/* Stats */}

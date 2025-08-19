@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
 import { User, BookOpen, Star, Clock, Calendar, Camera, X } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
 
 interface StudentDashboardProps {
   onClose: () => void;
 }
 
 const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
-  const { user, updateProfile } = useAuth();
+  const user = null;
   const [activeTab, setActiveTab] = useState('profile');
   const [studentData, setStudentData] = useState({
-    name: user?.profile?.name || '',
-    age: user?.profile?.age || '',
-    level: user?.profile?.level || 'beginner',
-    goals: user?.profile?.goals || [] as string[],
-    preferred_schedule: user?.profile?.preferred_schedule || '',
-    profile_image_url: user?.profile?.profile_image_url || ''
+    name: '',
+    age: '',
+    level: 'beginner',
+    goals: [] as string[],
+    preferred_schedule: '',
+    profile_image_url: ''
   });
 
   const [bookings] = useState([
@@ -58,10 +57,9 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
 
   const handleSaveProfile = async () => {
     try {
-      await updateProfile(studentData);
-      alert('تم حفظ البيانات بنجاح!');
+      alert('المصادقة غير متاحة حالياً');
     } catch (error: any) {
-      alert('حدث خطأ أثناء حفظ البيانات: ' + error.message);
+      alert('المصادقة غير متاحة حالياً');
     }
   };
 
@@ -98,8 +96,8 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
                     <Camera className="h-4 w-4" />
                   </button>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mt-3">{user?.email}</h3>
-                <p className="text-gray-600">{user?.profile?.name ? `${user.profile.name} - طالب` : 'طالب'}</p>
+                <h3 className="text-lg font-bold text-gray-900 mt-3">مستخدم</h3>
+                <p className="text-gray-600">طالب</p>
               </div>
 
               <nav className="space-y-2">

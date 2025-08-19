@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { BookOpen, Menu, X } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
 
 interface HeaderProps {
   navigateTo: (page: 'home' | 'search' | 'teacherProfile' | 'donation' | 'studentDashboard' | 'teacherDashboard', teacherId?: string | null) => void;
@@ -10,18 +9,11 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, signOut, isAuthenticated } = useAuth();
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
+  const user = null;
+  const isAuthenticated = false;
 
   const handleStartLearning = () => {
-    if (isAuthenticated) {
-      navigateTo('search');
-    } else {
-      onOpenAuth('signup');
-    }
+    onOpenAuth('signup');
   };
 
   return (
@@ -77,50 +69,18 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
 
             {/* CTA Buttons */}
             <div className="hidden md:flex items-center space-x-4 space-x-reverse">
-              {user ? (
-                <div className="flex items-center space-x-6 space-x-reverse">
-                  <div className="flex items-center space-x-3 space-x-reverse">
-                    <div className="w-8 h-8 bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                      {(user.profile?.name || user.email).charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <span className="text-gray-900 font-medium">
-                        {user.profile?.name || user.email.split('@')[0]}
-                      </span>
-                      <div className="text-xs text-gray-500">
-                        {user.role === 'student' ? 'طالب' : 'معلم'}
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => navigateTo(user.role === 'student' ? 'studentDashboard' : 'teacherDashboard')}
-                    className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
-                  >
-                    لوحة التحكم
-                  </button>
-                  <button
-                    onClick={handleSignOut}
-                    className="text-gray-600 hover:text-gray-700 font-medium transition-colors duration-200"
-                  >
-                    تسجيل الخروج
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <button
-                    onClick={() => onOpenAuth('signin')}
-                    className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
-                  >
-                    تسجيل الدخول
-                  </button>
-                  <button
-                    onClick={handleStartLearning}
-                    className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                  >
-                    ابدأ التعلم
-                  </button>
-                </>
-              )}
+              <button
+                onClick={() => onOpenAuth('signin')}
+                className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
+              >
+                تسجيل الدخول
+              </button>
+              <button
+                onClick={handleStartLearning}
+                className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
+                ابدأ التعلم
+              </button>
             </div>
 
             {/* Mobile Menu Button */}
@@ -173,71 +133,24 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   تبرع الآن
                 </button>
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
-                  {user ? (
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-3 space-x-reverse p-2 bg-gray-50 rounded-lg">
-                        <div className="w-10 h-10 bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-full flex items-center justify-center text-white font-bold">
-                          {(user.profile?.name || user.email).charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <span className="text-gray-900 font-medium block">
-                            {user.profile?.name || user.email.split('@')[0]}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {user.role === 'student' ? 'طالب' : 'معلم'}
-                          </span>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          navigateTo(user.role === 'student' ? 'studentDashboard' : 'teacherDashboard');
-                          setIsMenuOpen(false);
-                        }}
-                        className="text-emerald-600 hover:text-emerald-700 font-medium text-right w-full"
-                      >
-                        لوحة التحكم
-                      </button>
-                      <button
-                        onClick={() => {
-                          navigateTo('search');
-                          setIsMenuOpen(false);
-                        }}
-                        className="text-emerald-600 hover:text-emerald-700 font-medium text-right"
-                      >
-                        البحث عن معلمين
-                      </button>
-                      <button
-                        onClick={() => {
-                          handleSignOut();
-                          setIsMenuOpen(false);
-                        }}
-                        className="text-gray-600 hover:text-gray-700 font-medium text-right"
-                      >
-                        تسجيل الخروج
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => {
-                          onOpenAuth('signin');
-                          setIsMenuOpen(false);
-                        }}
-                        className="text-emerald-600 hover:text-emerald-700 font-medium text-right"
-                      >
-                        تسجيل الدخول
-                      </button>
-                      <button
-                        onClick={() => {
-                          handleStartLearning();
-                          setIsMenuOpen(false);
-                        }}
-                        className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200"
-                      >
-                        ابدأ التعلم
-                      </button>
-                    </>
-                  )}
+                  <button
+                    onClick={() => {
+                      onOpenAuth('signin');
+                      setIsMenuOpen(false);
+                    }}
+                    className="text-emerald-600 hover:text-emerald-700 font-medium text-right"
+                  >
+                    تسجيل الدخول
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleStartLearning();
+                      setIsMenuOpen(false);
+                    }}
+                    className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200"
+                  >
+                    ابدأ التعلم
+                  </button>
                 </div>
               </nav>
             </div>
