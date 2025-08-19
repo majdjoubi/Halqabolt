@@ -113,7 +113,13 @@ export const auth = {
   getCurrentUser: async () => {
     try {
       const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) throw error;
+      if (error) {
+        if (error.message === 'Auth session missing!') {
+          console.warn('Get current user warning:', error.message);
+          return null;
+        }
+        throw error;
+      }
       if (!user) return null;
 
       // Try to get role from user metadata first
