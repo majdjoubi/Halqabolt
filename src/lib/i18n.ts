@@ -10,6 +10,7 @@ const resources = {
       liveLessons: 'الدروس الحية',
       donate: 'تبرع الآن',
       startLearning: 'ابدأ التعلم الآن',
+      appName: 'حلقة', // Added appName
       
       // Hero Section
       heroTitle: 'تعلم القرآن الكريم عن بُعد',
@@ -47,6 +48,7 @@ const resources = {
       liveLessons: 'Live Lessons',
       donate: 'Donate Now',
       startLearning: 'Start Learning Now',
+      appName: 'Halaqah', // Added appName
       
       // Hero Section
       heroTitle: 'Learn Quran Online',
