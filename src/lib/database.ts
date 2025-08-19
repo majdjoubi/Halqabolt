@@ -1,177 +1,318 @@
-// Mock database for development - will be replaced with Vercel database
-interface Teacher {
-  id: string;
-  name: string;
-  specialization: string;
-  experience_years: number;
-  rating: number;
-  students_count: number;
-  hourly_rate: number;
-  bio: string;
-  certificates: string[];
-  languages: string[];
-  profile_image_url: string;
-  is_verified: boolean;
-}
+import { supabase } from './supabase';
+import type { User, UserProfile, StudentProfile, TeacherProfile, Session, Booking } from './supabase';
 
-interface Student {
-  id: string;
-  name: string;
-  age: number;
-  level: string;
-  goals: string[];
-  preferred_schedule: string;
-  profile_image_url: string;
-}
-
-interface User {
-  id: string;
-  email: string;
-  role: 'student' | 'teacher';
-  profile: Teacher | Student;
-}
-
-// Mock data
-const mockTeachers: Teacher[] = [
-  {
-    id: '1',
-    name: 'الشيخ أحمد محمود',
-    specialization: 'متخصص في التجويد والقراءات',
-    experience_years: 15,
-    rating: 4.9,
-    students_count: 450,
-    hourly_rate: 25,
-    bio: 'معلم قرآن كريم بخبرة 15 سنة، حاصل على إجازات في القراءات العشر',
-    certificates: ['إجازة في رواية حفص', 'شهادة التجويد المتقدم'],
-    languages: ['العربية', 'الإنجليزية'],
-    profile_image_url: 'https://images.pexels.com/photos/8923901/pexels-photo-8923901.jpeg?auto=compress&cs=tinysrgb&w=400',
-    is_verified: true
-  },
-  {
-    id: '2',
-    name: 'الأستاذة فاطمة السيد',
-    specialization: 'تحفيظ القرآن للأطفال',
-    experience_years: 10,
-    rating: 4.8,
-    students_count: 320,
-    hourly_rate: 20,
-    bio: 'متخصصة في تعليم الأطفال وتحفيظهم القرآن الكريم',
-    certificates: ['إجازة في القرآن الكريم', 'دبلوم تعليم الأطفال'],
-    languages: ['العربية', 'الفرنسية'],
-    profile_image_url: 'https://images.pexels.com/photos/8923902/pexels-photo-8923902.jpeg?auto=compress&cs=tinysrgb&w=400',
-    is_verified: true
-  }
-];
-
-// Mock authentication
-let currentUser: User | null = null;
-
+// Authentication functions
 export const auth = {
-  signIn: async (email: string, password: string, role: 'student' | 'teacher'): Promise<User> => {
-    // Mock sign in
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const user: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      email,
-      role,
-      profile: role === 'teacher' ? mockTeachers[0] : {
-        id: Math.random().toString(36).substr(2, 9),
-        name: '',
-        age: 0,
-        level: 'beginner',
-        goals: [],
-        preferred_schedule: '',
-        profile_image_url: ''
+  signUp: async (email: string, password: string, role: 'student' | 'teacher', name: string = '') => {
+    try {
+      // Sign up with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            role,
+            name
+          }
+        }
+      });
+
+      if (authError) throw authError;
+      if (!authData.user) throw new Error('Failed to create user');
+
+      // Create user profile
+      const profileData = role === 'teacher' 
+        ? {
+            user_id: authData.user.id,
+            name,
+            specialization: '',
+            experience_years: 0,
+            hourly_rate: 0,
+            bio: '',
+            certificates: [],
+            languages: ['العربية'],
+            is_verified: false,
+            rating: 0,
+            students_count: 0
+          }
+        : {
+            user_id: authData.user.id,
+            name,
+            age: null,
+            level: 'beginner' as const,
+            goals: [],
+            preferred_schedule: ''
+          };
+
+      const tableName = role === 'teacher' ? 'teacher_profiles' : 'student_profiles';
+      const { error: profileError } = await supabase
+        .from(tableName)
+        .insert([profileData]);
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        // Don't throw here, user is created but profile failed
       }
-    };
-    
-    currentUser = user;
-    localStorage.setItem('user', JSON.stringify(user));
-    return user;
+
+      return {
+        id: authData.user.id,
+        email: authData.user.email!,
+        role,
+        profile: profileData
+      };
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      throw new Error(error.message || 'فشل في إنشاء الحساب');
+    }
   },
 
-  signUp: async (email: string, password: string, role: 'student' | 'teacher'): Promise<User> => {
-    // Mock sign up
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const user: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      email,
-      role,
-      profile: role === 'teacher' ? {
-        id: Math.random().toString(36).substr(2, 9),
-        name: '',
-        specialization: '',
-        experience_years: 0,
-        rating: 0,
-        students_count: 0,
-        hourly_rate: 0,
-        bio: '',
-        certificates: [],
-        languages: ['العربية'],
-        profile_image_url: '',
-        is_verified: false
-      } : {
-        id: Math.random().toString(36).substr(2, 9),
-        name: '',
-        age: 0,
-        level: 'beginner',
-        goals: [],
-        preferred_schedule: '',
-        profile_image_url: ''
+  signIn: async (email: string, password: string, role: 'student' | 'teacher') => {
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (authError) throw authError;
+      if (!authData.user) throw new Error('Failed to sign in');
+
+      // Get user profile
+      const tableName = role === 'teacher' ? 'teacher_profiles' : 'student_profiles';
+      const { data: profileData, error: profileError } = await supabase
+        .from(tableName)
+        .select('*')
+        .eq('user_id', authData.user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Profile fetch error:', profileError);
       }
-    };
-    
-    currentUser = user;
-    localStorage.setItem('user', JSON.stringify(user));
-    return user;
-  },
 
-  signOut: async (): Promise<void> => {
-    currentUser = null;
-    localStorage.removeItem('user');
-  },
-
-  getCurrentUser: (): User | null => {
-    if (currentUser) return currentUser;
-    
-    const stored = localStorage.getItem('user');
-    if (stored) {
-      currentUser = JSON.parse(stored);
-      return currentUser;
+      return {
+        id: authData.user.id,
+        email: authData.user.email!,
+        role,
+        profile: profileData || {}
+      };
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      throw new Error(error.message || 'فشل في تسجيل الدخول');
     }
-    
-    return null;
   },
 
-  updateUserProfile: async (userId: string, profileData: any): Promise<User | null> => {
-    if (!currentUser || currentUser.id !== userId) return null;
-    
-    // Update current user
-    currentUser.profile = { ...currentUser.profile, ...profileData };
-    localStorage.setItem('user', JSON.stringify(currentUser));
-    
-    // Update in users list
-    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    const userIndex = existingUsers.findIndex((u: User) => u.id === userId);
-    if (userIndex !== -1) {
-      existingUsers[userIndex] = currentUser;
-      localStorage.setItem('users', JSON.stringify(existingUsers));
+  signOut: async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Sign out error:', error);
+      throw new Error(error.message || 'فشل في تسجيل الخروج');
     }
-    
-    return currentUser;
+  },
+
+  getCurrentUser: async () => {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      if (!user) return null;
+
+      // Try to get role from user metadata first
+      const role = user.user_metadata?.role;
+      if (!role) return null;
+
+      // Get user profile
+      const tableName = role === 'teacher' ? 'teacher_profiles' : 'student_profiles';
+      const { data: profileData, error: profileError } = await supabase
+        .from(tableName)
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Profile fetch error:', profileError);
+      }
+
+      return {
+        id: user.id,
+        email: user.email!,
+        role,
+        profile: profileData || {}
+      };
+    } catch (error: any) {
+      console.error('Get current user error:', error);
+      return null;
+    }
+  },
+
+  updateUserProfile: async (userId: string, role: 'student' | 'teacher', profileData: any) => {
+    try {
+      const tableName = role === 'teacher' ? 'teacher_profiles' : 'student_profiles';
+      
+      const { data, error } = await supabase
+        .from(tableName)
+        .update({
+          ...profileData,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return {
+        id: userId,
+        email: '', // We don't have email in profile update
+        role,
+        profile: data
+      };
+    } catch (error: any) {
+      console.error('Update profile error:', error);
+      throw new Error(error.message || 'فشل في تحديث الملف الشخصي');
+    }
   }
 };
 
+// Database functions
 export const database = {
-  getTeachers: async (): Promise<Teacher[]> => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return mockTeachers;
+  getTeachers: async (): Promise<TeacherProfile[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('teacher_profiles')
+        .select('*')
+        .eq('is_verified', true)
+        .order('rating', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error: any) {
+      console.error('Get teachers error:', error);
+      return [];
+    }
   },
 
-  getTeacher: async (id: string): Promise<Teacher | null> => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return mockTeachers.find(t => t.id === id) || null;
+  getTeacher: async (id: string): Promise<TeacherProfile | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('teacher_profiles')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error: any) {
+      console.error('Get teacher error:', error);
+      return null;
+    }
+  },
+
+  getSessions: async (teacherId?: string): Promise<Session[]> => {
+    try {
+      let query = supabase
+        .from('sessions')
+        .select('*')
+        .eq('status', 'scheduled')
+        .gte('scheduled_at', new Date().toISOString())
+        .order('scheduled_at', { ascending: true });
+
+      if (teacherId) {
+        query = query.eq('teacher_id', teacherId);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
+    } catch (error: any) {
+      console.error('Get sessions error:', error);
+      return [];
+    }
+  },
+
+  createSession: async (sessionData: Omit<Session, 'id' | 'created_at' | 'updated_at'>): Promise<Session | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('sessions')
+        .insert([{
+          ...sessionData,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error: any) {
+      console.error('Create session error:', error);
+      throw new Error(error.message || 'فشل في إنشاء الحصة');
+    }
+  },
+
+  bookSession: async (studentId: string, sessionId: string): Promise<Booking | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('bookings')
+        .insert([{
+          student_id: studentId,
+          session_id: sessionId,
+          status: 'pending',
+          payment_status: 'pending',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error: any) {
+      console.error('Book session error:', error);
+      throw new Error(error.message || 'فشل في حجز الحصة');
+    }
+  },
+
+  getStudentBookings: async (studentId: string): Promise<Booking[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          sessions (
+            *,
+            teacher_profiles (name, specialization)
+          )
+        `)
+        .eq('student_id', studentId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error: any) {
+      console.error('Get student bookings error:', error);
+      return [];
+    }
+  },
+
+  getTeacherBookings: async (teacherId: string): Promise<Booking[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          sessions!inner (
+            *
+          ),
+          student_profiles (name)
+        `)
+        .eq('sessions.teacher_id', teacherId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error: any) {
+      console.error('Get teacher bookings error:', error);
+      return [];
+    }
   }
 };

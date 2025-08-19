@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { auth } from '../lib/database';
+import { supabase } from '../lib/supabase';
 
 interface User {
   id: string;
@@ -23,10 +24,10 @@ export const useAuth = () => {
     }
   };
 
-  const signUp = async (email: string, password: string, role: 'student' | 'teacher') => {
+  const signUp = async (email: string, password: string, role: 'student' | 'teacher', name: string = '') => {
     setLoading(true);
     try {
-      const userData = await auth.signUp(email, password, role);
+      const userData = await auth.signUp(email, password, role, name);
       setUser(userData);
       return userData;
     } finally {
@@ -49,7 +50,7 @@ export const useAuth = () => {
     
     setLoading(true);
     try {
-      const updatedUser = await auth.updateUserProfile(user.id, profileData);
+      const updatedUser = await auth.updateUserProfile(user.id, user.role, profileData);
       if (updatedUser) {
         setUser(updatedUser);
       }
@@ -60,9 +61,39 @@ export const useAuth = () => {
   };
 
   useEffect(() => {
-    const currentUser = auth.getCurrentUser();
-    setUser(currentUser);
-    setLoading(false);
+    // Initialize auth state
+    const initializeAuth = async () => {
+      try {
+        const currentUser = await auth.getCurrentUser();
+        setUser(currentUser);
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        setUser(null);
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        try {
+          const currentUser = await auth.getCurrentUser();
+          setUser(currentUser);
+        } catch (error) {
+          console.error('Auth state change error:', error);
+          setUser(null);
+        }
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   return {
