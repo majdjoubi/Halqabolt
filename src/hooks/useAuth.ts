@@ -14,29 +14,35 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   const signIn = async (email: string, password: string, role: 'student' | 'teacher') => {
+    console.log('🔵 useAuth signIn called:', { email, role });
     setLoading(true);
     try {
       const userData = await auth.signIn(email, password, role);
+      console.log('🔵 useAuth signIn userData:', userData);
       setUser(userData);
       return userData;
     } catch (error: any) {
-      console.error('Sign in error in hook:', error);
+      console.error('🔴 Sign in error in hook:', error);
       throw error;
     } finally {
+      console.log('🔵 useAuth signIn finally - setting loading to false');
       setLoading(false);
     }
   };
 
   const signUp = async (email: string, password: string, role: 'student' | 'teacher', name: string = '') => {
+    console.log('🔵 useAuth signUp called:', { email, role, name });
     setLoading(true);
     try {
       const userData = await auth.signUp(email, password, role, name);
+      console.log('🔵 useAuth signUp userData:', userData);
       setUser(userData);
       return userData;
     } catch (error: any) {
-      console.error('Sign up error in hook:', error);
+      console.error('🔴 Sign up error in hook:', error);
       throw error;
     } finally {
+      console.log('🔵 useAuth signUp finally - setting loading to false');
       setLoading(false);
     }
   };

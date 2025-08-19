@@ -4,6 +4,7 @@ import type { User, UserProfile, StudentProfile, TeacherProfile, Session, Bookin
 // Authentication functions
 export const auth = {
   signUp: async (email: string, password: string, role: 'student' | 'teacher', name: string = '') => {
+    console.log('🔵 Starting signUp:', { email, role, name });
     try {
       // Check if user already exists with different role
       const { data: existingUser } = await supabase.auth.signInWithPassword({
@@ -85,46 +86,60 @@ export const auth = {
   },
 
   signIn: async (email: string, password: string, role: 'student' | 'teacher') => {
+    console.log('🔵 Starting signIn:', { email, role });
     try {
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
+      console.log('🔵 Auth response:', { authData: !!authData.user, error: authError });
+
       if (authError) throw authError;
       if (!authData.user) throw new Error('Failed to sign in');
 
       // Check if user's registered role matches the attempted login role
       const userRole = authData.user.user_metadata?.role;
+      console.log('🔵 User metadata role:', userRole, 'Attempted role:', role);
+      
       if (userRole && userRole !== role) {
+        console.log('🔴 Role mismatch, signing out');
         await supabase.auth.signOut(); // Sign out immediately
         throw new Error(`هذا الحساب مسجل كـ ${userRole === 'student' ? 'طالب' : 'معلم'}. يرجى اختيار الدور الصحيح.`);
       }
       
       // If no role in metadata, use the attempted role (for backward compatibility)
       const actualRole = userRole || role;
+      console.log('🔵 Using role:', actualRole);
       
       // Get user profile
       const tableName = actualRole === 'teacher' ? 'teachers' : 'students';
+      console.log('🔵 Fetching from table:', tableName);
+      
       const { data: profileData, error: profileError } = await supabase
         .from(tableName)
         .select('*')
         .eq('user_id', authData.user.id)
         .single();
 
+      console.log('🔵 Profile response:', { profileData: !!profileData, error: profileError });
+
       if (profileError && profileError.code !== 'PGRST116') {
         console.error('Profile fetch error:', profileError);
         throw new Error('فشل في جلب بيانات الملف الشخصي');
       }
 
-      return {
+      const result = {
         id: authData.user.id,
         email: authData.user.email!,
         role: actualRole,
         profile: profileData || {}
       };
+      
+      console.log('🟢 SignIn successful:', result);
+      return result;
     } catch (error: any) {
-      console.error('Sign in error:', error);
+      console.error('🔴 Sign in error:', error);
       throw new Error(error.message || 'فشل في تسجيل الدخول');
     }
   },
@@ -140,28 +155,43 @@ export const auth = {
   },
 
   getCurrentUser: async () => {
+    console.log('🔵 Getting current user...');
     try {
       const { data: { user }, error } = await supabase.auth.getUser();
       if (error) {
         if (error.message === 'Auth session missing!') {
-          console.warn('Get current user warning:', error.message);
+          console.log('🟡 No auth session (user not logged in)');
           return null;
         }
         throw error;
       }
-      if (!user) return null;
+      if (!user) {
+        console.log('🟡 No user found');
+        return null;
+      }
+
+      console.log('🔵 Found user:', user.id, user.email);
 
       // Try to get role from user metadata first
       const role = user.user_metadata?.role;
-      if (!role) return null;
+      if (!role) {
+        console.log('🟡 No role in metadata');
+        return null;
+      }
+
+      console.log('🔵 User role:', role);
 
       // Get user profile
       const tableName = role === 'teacher' ? 'teachers' : 'students';
+      console.log('🔵 Fetching profile from:', tableName);
+      
       const { data: profileData, error: profileError } = await supabase
         .from(tableName)
         .select('*')
         .eq('user_id', user.id)
         .single();
+
+      console.log('🔵 Profile data:', { profileData: !!profileData, error: profileError });
 
       if (profileError) {
         console.error('Profile fetch error:', profileError);
@@ -207,12 +237,15 @@ export const auth = {
 
       if (error) throw error;
 
-      return {
+      const result = {
         id: userId,
         email: '', // We don't have email in profile update
         role,
         profile: data
       };
+      
+      console.log('🟢 getCurrentUser successful:', result);
+      return result;
     } catch (error: any) {
       console.error('Update profile error:', error);
       throw new Error(error.message || 'فشل في تحديث الملف الشخصي');
@@ -249,7 +282,7 @@ export const database = {
       if (error) throw error;
       return data;
     } catch (error: any) {
-      console.error('Get teacher error:', error);
+      console.error('🔴 Get current user error:', error);
       return null;
     }
   },

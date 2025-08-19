@@ -22,22 +22,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🔵 AuthModal handleSubmit called:', { mode, selectedRole, email });
     setError(null);
     
     if (loading) return; // Prevent multiple submissions
+    
+    console.log('🔵 AuthModal starting auth process...');
 
     try {
       if (mode === 'signin') {
+        console.log('🔵 AuthModal calling signIn...');
         await signIn(email, password, selectedRole);
       } else {
+        console.log('🔵 AuthModal calling signUp...');
         await signUp(email, password, selectedRole, name);
       }
+      console.log('🟢 AuthModal auth successful, closing modal...');
       onClose();
       if (onSuccess) {
         onSuccess(selectedRole);
       }
     } catch (err: any) {
-      console.error('Auth modal error:', err);
+      console.error('🔴 Auth modal error:', err);
       setError(err.message || 'حدث خطأ أثناء المصادقة');
     }
   };
