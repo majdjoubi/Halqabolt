@@ -50,17 +50,20 @@ export const useAuth = () => {
 
       console.log('🟢 Auth signup successful:', authData.user.id);
 
-      // Create profile in appropriate table
+      // Wait a moment for auth to be fully processed
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Create profile in appropriate table with retry mechanism
+      let profileData = null;
       const tableName = role === 'teacher' ? 'teachers' : 'students';
       const newProfileData = {
         user_id: authData.user.id,
         name: name,
-        email: email,
         ...(role === 'teacher' ? {
-          specialization: '',
+          specialization: 'معلم قرآن كريم',
           experience_years: 0,
-          hourly_rate: 0,
-          bio: '',
+          hourly_rate: 50,
+          bio: 'معلم قرآن كريم مبتدئ',
           certificates: [],
           languages: ['العربية'],
           is_verified: false,
@@ -74,15 +77,31 @@ export const useAuth = () => {
         })
       };
 
-      const { data: profileData, error: profileError } = await supabase
-        .from(tableName)
-        .insert([newProfileData])
-        .select()
-        .single();
+      // Try to create profile with retries
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        console.log(`🔵 Attempting to create profile (attempt ${attempt}/3)`);
+        
+        const { data, error } = await supabase
+          .from(tableName)
+          .insert([newProfileData])
+          .select()
+          .single();
 
-      if (profileError) {
-        console.error('🔴 Profile creation error:', profileError);
-        console.warn('⚠️ Profile will be created later if needed');
+        if (!error && data) {
+          profileData = data;
+          console.log('🟢 Profile created successfully:', data);
+          break;
+        } else {
+          console.error(`🔴 Profile creation attempt ${attempt} failed:`, error);
+          
+          if (attempt === 3) {
+            console.error('🔴 All profile creation attempts failed');
+            // Don't throw error, continue with temporary profile
+          } else {
+            // Wait before retry
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
       }
 
       const appUser: AppUser = {
@@ -90,11 +109,27 @@ export const useAuth = () => {
         email: authData.user.email!,
         role: role,
         profile: profileData || { 
-          id: 'temp-' + Date.now(), 
+          id: 'temp-' + authData.user.id, 
           user_id: authData.user.id, 
           name: name,
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          ...(role === 'teacher' ? {
+            specialization: 'معلم قرآن كريم',
+            experience_years: 0,
+            hourly_rate: 50,
+            bio: 'معلم قرآن كريم مبتدئ',
+            certificates: [],
+            languages: ['العربية'],
+            is_verified: false,
+            rating: 0.0,
+            students_count: 0
+          } : {
+            age: null,
+            level: 'beginner',
+            goals: [],
+            preferred_schedule: ''
+          })
         }
       };
 
@@ -228,19 +263,37 @@ export const useAuth = () => {
     
     try {
       const tableName = user.role === 'teacher' ? 'teachers' : 'students';
-      const { data, error } = await supabase
-        .from(tableName)
-        .upsert({
-          user_id: user.id,
-          ...profileData,
-          updated_at: new Date().toISOString()
-        })
-        .select()
-        .single();
+      
+      // Try to update/create profile with retries
+      let data = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        console.log(`🔵 Attempting to update profile (attempt ${attempt}/3)`);
+        
+        const { data: result, error } = await supabase
+          .from(tableName)
+          .upsert({
+            user_id: user.id,
+            ...profileData,
+            updated_at: new Date().toISOString()
+          })
+          .select()
+          .single();
 
-      if (error) {
-        console.error('🔴 Profile update error:', error);
-        throw error;
+        if (!error && result) {
+          data = result;
+          console.log('🟢 Profile updated successfully:', result);
+          break;
+        } else {
+          console.error(`🔴 Profile update attempt ${attempt} failed:`, error);
+          
+          if (attempt === 3) {
+            console.error('🔴 All profile update attempts failed');
+            throw error;
+          } else {
+            // Wait before retry
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
       }
 
       const updatedUser = { ...user, profile: data };

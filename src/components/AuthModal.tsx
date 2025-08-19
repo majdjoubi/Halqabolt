@@ -38,14 +38,32 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
         await signUp(email, password, selectedRole, name);
       }
       console.log('🟢 AuthModal auth successful, closing modal...');
-      onClose();
-      if (onSuccess) {
-        // Get the actual role from the auth result
-        onSuccess(selectedRole);
-      }
+      
+      // Small delay to ensure UI updates properly
+      setTimeout(() => {
+        onClose();
+        if (onSuccess) {
+          onSuccess(selectedRole);
+        }
+      }, 500);
+      
     } catch (err: any) {
       console.error('🔴 Auth modal error:', err);
-      setError(err.message || 'حدث خطأ أثناء المصادقة');
+      
+      // Provide more user-friendly error messages
+      let errorMessage = 'حدث خطأ أثناء المصادقة';
+      
+      if (err.message?.includes('User already registered')) {
+        errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل';
+      } else if (err.message?.includes('Invalid email')) {
+        errorMessage = 'البريد الإلكتروني غير صحيح';
+      } else if (err.message?.includes('Password')) {
+        errorMessage = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     }
   };
 
