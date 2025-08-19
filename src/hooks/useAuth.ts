@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase, isSupabaseConfigured, testSupabaseConnection } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
 
 interface UserProfile {
@@ -37,41 +37,52 @@ interface AppUser {
 export const useAuth = () => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true);
+
+  // Enhanced connection test
+  const testConnection = async (): Promise<boolean> => {
+    if (!isSupabaseConfigured()) {
+      console.warn('⚠️ Supabase not configured properly');
+      return false;
+    }
+
+    try {
+      console.log('🔵 Testing Supabase connection...');
+      
+      // Test with a simple query
+      const { data, error } = await supabase
+        .from('teachers')
+        .select('count')
+        .limit(1);
+      
+      if (error) {
+        console.error('🔴 Connection test failed:', error);
+        return false;
+      }
+      
+      console.log('✅ Supabase connection successful');
+      return true;
+    } catch (error) {
+      console.error('🔴 Connection test error:', error);
+      return false;
+    }
+  };
 
   const signUp = async (email: string, password: string, role: 'student' | 'teacher', name: string) => {
     console.log('🔵 Starting signup process:', { email, role, name });
+    
+    if (loading) {
+      console.log('⚠️ Already processing, skipping...');
+      return;
+    }
     
     setLoading(true);
     
     try {
       // Test connection first
-      if (isSupabaseConfigured()) {
-        const isConnected = await testSupabaseConnection();
-        if (!isConnected) {
-          throw new Error('لا يمكن الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.');
-        }
-      }
-      
-      // Check if Supabase is configured
-      if (!isSupabaseConfigured()) {
-        console.warn('⚠️ Supabase not configured, using mock signup');
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
-        
-        const mockUser: AppUser = {
-          id: 'mock-' + Date.now(),
-          email: email,
-          role: role,
-          profile: {
-            id: 'mock-profile-' + Date.now(),
-            user_id: 'mock-' + Date.now(),
-            name: name,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-        };
-        setUser(mockUser);
-        setLoading(false);
-        return mockUser;
+      const isConnected = await testConnection();
+      if (!isConnected) {
+        throw new Error('لا يمكن الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.');
       }
       
       console.log('🔵 Calling Supabase signUp...');
@@ -88,25 +99,32 @@ export const useAuth = () => {
 
       if (authError) {
         console.error('🔴 Auth signup error:', authError);
-        setLoading(false);
         throw new Error(authError.message || 'فشل في إنشاء الحساب');
       }
 
       if (!authData.user) {
-        setLoading(false);
-        throw new Error('فشل في إنشاء الحساب');
+        throw new Error('فشل في إنشاء الحساب - لم يتم إرجاع بيانات المستخدم');
       }
 
       console.log('🟢 Auth signup successful:', authData.user.id);
 
-      // Wait for auth to be processed and session to be established
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Wait for session to be established
+      console.log('🔵 Waiting for session...');
+      await new Promise(resolve => setTimeout(resolve, 3000));
       
       // Get the fresh session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        console.error('🔴 Session error:', sessionError);
         throw new Error('فشل في إنشاء الجلسة');
       }
+
+      if (!session) {
+        console.warn('⚠️ No session found after signup');
+        throw new Error('فشل في إنشاء الجلسة');
+      }
+
+      console.log('🟢 Session established successfully');
 
       // Create profile in appropriate table
       const tableName = role === 'teacher' ? 'teachers' : 'students';
@@ -143,6 +161,8 @@ export const useAuth = () => {
       if (profileError) {
         console.error('🔴 Profile creation error:', profileError);
         console.warn('⚠️ Profile creation failed, but user account created');
+      } else {
+        console.log('🟢 Profile created successfully');
       }
 
       const appUser: AppUser = {
@@ -153,51 +173,50 @@ export const useAuth = () => {
       };
 
       setUser(appUser);
-      setLoading(false);
       console.log('🟢 Signup completed successfully');
       return appUser;
 
     } catch (error: any) {
       console.error('🔴 Signup error:', error);
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'حدث خطأ أثناء إنشاء الحساب';
+      
+      if (error.message?.includes('لا يمكن الاتصال بالخادم')) {
+        errorMessage = error.message;
+      } else if (error.message?.includes('User already registered')) {
+        errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل';
+      } else if (error.message?.includes('Password should be at least 6 characters')) {
+        errorMessage = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+      } else if (error.message?.includes('Unable to validate email address')) {
+        errorMessage = 'البريد الإلكتروني غير صحيح';
+      } else if (error.message?.includes('fetch') || error.message?.includes('network')) {
+        errorMessage = 'مشكلة في الاتصال بالخادم. يرجى المحاولة مرة أخرى.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      throw new Error(errorMessage);
+    } finally {
       setLoading(false);
-      throw new Error(error.message || 'حدث خطأ أثناء إنشاء الحساب');
     }
   };
 
   const signIn = async (email: string, password: string) => {
     console.log('🔵 Starting signin process:', { email });
     
+    if (loading) {
+      console.log('⚠️ Already processing, skipping...');
+      return;
+    }
+    
     setLoading(true);
     
     try {
       // Test connection first
-      if (isSupabaseConfigured()) {
-        const isConnected = await testSupabaseConnection();
-        if (!isConnected) {
-          throw new Error('لا يمكن الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.');
-        }
-      }
-      
-      // Check if Supabase is configured
-      if (!isSupabaseConfigured()) {
-        console.warn('⚠️ Supabase not configured, using mock signin');
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
-        
-        const mockUser: AppUser = {
-          id: 'mock-signin-' + Date.now(),
-          email: email,
-          role: 'student',
-          profile: {
-            id: 'mock-profile-signin-' + Date.now(),
-            user_id: 'mock-signin-' + Date.now(),
-            name: email.split('@')[0],
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-        };
-        setUser(mockUser);
-        setLoading(false);
-        return mockUser;
+      const isConnected = await testConnection();
+      if (!isConnected) {
+        throw new Error('لا يمكن الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.');
       }
       
       console.log('🔵 Calling Supabase signIn...');
@@ -208,19 +227,18 @@ export const useAuth = () => {
 
       if (authError) {
         console.error('🔴 Auth signin error:', authError);
-        setLoading(false);
         throw new Error(authError.message || 'فشل في تسجيل الدخول');
       }
 
       if (!authData.user) {
-        setLoading(false);
-        throw new Error('فشل في تسجيل الدخول');
+        throw new Error('فشل في تسجيل الدخول - لم يتم إرجاع بيانات المستخدم');
       }
 
       console.log('🟢 Auth signin successful:', authData.user.id);
 
       // Wait for session to be established
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('🔵 Waiting for session...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Get user role and profile
       const userRole = authData.user.user_metadata?.role || 'student';
@@ -245,14 +263,30 @@ export const useAuth = () => {
       };
 
       setUser(appUser);
-      setLoading(false);
       console.log('🟢 Signin completed successfully');
       return appUser;
 
     } catch (error: any) {
       console.error('🔴 Signin error:', error);
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'حدث خطأ أثناء تسجيل الدخول';
+      
+      if (error.message?.includes('لا يمكن الاتصال بالخادم')) {
+        errorMessage = error.message;
+      } else if (error.message?.includes('Invalid login credentials')) {
+        errorMessage = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+      } else if (error.message?.includes('Email not confirmed')) {
+        errorMessage = 'يرجى تأكيد بريدك الإلكتروني أولاً';
+      } else if (error.message?.includes('fetch') || error.message?.includes('network')) {
+        errorMessage = 'مشكلة في الاتصال بالخادم. يرجى المحاولة مرة أخرى.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      throw new Error(errorMessage);
+    } finally {
       setLoading(false);
-      throw new Error(error.message || 'حدث خطأ أثناء تسجيل الدخول');
     }
   };
 
@@ -268,10 +302,10 @@ export const useAuth = () => {
       }
       
       setUser(null);
-      setLoading(false);
       console.log('🟢 Signout successful');
     } catch (error) {
       console.error('🔴 Signout error:', error);
+    } finally {
       setLoading(false);
     }
   };
@@ -297,19 +331,18 @@ export const useAuth = () => {
 
       if (error) {
         console.error('🔴 Profile update error:', error);
-        setLoading(false);
         throw error;
       }
 
       const updatedUser = { ...user, profile: data };
       setUser(updatedUser);
-      setLoading(false);
       console.log('🟢 Profile updated successfully');
       return updatedUser;
     } catch (error) {
       console.error('🔴 Profile update error:', error);
-      setLoading(false);
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -320,18 +353,26 @@ export const useAuth = () => {
     
     // Get initial session
     const initializeAuth = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('🔴 Session error:', error);
-        return;
-      }
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('🔴 Session error:', error);
+          return;
+        }
 
-      if (session?.user && mounted) {
-        console.log('🟢 Found existing session:', session.user.id);
-        await handleAuthUser(session.user);
-      } else {
-        console.log('🟡 No existing session found');
+        if (session?.user && mounted) {
+          console.log('🟢 Found existing session:', session.user.id);
+          await handleAuthUser(session.user);
+        } else {
+          console.log('🟡 No existing session found');
+        }
+      } catch (error) {
+        console.error('🔴 Auth initialization error:', error);
+      } finally {
+        if (mounted) {
+          setInitializing(false);
+        }
       }
     };
     
@@ -375,6 +416,7 @@ export const useAuth = () => {
       };
       
       setUser(appUser);
+      console.log('🟢 User state updated:', appUser.email);
     } catch (error) {
       console.error('🔴 Error handling auth user:', error);
     }
@@ -383,6 +425,7 @@ export const useAuth = () => {
   return {
     user,
     loading,
+    initializing,
     isAuthenticated: !!user,
     signIn,
     signUp,

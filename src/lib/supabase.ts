@@ -3,33 +3,57 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-console.log('🔧 Supabase Config Check:', {
-  url: supabaseUrl ? 'Set' : 'Missing',
-  key: supabaseAnonKey ? 'Set' : 'Missing',
+console.log('🔧 Supabase Configuration Check:', {
+  url: supabaseUrl ? 'Set ✅' : 'Missing ❌',
+  key: supabaseAnonKey ? 'Set ✅' : 'Missing ❌',
   urlValue: supabaseUrl,
   keyLength: supabaseAnonKey?.length || 0
 });
 
-// Test connection function
+// Enhanced connection test
 const testSupabaseConnection = async () => {
   try {
-    const response = await fetch(`${supabaseUrl}/rest/v1/`, {
+    console.log('🔵 Testing Supabase connection...');
+    
+    // Test REST API
+    const restResponse = await fetch(`${supabaseUrl}/rest/v1/`, {
+      method: 'GET',
+      headers: {
+        'apikey': supabaseAnonKey,
+        'Authorization': `Bearer ${supabaseAnonKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log('🔵 REST API Response:', restResponse.status, restResponse.statusText);
+    
+    // Test Auth API
+    const authResponse = await fetch(`${supabaseUrl}/auth/v1/settings`, {
       method: 'GET',
       headers: {
         'apikey': supabaseAnonKey,
         'Authorization': `Bearer ${supabaseAnonKey}`
       }
     });
-    return response.ok;
+    
+    console.log('🔵 Auth API Response:', authResponse.status, authResponse.statusText);
+    
+    if (restResponse.ok && authResponse.ok) {
+      console.log('✅ Supabase connection successful');
+      return true;
+    } else {
+      console.warn('⚠️ Supabase connection issues detected');
+      return false;
+    }
   } catch (error) {
-    console.warn('🔴 Supabase connection test failed:', error);
+    console.error('🔴 Supabase connection test failed:', error);
     return false;
   }
 };
 
-// Check if environment variables are properly configured with real values
+// Check if environment variables are properly configured
 const isSupabaseConfigured = () => {
-  return supabaseUrl && 
+  const isConfigured = supabaseUrl && 
     supabaseAnonKey && 
     supabaseUrl !== 'your_supabase_project_url' &&
     supabaseUrl !== 'https://placeholder-url.supabase.co' &&
@@ -38,27 +62,32 @@ const isSupabaseConfigured = () => {
     supabaseAnonKey !== 'your-actual-anon-key' &&
     !supabaseUrl.includes('placeholder') &&
     !supabaseUrl.includes('your-project-ref') &&
-    !supabaseAnonKey.includes('your-actual');
+    !supabaseAnonKey.includes('your-actual') &&
+    supabaseUrl.includes('supabase.co') &&
+    supabaseAnonKey.length > 100; // JWT tokens are typically longer
+
+  console.log('🔧 Configuration check:', isConfigured ? '✅ Valid' : '❌ Invalid');
+  return isConfigured;
 };
 
 let supabase: any;
 
 if (!isSupabaseConfigured()) {
-  console.warn('🔧 Supabase environment variables not configured. Using development mode.');
-  console.warn('📝 To use real Supabase, create a .env file with:');
-  console.warn('   VITE_SUPABASE_URL=https://your-project-ref.supabase.co');
-  console.warn('   VITE_SUPABASE_ANON_KEY=your-actual-anon-key');
+  console.error('❌ Supabase environment variables not properly configured!');
+  console.warn('📝 Please check your environment variables:');
+  console.warn('   VITE_SUPABASE_URL should be: https://your-project-ref.supabase.co');
+  console.warn('   VITE_SUPABASE_ANON_KEY should be a long JWT token');
   
-  // Create a mock client for development
+  // Create a mock client that shows clear error messages
   supabase = {
     auth: {
       signUp: async () => ({ 
         data: { user: null }, 
-        error: { message: 'Supabase not configured. Please set up your .env file.' } 
+        error: { message: '❌ Supabase not configured properly. Please check your .env file.' } 
       }),
       signInWithPassword: async () => ({ 
         data: { user: null }, 
-        error: { message: 'Supabase not configured. Please set up your .env file.' } 
+        error: { message: '❌ Supabase not configured properly. Please check your .env file.' } 
       }),
       signOut: async () => ({ error: null }),
       getSession: async () => ({ data: { session: null }, error: null }),
@@ -67,48 +96,112 @@ if (!isSupabaseConfigured()) {
     from: () => ({
       select: () => ({ 
         eq: () => ({ 
-          single: async () => ({ data: null, error: { message: 'Supabase not configured' } })
+          single: async () => ({ data: null, error: { message: '❌ Supabase not configured' } })
         }),
         order: async () => ({ data: [], error: null })
       }),
       insert: () => ({ 
         select: () => ({ 
-          single: async () => ({ data: null, error: { message: 'Supabase not configured' } })
+          single: async () => ({ data: null, error: { message: '❌ Supabase not configured' } })
         })
       }),
       upsert: () => ({ 
         select: () => ({ 
-          single: async () => ({ data: null, error: { message: 'Supabase not configured' } })
+          single: async () => ({ data: null, error: { message: '❌ Supabase not configured' } })
         })
       })
     })
   };
 } else {
+  console.log('✅ Supabase configuration looks good, creating client...');
+  
   supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: true,
-      flowType: 'implicit'
+      flowType: 'pkce',
+      debug: true // Enable debug mode
     },
     db: {
       schema: 'public',
     },
+    global: {
+      headers: {
+        'X-Client-Info': 'halaqah-platform@1.0.0',
+      },
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 10,
+      },
+    },
   });
 
-  // Test connection with better error handling
+  // Test connection after a short delay
   setTimeout(async () => {
     const isConnected = await testSupabaseConnection();
     if (isConnected) {
-      console.log('✅ Supabase connected successfully');
+      console.log('🎉 All Supabase services are working correctly!');
     } else {
-      console.warn('⚠️ Supabase connection failed - using fallback mode');
+      console.error('❌ Some Supabase services are not responding correctly');
     }
-  }, 500);
+  }, 1000);
 }
 
+// Test GitHub connection (for deployment)
+const testGitHubConnection = async () => {
+  try {
+    console.log('🔵 Testing GitHub connection...');
+    const response = await fetch('https://api.github.com/zen');
+    if (response.ok) {
+      const zen = await response.text();
+      console.log('✅ GitHub API accessible:', zen);
+      return true;
+    }
+  } catch (error) {
+    console.warn('⚠️ GitHub API test failed:', error);
+  }
+  return false;
+};
+
+// Test Vercel connection (for deployment)
+const testVercelConnection = async () => {
+  try {
+    console.log('🔵 Testing Vercel connection...');
+    const response = await fetch('https://vercel.com/api/v1/status');
+    if (response.ok) {
+      console.log('✅ Vercel API accessible');
+      return true;
+    }
+  } catch (error) {
+    console.warn('⚠️ Vercel API test failed:', error);
+  }
+  return false;
+};
+
+// Run all connection tests
+setTimeout(async () => {
+  console.log('🚀 Running comprehensive connection tests...');
+  
+  const results = {
+    supabase: await testSupabaseConnection(),
+    github: await testGitHubConnection(),
+    vercel: await testVercelConnection()
+  };
+  
+  console.log('📊 Connection Test Results:', results);
+  
+  if (results.supabase && results.github && results.vercel) {
+    console.log('🎉 All services are accessible and working correctly!');
+  } else {
+    console.warn('⚠️ Some services may have connectivity issues');
+  }
+}, 2000);
+
 export { supabase, isSupabaseConfigured, testSupabaseConnection };
-// Database types
+
+// Enhanced Database types with better validation
 export interface User {
   id: string;
   email: string;
