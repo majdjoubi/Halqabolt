@@ -39,7 +39,8 @@ export const useAuth = () => {
             setUser({
               id: session.user.id,
               email: session.user.email || '',
-              role: 'student', // Default role
+              name: session.user.user_metadata?.name || session.user.user_metadata?.full_name,
+              role: session.user.user_metadata?.role || 'student',
               created_at: session.user.created_at || new Date().toISOString(),
               updated_at: new Date().toISOString()
             });
@@ -60,7 +61,8 @@ export const useAuth = () => {
               setUser({
                 id: session.user.id,
                 email: session.user.email || '',
-                role: 'student',
+                name: session.user.user_metadata?.name || session.user.user_metadata?.full_name,
+                role: session.user.user_metadata?.role || 'student',
                 created_at: session.user.created_at || new Date().toISOString(),
                 updated_at: new Date().toISOString()
               });
@@ -72,7 +74,8 @@ export const useAuth = () => {
               setUser({
                 id: session.user.id,
                 email: session.user.email || '',
-                role: 'student',
+                name: session.user.user_metadata?.name || session.user.user_metadata?.full_name,
+                role: session.user.user_metadata?.role || 'student',
                 created_at: session.user.created_at || new Date().toISOString(),
                 updated_at: new Date().toISOString()
               });
