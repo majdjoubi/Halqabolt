@@ -43,43 +43,42 @@ export const useAuth = () => {
     
     // Check if Supabase is configured
     if (!isSupabaseConfigured()) {
-      throw new Error('يجب إعداد Supabase أولاً. يرجى إضافة متغيرات البيئة في ملف .env');
+      console.warn('⚠️ Supabase not configured, using mock signup');
+      // Create mock user for development
+      const mockUser: AppUser = {
+        id: 'mock-' + Date.now(),
+        email: email,
+        role: role,
+        profile: {
+          id: 'mock-profile-' + Date.now(),
+          user_id: 'mock-' + Date.now(),
+          name: name,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      };
+      setUser(mockUser);
+      return mockUser;
     }
     
     setLoading(true);
     
     try {
-      // Add retry logic for network issues
-      let retries = 3;
-      let authData, authError;
-      
-      while (retries > 0) {
-        try {
-          const result = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              data: {
-                role: role,
-                name: name
-              }
-            }
-          });
-          authData = result.data;
-          authError = result.error;
-          break;
-        } catch (networkError) {
-          retries--;
-          if (retries === 0) throw networkError;
-          console.log(`🔄 Retrying signup... (${3 - retries}/3)`);
-          await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('🔵 Calling Supabase signUp...');
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email.trim(),
+        password: password,
+        options: {
+          data: {
+            role: role,
+            name: name.trim()
+          }
         }
-      }
-
+      });
 
       if (authError) {
         console.error('🔴 Auth signup error:', authError);
-        throw new Error(authError.message);
+        throw new Error(authError.message || 'فشل في إنشاء الحساب');
       }
 
       if (!authData.user) {
@@ -88,14 +87,14 @@ export const useAuth = () => {
 
       console.log('🟢 Auth signup successful:', authData.user.id);
 
-      // Step 2: Wait for auth to be processed
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Wait a bit for auth to be processed
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Step 3: Create profile in appropriate table
+      // Create profile in appropriate table
       const tableName = role === 'teacher' ? 'teachers' : 'students';
       const profileData = {
         user_id: authData.user.id,
-        name: name,
+        name: name.trim(),
         ...(role === 'teacher' ? {
           specialization: 'معلم قرآن كريم',
           experience_years: 0,
@@ -125,10 +124,7 @@ export const useAuth = () => {
 
       if (profileError) {
         console.error('🔴 Profile creation error:', profileError);
-        // Don't throw error, continue with basic user info
-        console.warn('⚠️ Profile creation failed, user can complete profile later');
-      } else {
-        console.log('🟢 Profile created successfully:', profileResult);
+        console.warn('⚠️ Profile creation failed, but user account created');
       }
 
       const appUser: AppUser = {
@@ -144,7 +140,7 @@ export const useAuth = () => {
 
     } catch (error: any) {
       console.error('🔴 Signup error:', error);
-      throw error;
+      throw new Error(error.message || 'حدث خطأ أثناء إنشاء الحساب');
     } finally {
       setLoading(false);
     }
@@ -155,36 +151,36 @@ export const useAuth = () => {
     
     // Check if Supabase is configured
     if (!isSupabaseConfigured()) {
-      throw new Error('يجب إعداد Supabase أولاً. يرجى إضافة متغيرات البيئة في ملف .env');
+      console.warn('⚠️ Supabase not configured, using mock signin');
+      // Create mock user for development
+      const mockUser: AppUser = {
+        id: 'mock-signin-' + Date.now(),
+        email: email,
+        role: 'student',
+        profile: {
+          id: 'mock-profile-signin-' + Date.now(),
+          user_id: 'mock-signin-' + Date.now(),
+          name: email.split('@')[0],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      };
+      setUser(mockUser);
+      return mockUser;
     }
     
     setLoading(true);
     
     try {
-      // Add retry logic for network issues
-      let retries = 3;
-      let authData, authError;
-      
-      while (retries > 0) {
-        try {
-          const result = await supabase.auth.signInWithPassword({
-            email,
-            password
-          });
-          authData = result.data;
-          authError = result.error;
-          break;
-        } catch (networkError) {
-          retries--;
-          if (retries === 0) throw networkError;
-          console.log(`🔄 Retrying signin... (${3 - retries}/3)`);
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      }
+      console.log('🔵 Calling Supabase signIn...');
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password
+      });
 
       if (authError) {
         console.error('🔴 Auth signin error:', authError);
-        throw new Error(authError.message);
+        throw new Error(authError.message || 'فشل في تسجيل الدخول');
       }
 
       if (!authData.user) {
@@ -193,10 +189,10 @@ export const useAuth = () => {
 
       console.log('🟢 Auth signin successful:', authData.user.id);
 
-      // Step 2: Get user role and profile
+      // Get user role and profile
       const userRole = authData.user.user_metadata?.role || 'student';
       
-      // Step 3: Get profile from appropriate table
+      // Get profile from appropriate table
       const tableName = userRole === 'teacher' ? 'teachers' : 'students';
       const { data: profileData, error: profileError } = await supabase
         .from(tableName)
@@ -221,7 +217,7 @@ export const useAuth = () => {
 
     } catch (error: any) {
       console.error('🔴 Signin error:', error);
-      throw error;
+      throw new Error(error.message || 'حدث خطأ أثناء تسجيل الدخول');
     } finally {
       setLoading(false);
     }

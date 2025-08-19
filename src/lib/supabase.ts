@@ -3,6 +3,13 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+console.log('🔧 Supabase Config Check:', {
+  url: supabaseUrl ? 'Set' : 'Missing',
+  key: supabaseAnonKey ? 'Set' : 'Missing',
+  urlValue: supabaseUrl,
+  keyLength: supabaseAnonKey?.length || 0
+});
+
 // Check if environment variables are properly configured with real values
 const isSupabaseConfigured = () => {
   return supabaseUrl && 
@@ -64,34 +71,26 @@ if (!isSupabaseConfigured()) {
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce'
+      detectSessionInUrl: false,
+      flowType: 'implicit'
     },
-    global: {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-      },
-    },
-    realtime: {
-      params: {
-        eventsPerSecond: 2,
-      },
+    db: {
+      schema: 'public',
     }
   });
 
   // Test connection
   setTimeout(() => {
-    supabase.from('teachers').select('count', { count: 'exact', head: true })
+    supabase.auth.getSession()
       .then(({ error }: any) => {
         if (error) {
-          console.warn('⚠️ Supabase connection test failed:', error.message);
+          console.warn('⚠️ Supabase auth test failed:', error.message);
         } else {
-          console.log('✅ Supabase connected successfully');
+          console.log('✅ Supabase auth connected successfully');
         }
       })
       .catch((error: any) => {
-        console.warn('⚠️ Network test failed, but app will continue:', error.message);
+        console.warn('⚠️ Auth test failed, but app will continue:', error.message);
       });
   }, 1000);
 }

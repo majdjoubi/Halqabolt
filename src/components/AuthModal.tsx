@@ -73,13 +73,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
       
       console.log('🟢 AuthModal auth successful, closing modal...');
       
-      // Small delay to ensure UI updates properly
-      setTimeout(() => {
-        onClose();
-        if (onSuccess) {
-          onSuccess(selectedRole);
-        }
-      }, 500);
+      // Close modal immediately on success
+      onClose();
+      if (onSuccess) {
+        onSuccess(selectedRole);
+      }
       
     } catch (err: any) {
       console.error('🔴 Auth modal error:', err);
@@ -87,9 +85,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
       // Provide user-friendly error messages
       let errorMessage = 'حدث خطأ أثناء المصادقة';
       
-      if (err.message?.includes('يجب إعداد Supabase أولاً')) {
-        errorMessage = 'يجب إعداد اتصال قاعدة البيانات أولاً. يرجى التواصل مع المطور.';
-      } else if (err.message?.includes('User already registered')) {
+      if (err.message?.includes('User already registered')) {
         errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل';
       } else if (err.message?.includes('Invalid login credentials')) {
         errorMessage = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
@@ -99,10 +95,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
         errorMessage = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
       } else if (err.message?.includes('Unable to validate email address')) {
         errorMessage = 'البريد الإلكتروني غير صحيح';
-      } else if (err.message?.includes('Supabase not configured')) {
-        errorMessage = 'يجب إعداد اتصال قاعدة البيانات أولاً. يرجى التواصل مع المطور.';
-      } else if (err.message?.includes('يجب إعداد Supabase أولاً')) {
-        errorMessage = 'النظام في وضع التطوير. يرجى إعداد متغيرات Supabase للحصول على مصادقة حقيقية.';
+      } else if (err.message?.includes('fetch')) {
+        errorMessage = 'مشكلة في الاتصال بالخادم. يرجى المحاولة مرة أخرى.';
       } else if (err.message) {
         errorMessage = err.message;
       }
