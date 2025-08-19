@@ -3,7 +3,10 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
+if (!supabaseUrl || !supabaseAnonKey || 
+    supabaseUrl === 'your_supabase_project_url' ||
+    supabaseUrl === 'https://placeholder-url.supabase.co' ||
+    supabaseAnonKey === 'your_supabase_anon_key') {
   throw new Error('Missing Supabase environment variables. Please check your .env file.');
 }
 
@@ -16,18 +19,22 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 });
 
-// Test connection
-supabase.from('teachers').select('count', { count: 'exact', head: true })
-  .then(({ error }) => {
-    if (error) {
-      console.error('❌ Supabase connection failed:', error.message);
-    } else {
-      console.log('✅ Supabase connected successfully');
-    }
-  })
-  .catch(() => {
-    console.warn('⚠️ Supabase connection test failed - this is normal if tables don\'t exist yet');
-  });
+// Test connection only if URL looks valid
+if (supabaseUrl.includes('.supabase.co') && !supabaseUrl.includes('placeholder')) {
+  supabase.from('teachers').select('count', { count: 'exact', head: true })
+    .then(({ error }) => {
+      if (error) {
+        console.error('❌ Supabase connection failed:', error.message);
+      } else {
+        console.log('✅ Supabase connected successfully');
+      }
+    })
+    .catch((error) => {
+      console.warn('⚠️ Supabase connection test failed:', error.message);
+    });
+} else {
+  console.log('🔧 Supabase environment variables not configured properly');
+}
 
 // Database types
 export interface User {
