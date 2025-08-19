@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { BookOpen, Menu, X } from 'lucide-react';
+import { BookOpen, Menu, X, User, Settings, LogOut, ChevronDown } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 interface HeaderProps {
   navigateTo: (page: 'home' | 'search' | 'teacherProfile' | 'donation' | 'studentDashboard' | 'teacherDashboard', teacherId?: string | null) => void;
@@ -9,11 +10,30 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const user = null;
-  const isAuthenticated = false;
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const { user, isAuthenticated, signOut } = useAuth();
 
   const handleStartLearning = () => {
     onOpenAuth('signup');
+  };
+
+  const handleUserMenuToggle = () => {
+    setIsUserMenuOpen(!isUserMenuOpen);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setIsUserMenuOpen(false);
+  };
+
+  const handleAccountSettings = () => {
+    // Navigate to account settings
+    if (user?.role === 'student') {
+      navigateTo('studentDashboard');
+    } else if (user?.role === 'teacher') {
+      navigateTo('teacherDashboard');
+    }
+    setIsUserMenuOpen(false);
   };
 
   return (
@@ -40,40 +60,80 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-8 space-x-reverse">
-              <button 
-                onClick={() => navigateTo('home')}
-                className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
-              >
-                الرئيسية
-              </button>
-              <button 
-                onClick={() => navigateTo('search')}
-                className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
-              >
-                المعلمون
-              </button>
-              <button 
-                onClick={() => navigateTo('search')}
-                className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
-              >
-                الدروس الحية
-              </button>
-              <button 
-                onClick={() => navigateTo('donation')}
-                className="text-amber-600 hover:text-amber-700 font-medium transition-colors duration-200"
-              >
-                تبرع الآن
-              </button>
+            <div className="hidden md:flex items-center space-x-8 space-x-reverse">
+              {/* Navigation Links */}
+              <nav className="flex items-center space-x-6 space-x-reverse">
+                <button 
+                  onClick={() => navigateTo('home')}
+                  className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
+                >
+                  الرئيسية
+                </button>
+                <button 
+                  onClick={() => navigateTo('search')}
+                  className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
+                >
+                  المعلمون
+                </button>
+                <button 
+                  onClick={() => navigateTo('search')}
+                  className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
+                >
+                  الدروس الحية
+                </button>
+                <button 
+                  onClick={() => navigateTo('donation')}
+                  className="text-amber-600 hover:text-amber-700 font-medium transition-colors duration-200"
+                >
+                  تبرع الآن
+                </button>
+              </nav>
               
-              {/* CTA Button */}
-              <button
-                onClick={() => onOpenAuth('signup')}
-                className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-              >
-                ابدأ التعلم الآن
-              </button>
-            </nav>
+              {/* Separator */}
+              <div className="h-6 w-px bg-gray-300"></div>
+              
+              {/* User Section */}
+              {isAuthenticated && user ? (
+                <div className="relative">
+                  <button
+                    onClick={handleUserMenuToggle}
+                    className="flex items-center space-x-2 space-x-reverse bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-4 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 font-semibold shadow-md hover:shadow-lg"
+                  >
+                    <User className="h-5 w-5" />
+                    <span>مرحباً {user.name || user.email}</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                  
+                  {/* User Dropdown Menu */}
+                  {isUserMenuOpen && (
+                    <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                      <button
+                        onClick={handleAccountSettings}
+                        className="w-full text-right px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center space-x-2 space-x-reverse"
+                      >
+                        <Settings className="h-4 w-4" />
+                        <span>إعدادات الحساب</span>
+                      </button>
+                      <hr className="my-1" />
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full text-right px-4 py-2 text-red-600 hover:bg-red-50 flex items-center space-x-2 space-x-reverse"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>تسجيل الخروج</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={handleStartLearning}
+                  className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                >
+                  ابدأ التعلم الآن
+                </button>
+              )}
+            </div>
 
             {/* Mobile Menu Button */}
             <button
@@ -125,16 +185,46 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   تبرع الآن
                 </button>
                 
-                {/* Mobile CTA Button */}
-                <button 
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    onOpenAuth('signup');
-                  }}
-                  className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-3 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 font-semibold text-center"
-                >
-                  ابدأ التعلم الآن
-                </button>
+                <hr className="border-gray-200" />
+                
+                {/* Mobile User Section */}
+                {isAuthenticated && user ? (
+                  <>
+                    <div className="text-center py-2">
+                      <span className="text-emerald-600 font-semibold">مرحباً {user.name || user.email}</span>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleAccountSettings();
+                      }}
+                      className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-3 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 font-semibold text-center flex items-center justify-center space-x-2 space-x-reverse"
+                    >
+                      <Settings className="h-5 w-5" />
+                      <span>إعدادات الحساب</span>
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleSignOut();
+                      }}
+                      className="border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-6 py-3 rounded-lg transition-all duration-200 font-semibold text-center flex items-center justify-center space-x-2 space-x-reverse"
+                    >
+                      <LogOut className="h-5 w-5" />
+                      <span>تسجيل الخروج</span>
+                    </button>
+                  </>
+                ) : (
+                  <button 
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      handleStartLearning();
+                    }}
+                    className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-3 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 font-semibold text-center"
+                  >
+                    ابدأ التعلم الآن
+                  </button>
+                )}
               </nav>
             </div>
           )}
