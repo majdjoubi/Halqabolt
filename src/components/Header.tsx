@@ -60,7 +60,7 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8 space-x-reverse">
+            <div className="hidden md:flex items-center justify-center flex-1 space-x-8 space-x-reverse">
               {/* Navigation Links */}
               <nav className="flex items-center space-x-6 space-x-reverse">
                 <button 
@@ -82,10 +82,10 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   تبرع الآن
                 </button>
               </nav>
-              
-              {/* Separator */}
-              <div className="h-6 w-px bg-gray-300"></div>
-              
+            </div>
+
+            {/* User Section - Always on the right */}
+            <div className="hidden md:flex items-center">
               {/* User Section */}
               {isAuthenticated && user ? (
                 <div className="relative">
