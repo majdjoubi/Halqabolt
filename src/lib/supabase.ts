@@ -1,8 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key-here';
+
+// Log environment variables for debugging (only in development)
+if (import.meta.env.DEV) {
+  console.log('🔧 Supabase Config Check:');
+  console.log('URL:', supabaseUrl ? '✅ Set' : '❌ Missing');
+  console.log('Key:', supabaseAnonKey ? '✅ Set' : '❌ Missing');
+  console.log('Environment:', import.meta.env.MODE);
+}
 
 // Check if Supabase is configured
 export const isSupabaseConfigured = () => {

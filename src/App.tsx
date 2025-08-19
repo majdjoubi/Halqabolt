@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Features from './components/Features';
-import UpdateBanner from './components/UpdateBanner';
 import SearchPage from './components/SearchPage';
 import DonationPage from './components/DonationPage';
 import TeacherProfilePage from './components/TeacherProfilePage';
@@ -120,12 +119,6 @@ function App() {
       
       {renderPage()}
       {currentPage === 'home' && <Footer />}
-      
-      {/* Update Banner - يظهر في جميع الصفحات */}
-      <div className="fixed bottom-4 right-4 z-50 max-w-sm">
-        <UpdateBanner />
-      </div>
-      
       <AuthModal
         isOpen={showAuthModal}
         onClose={closeAuthModal}
