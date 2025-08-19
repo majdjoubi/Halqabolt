@@ -66,9 +66,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
       if (mode === 'signin') {
         console.log('🔵 AuthModal calling signIn...');
         await signIn(email.trim(), password);
-        if (err.message?.includes('يجب إعداد Supabase أولاً')) {
-          errorMessage = 'يجب إعداد اتصال قاعدة البيانات أولاً. يرجى التواصل مع المطور.';
-        } else if (err.message?.includes('User already registered')) {
+      } else {
         console.log('🔵 AuthModal calling signUp...');
         await signUp(email.trim(), password, selectedRole, name.trim());
       }
@@ -78,8 +76,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
       // Small delay to ensure UI updates properly
       setTimeout(() => {
         onClose();
-        } else if (err.message?.includes('Supabase not configured')) {
-          errorMessage = 'يجب إعداد اتصال قاعدة البيانات أولاً. يرجى التواصل مع المطور.';
         if (onSuccess) {
           onSuccess(selectedRole);
         }
@@ -91,7 +87,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
       // Provide user-friendly error messages
       let errorMessage = 'حدث خطأ أثناء المصادقة';
       
-      if (err.message?.includes('User already registered')) {
+      if (err.message?.includes('يجب إعداد Supabase أولاً')) {
+        errorMessage = 'يجب إعداد اتصال قاعدة البيانات أولاً. يرجى التواصل مع المطور.';
+      } else if (err.message?.includes('User already registered')) {
         errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل';
       } else if (err.message?.includes('Invalid login credentials')) {
         errorMessage = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
@@ -101,6 +99,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
         errorMessage = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
       } else if (err.message?.includes('Unable to validate email address')) {
         errorMessage = 'البريد الإلكتروني غير صحيح';
+      } else if (err.message?.includes('Supabase not configured')) {
+        errorMessage = 'يجب إعداد اتصال قاعدة البيانات أولاً. يرجى التواصل مع المطور.';
       } else if (err.message) {
         errorMessage = err.message;
       }
