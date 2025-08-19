@@ -26,31 +26,40 @@ export const supabase = isSupabaseConfigured()
 // Test Supabase connection
 export const testSupabaseConnection = async (): Promise<boolean> => {
   if (!supabase) {
-    console.log('🔴 Supabase not configured');
+    console.log('🔴 Supabase غير مُعد - يرجى إضافة متغيرات البيئة');
+    console.log('المطلوب: VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY');
     return false;
   }
 
   try {
-    console.log('🔵 Testing Supabase connection...');
+    console.log('🔵 اختبار اتصال Supabase...');
+    console.log('URL:', supabaseUrl ? 'موجود' : 'مفقود');
+    console.log('Key:', supabaseAnonKey ? 'موجود' : 'مفقود');
     
     // Test REST API
     const { data, error } = await supabase
       .from('teachers')
-      .select('count')
+      .select('id')
       .limit(1);
 
     if (error) {
-      console.error('🔴 Supabase REST API error:', error);
+      console.error('🔴 خطأ في Supabase REST API:', error.message);
+      console.error('التفاصيل:', error);
       return false;
     }
 
     // Test Auth API
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session }, error: authError } = await supabase.auth.getSession();
     
-    console.log('🟢 Supabase connection successful');
+    if (authError) {
+      console.error('🔴 خطأ في Supabase Auth:', authError.message);
+    }
+    
+    console.log('🟢 اتصال Supabase ناجح');
+    console.log('عدد المعلمين المتاحين:', data?.length || 0);
     return true;
   } catch (error) {
-    console.error('🔴 Supabase connection failed:', error);
+    console.error('🔴 فشل اتصال Supabase:', error);
     return false;
   }
 };
