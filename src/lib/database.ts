@@ -98,7 +98,7 @@ export const auth = {
       const userRole = authData.user.user_metadata?.role;
       if (userRole !== role) {
         await supabase.auth.signOut(); // Sign out immediately
-        throw new Error(`هذا الحساب مسجل كـ ${userRole === 'student' ? 'طالب' : 'معلم'}. يرجى اختيار الدور الصحيح.`);
+        throw new Error(`هذا الحساب مسجل كـ ${userRole === 'students' ? 'طالب' : 'معلم'}. يرجى اختيار الدور الصحيح.`);
       }
       // Get user profile
       const tableName = role === 'teacher' ? 'teachers' : 'students';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Star, Users, BookOpen, DollarSign, Award, Globe, Clock } from 'lucide-react';
-import { database } from '../lib/database';
+import { supabase } from '../lib/supabase';
 
 interface TeacherProfilePageProps {
   teacherId: string;
@@ -31,7 +31,13 @@ const TeacherProfilePage: React.FC<TeacherProfilePageProps> = ({ teacherId, onCl
     const fetchTeacher = async () => {
       setLoading(true);
       try {
-        const data = await database.getTeacher(teacherId);
+        const { data, error } = await supabase
+          .from('teachers')
+          .select('*')
+          .eq('id', teacherId)
+          .single();
+
+        if (error) throw error;
         if (data) {
           setTeacher(data);
           setError(null);
