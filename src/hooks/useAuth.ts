@@ -36,35 +36,36 @@ interface AppUser {
 
 export const useAuth = () => {
   const [user, setUser] = useState<AppUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const signUp = async (email: string, password: string, role: 'student' | 'teacher', name: string) => {
     console.log('🔵 Starting signup process:', { email, role, name });
     
-    // Check if Supabase is configured
-    if (!isSupabaseConfigured()) {
-      console.warn('⚠️ Supabase not configured, using mock signup');
-      // Create mock user for development
-      const mockUser: AppUser = {
-        id: 'mock-' + Date.now(),
-        email: email,
-        role: role,
-        profile: {
-          id: 'mock-profile-' + Date.now(),
-          user_id: 'mock-' + Date.now(),
-          name: name,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      };
-      setUser(mockUser);
-      setLoading(false);
-      return mockUser;
-    }
-    
     setLoading(true);
     
     try {
+      // Check if Supabase is configured
+      if (!isSupabaseConfigured()) {
+        console.warn('⚠️ Supabase not configured, using mock signup');
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
+        
+        const mockUser: AppUser = {
+          id: 'mock-' + Date.now(),
+          email: email,
+          role: role,
+          profile: {
+            id: 'mock-profile-' + Date.now(),
+            user_id: 'mock-' + Date.now(),
+            name: name,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        };
+        setUser(mockUser);
+        setLoading(false);
+        return mockUser;
+      }
+      
       console.log('🔵 Calling Supabase signUp...');
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: email.trim(),
@@ -152,29 +153,31 @@ export const useAuth = () => {
   const signIn = async (email: string, password: string) => {
     console.log('🔵 Starting signin process:', { email });
     
-    // Check if Supabase is configured
-    if (!isSupabaseConfigured()) {
-      console.warn('⚠️ Supabase not configured, using mock signin');
-      // Create mock user for development
-      const mockUser: AppUser = {
-        id: 'mock-signin-' + Date.now(),
-        email: email,
-        role: 'student',
-        profile: {
-          id: 'mock-profile-signin-' + Date.now(),
-          user_id: 'mock-signin-' + Date.now(),
-          name: email.split('@')[0],
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      };
-      setUser(mockUser);
-      return mockUser;
-    }
-    
     setLoading(true);
     
     try {
+      // Check if Supabase is configured
+      if (!isSupabaseConfigured()) {
+        console.warn('⚠️ Supabase not configured, using mock signin');
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
+        
+        const mockUser: AppUser = {
+          id: 'mock-signin-' + Date.now(),
+          email: email,
+          role: 'student',
+          profile: {
+            id: 'mock-profile-signin-' + Date.now(),
+            user_id: 'mock-signin-' + Date.now(),
+            name: email.split('@')[0],
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        };
+        setUser(mockUser);
+        setLoading(false);
+        return mockUser;
+      }
+      
       console.log('🔵 Calling Supabase signIn...');
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: email.trim(),
@@ -183,10 +186,12 @@ export const useAuth = () => {
 
       if (authError) {
         console.error('🔴 Auth signin error:', authError);
+        setLoading(false);
         throw new Error(authError.message || 'فشل في تسجيل الدخول');
       }
 
       if (!authData.user) {
+        setLoading(false);
         throw new Error('فشل في تسجيل الدخول');
       }
 
@@ -215,14 +220,14 @@ export const useAuth = () => {
       };
 
       setUser(appUser);
+      setLoading(false);
       console.log('🟢 Signin completed successfully');
       return appUser;
 
     } catch (error: any) {
       console.error('🔴 Signin error:', error);
-      throw new Error(error.message || 'حدث خطأ أثناء تسجيل الدخول');
-    } finally {
       setLoading(false);
+      throw new Error(error.message || 'حدث خطأ أثناء تسجيل الدخول');
     }
   };
 
@@ -238,10 +243,10 @@ export const useAuth = () => {
       }
       
       setUser(null);
+      setLoading(false);
       console.log('🟢 Signout successful');
     } catch (error) {
       console.error('🔴 Signout error:', error);
-    } finally {
       setLoading(false);
     }
   };
@@ -267,18 +272,19 @@ export const useAuth = () => {
 
       if (error) {
         console.error('🔴 Profile update error:', error);
+        setLoading(false);
         throw error;
       }
 
       const updatedUser = { ...user, profile: data };
       setUser(updatedUser);
+      setLoading(false);
       console.log('🟢 Profile updated successfully');
       return updatedUser;
     } catch (error) {
       console.error('🔴 Profile update error:', error);
-      throw error;
-    } finally {
       setLoading(false);
+      throw error;
     }
   };
 
@@ -289,7 +295,6 @@ export const useAuth = () => {
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
         console.error('🔴 Session error:', error);
-        setLoading(false);
         return;
       }
 
@@ -298,7 +303,6 @@ export const useAuth = () => {
         handleAuthUser(session.user);
       } else {
         console.log('🟡 No existing session found');
-        setLoading(false);
       }
     });
 
@@ -308,7 +312,6 @@ export const useAuth = () => {
       
       if (event === 'SIGNED_OUT' || !session) {
         setUser(null);
-        setLoading(false);
       } else if (event === 'SIGNED_IN' && session?.user) {
         await handleAuthUser(session.user);
       }
@@ -338,8 +341,6 @@ export const useAuth = () => {
       setUser(appUser);
     } catch (error) {
       console.error('🔴 Error handling auth user:', error);
-    } finally {
-      setLoading(false);
     }
   };
 

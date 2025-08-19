@@ -17,7 +17,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
   const [name, setName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { signIn, signUp, loading } = useAuth();
 
   if (!isOpen) return null;
@@ -54,13 +53,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (isSubmitting || loading) return;
+    if (loading) return;
     
     setError(null);
     
     if (!validateForm()) return;
-    
-    setIsSubmitting(true);
     
     try {
       if (mode === 'signin') {
@@ -102,8 +99,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
       }
       
       setError(errorMessage);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -253,14 +248,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
 
           <button
             type="submit"
-            disabled={isSubmitting || loading}
+            disabled={loading}
             className={`w-full py-3 px-4 rounded-lg text-white font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
               selectedRole === 'teacher' && mode === 'signup'
                 ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
                 : 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800'
             }`}
           >
-            {isSubmitting || loading ? (
+            {loading ? (
               <div className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white ml-2"></div>
                 {mode === 'signin' ? 'جاري تسجيل الدخول...' : 'جاري إنشاء الحساب...'}
