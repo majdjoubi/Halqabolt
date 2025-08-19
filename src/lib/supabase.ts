@@ -44,7 +44,17 @@ if (!supabaseUrl || !supabaseAnonKey ||
       },
       signOut: () => Promise.resolve({ error: null }),
       getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      signInWithOAuth: (options: any) => {
+        console.log('🔧 Mock OAuth signin:', options.provider, options.options?.queryParams?.role);
+        return Promise.resolve({ 
+          data: { 
+            provider: options.provider,
+            url: `https://mock-oauth-url.com?role=${options.options?.queryParams?.role || 'student'}`
+          }, 
+          error: null 
+        });
+      }
     },
     from: () => ({
       select: () => ({ 
