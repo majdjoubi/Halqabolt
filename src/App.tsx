@@ -19,7 +19,7 @@ function App() {
   const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, initializing } = useAuth();
 
   // Hide loading screen when app is ready
   useEffect(() => {
@@ -31,6 +31,17 @@ function App() {
     }
   }, []);
 
+  // Show loading while initializing auth
+  if (initializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50" dir="rtl">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحميل التطبيق...</p>
+        </div>
+      </div>
+    );
+  }
   const navigateTo = (page: Page, teacherId: string | null = null) => {
     setCurrentPage(page);
     setSelectedTeacherId(teacherId);

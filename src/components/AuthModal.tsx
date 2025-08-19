@@ -21,19 +21,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
 
   if (!isOpen) return null;
 
-  // Don't show modal while initializing
-  if (initializing) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-2xl p-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">جاري التحقق من حالة تسجيل الدخول...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const validateForm = () => {
     if (!email.trim()) {
