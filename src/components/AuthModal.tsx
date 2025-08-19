@@ -23,6 +23,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    
+    if (loading) return; // Prevent multiple submissions
 
     try {
       if (mode === 'signin') {
@@ -35,6 +37,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
         onSuccess(selectedRole);
       }
     } catch (err: any) {
+      console.error('Auth modal error:', err);
       setError(err.message || 'حدث خطأ أثناء المصادقة');
     }
   };

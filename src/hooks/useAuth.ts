@@ -19,6 +19,9 @@ export const useAuth = () => {
       const userData = await auth.signIn(email, password, role);
       setUser(userData);
       return userData;
+    } catch (error: any) {
+      console.error('Sign in error in hook:', error);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -30,6 +33,9 @@ export const useAuth = () => {
       const userData = await auth.signUp(email, password, role, name);
       setUser(userData);
       return userData;
+    } catch (error: any) {
+      console.error('Sign up error in hook:', error);
+      throw error;
     } finally {
       setLoading(false);
     }

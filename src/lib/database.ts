@@ -96,26 +96,31 @@ export const auth = {
 
       // Check if user's registered role matches the attempted login role
       const userRole = authData.user.user_metadata?.role;
-      if (userRole !== role) {
+      if (userRole && userRole !== role) {
         await supabase.auth.signOut(); // Sign out immediately
-        throw new Error(`هذا الحساب مسجل كـ ${userRole === 'students' ? 'طالب' : 'معلم'}. يرجى اختيار الدور الصحيح.`);
+        throw new Error(`هذا الحساب مسجل كـ ${userRole === 'student' ? 'طالب' : 'معلم'}. يرجى اختيار الدور الصحيح.`);
       }
+      
+      // If no role in metadata, use the attempted role (for backward compatibility)
+      const actualRole = userRole || role;
+      
       // Get user profile
-      const tableName = role === 'teacher' ? 'teachers' : 'students';
+      const tableName = actualRole === 'teacher' ? 'teachers' : 'students';
       const { data: profileData, error: profileError } = await supabase
         .from(tableName)
         .select('*')
         .eq('user_id', authData.user.id)
         .single();
 
-      if (profileError) {
+      if (profileError && profileError.code !== 'PGRST116') {
         console.error('Profile fetch error:', profileError);
+        throw new Error('فشل في جلب بيانات الملف الشخصي');
       }
 
       return {
         id: authData.user.id,
         email: authData.user.email!,
-        role,
+        role: actualRole,
         profile: profileData || {}
       };
     } catch (error: any) {
