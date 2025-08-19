@@ -3,36 +3,59 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.');
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false,
-    flowType: 'pkce'
-  },
-  db: {
-    schema: 'public'
-  },
-  global: {
-    headers: {
-      'X-Client-Info': 'halqa-platform'
-    }
-  }
-});
-
-// Test connection
-supabase.from('teachers').select('count', { count: 'exact', head: true })
-  .then(({ error }) => {
-    if (error) {
-      console.error('❌ Supabase connection failed:', error.message);
-    } else {
-      console.log('✅ Supabase connected successfully');
+// Check if environment variables are properly configured
+if (!supabaseUrl || !supabaseAnonKey || 
+    supabaseUrl === 'https://your-project-ref.supabase.co' || 
+    supabaseUrl === 'https://placeholder-url.supabase.co' ||
+    supabaseAnonKey === 'your-anon-key-here' ||
+    supabaseAnonKey === 'placeholder-anon-key') {
+  console.warn('⚠️ Supabase environment variables are not properly configured. Using mock mode.');
+  // Create a mock client that won't make actual requests
+  export const supabase = {
+    auth: {
+      signUp: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+      signInWithPassword: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+      signOut: () => Promise.resolve({ error: null }),
+      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+    },
+    from: () => ({
+      select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) }),
+      insert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) }),
+      upsert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) })
+    })
+  };
+} else {
+  export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false,
+      flowType: 'pkce'
+    },
+    db: {
+      schema: 'public'
+    },
+    global: {
+      headers: {
+        'X-Client-Info': 'halqa-platform'
+      }
     }
   });
+
+  // Test connection only if properly configured
+  supabase.from('teachers').select('count', { count: 'exact', head: true })
+    .then(({ error }) => {
+      if (error) {
+        console.error('❌ Supabase connection failed:', error.message);
+      } else {
+        console.log('✅ Supabase connected successfully');
+      }
+    })
+    .catch(() => {
+      console.warn('⚠️ Supabase connection test failed - this is normal if tables don\'t exist yet');
+    });
+}
 
 // Database types
 export interface User {
