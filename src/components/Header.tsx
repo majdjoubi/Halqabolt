@@ -79,7 +79,12 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
             <div className="hidden md:flex items-center space-x-4 space-x-reverse">
               {user ? (
                 <div className="flex items-center space-x-4 space-x-reverse">
-                  <span className="text-gray-700">مرحباً، {user.email}</span>
+                  <span className="text-gray-700">
+                    مرحباً، {user.profile?.name || user.email}
+                    <span className="text-xs text-gray-500 mr-2">
+                      ({user.role === 'student' ? 'طالب' : 'معلم'})
+                    </span>
+                  </span>
                   <button
                     onClick={handleSignOut}
                     className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
@@ -157,7 +162,12 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                   {user ? (
                     <div className="space-y-2">
-                      <span className="text-gray-700 text-sm">مرحباً، {user.email}</span>
+                      <span className="text-gray-700 text-sm">
+                        مرحباً، {user.profile?.name || user.email}
+                        <span className="text-xs text-gray-500 block">
+                          ({user.role === 'student' ? 'طالب' : 'معلم'})
+                        </span>
+                      </span>
                       <button
                         onClick={() => navigateTo('search')}
                         className="text-emerald-600 hover:text-emerald-700 font-medium text-right w-full"

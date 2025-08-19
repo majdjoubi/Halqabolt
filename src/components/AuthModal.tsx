@@ -95,10 +95,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
           </div>
           <p className="text-xs text-gray-500 mt-2">
             {selectedRole === 'student' 
-              ? 'ستتمكن من البحث عن المعلمين وحجز الدروس'
-              : 'ستتمكن من تقديم الدروس وإدارة الطلاب'
+              ? 'ستتمكن من البحث عن المعلمين وحجز الدروس فوراً'
+              : 'سيتم مراجعة طلبك والموافقة عليه قبل البدء في التدريس'
             }
           </p>
+          {selectedRole === 'teacher' && mode === 'signup' && (
+            <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-xs text-amber-700">
+                <strong>ملاحظة:</strong> التسجيل كمعلم يتطلب مراجعة الشهادات والمؤهلات. 
+                ستحتاج لرفع شهاداتك بعد التسجيل وانتظار الموافقة قبل البدء في التدريس.
+              </p>
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

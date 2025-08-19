@@ -5,6 +5,20 @@ import type { User, UserProfile, StudentProfile, TeacherProfile, Session, Bookin
 export const auth = {
   signUp: async (email: string, password: string, role: 'student' | 'teacher', name: string = '') => {
     try {
+      // Check if user already exists with different role
+      const { data: existingUser } = await supabase.auth.signInWithPassword({
+        email,
+        password: 'dummy' // This will fail but we just want to check if user exists
+      });
+      
+      // If user exists, check their current role
+      if (existingUser?.user) {
+        const currentRole = existingUser.user.user_metadata?.role;
+        if (currentRole && currentRole !== role) {
+          throw new Error(`هذا البريد الإلكتروني مسجل بالفعل كـ ${currentRole === 'student' ? 'طالب' : 'معلم'}. لا يمكن التسجيل بدور مختلف.`);
+        }
+      }
+
       // Sign up with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
@@ -20,7 +34,7 @@ export const auth = {
       if (authError) throw authError;
       if (!authData.user) throw new Error('Failed to create user');
 
-      // Create user profile
+      // Create user profile based on role
       const profileData = role === 'teacher' 
         ? {
             user_id: authData.user.id,
@@ -31,7 +45,8 @@ export const auth = {
             bio: '',
             certificates: [],
             languages: ['العربية'],
-            is_verified: false,
+            is_verified: false, // Teachers need approval
+            approval_status: 'pending', // New field for approval process
             rating: 0,
             students_count: 0
           }
@@ -44,14 +59,14 @@ export const auth = {
             preferred_schedule: ''
           };
 
-      const tableName = role === 'teacher' ? 'teacher_profiles' : 'student_profiles';
+      const tableName = role === 'teacher' ? 'teachers' : 'students';
       const { error: profileError } = await supabase
         .from(tableName)
         .insert([profileData]);
 
       if (profileError) {
         console.error('Profile creation error:', profileError);
-        // Don't throw here, user is created but profile failed
+        throw new Error('فشل في إنشاء الملف الشخصي');
       }
 
       return {
@@ -62,6 +77,9 @@ export const auth = {
       };
     } catch (error: any) {
       console.error('Sign up error:', error);
+      if (error.message.includes('User already registered')) {
+        throw new Error('هذا البريد الإلكتروني مسجل بالفعل');
+      }
       throw new Error(error.message || 'فشل في إنشاء الحساب');
     }
   },
@@ -76,8 +94,14 @@ export const auth = {
       if (authError) throw authError;
       if (!authData.user) throw new Error('Failed to sign in');
 
+      // Check if user's registered role matches the attempted login role
+      const userRole = authData.user.user_metadata?.role;
+      if (userRole !== role) {
+        await supabase.auth.signOut(); // Sign out immediately
+        throw new Error(`هذا الحساب مسجل كـ ${userRole === 'student' ? 'طالب' : 'معلم'}. يرجى اختيار الدور الصحيح.`);
+      }
       // Get user profile
-      const tableName = role === 'teacher' ? 'teacher_profiles' : 'student_profiles';
+      const tableName = role === 'teacher' ? 'teachers' : 'students';
       const { data: profileData, error: profileError } = await supabase
         .from(tableName)
         .select('*')
@@ -127,7 +151,7 @@ export const auth = {
       if (!role) return null;
 
       // Get user profile
-      const tableName = role === 'teacher' ? 'teacher_profiles' : 'student_profiles';
+      const tableName = role === 'teacher' ? 'teachers' : 'students';
       const { data: profileData, error: profileError } = await supabase
         .from(tableName)
         .select('*')
@@ -136,8 +160,20 @@ export const auth = {
 
       if (profileError) {
         console.error('Profile fetch error:', profileError);
+        if (profileError.code === 'PGRST116') {
+          throw new Error('الملف الشخصي غير موجود. يرجى التواصل مع الدعم الفني.');
+        }
       }
 
+      // For teachers, check if they are approved
+      if (role === 'teacher' && profileData && !profileData.is_verified) {
+        const approvalStatus = profileData.approval_status || 'pending';
+        if (approvalStatus === 'pending') {
+          throw new Error('حسابك كمعلم قيد المراجعة. سيتم إشعارك عند الموافقة.');
+        } else if (approvalStatus === 'rejected') {
+          throw new Error('تم رفض طلب التسجيل كمعلم. يرجى التواصل مع الدعم الفني.');
+        }
+      }
       return {
         id: user.id,
         email: user.email!,
@@ -152,7 +188,7 @@ export const auth = {
 
   updateUserProfile: async (userId: string, role: 'student' | 'teacher', profileData: any) => {
     try {
-      const tableName = role === 'teacher' ? 'teacher_profiles' : 'student_profiles';
+      const tableName = role === 'teacher' ? 'teachers' : 'students';
       
       const { data, error } = await supabase
         .from(tableName)
@@ -184,7 +220,7 @@ export const database = {
   getTeachers: async (): Promise<TeacherProfile[]> => {
     try {
       const { data, error } = await supabase
-        .from('teacher_profiles')
+        .from('teachers')
         .select('*')
         .eq('is_verified', true)
         .order('rating', { ascending: false });
@@ -200,7 +236,7 @@ export const database = {
   getTeacher: async (id: string): Promise<TeacherProfile | null> => {
     try {
       const { data, error } = await supabase
-        .from('teacher_profiles')
+        .from('teachers')
         .select('*')
         .eq('id', id)
         .single();
@@ -284,9 +320,9 @@ export const database = {
         .from('bookings')
         .select(`
           *,
-          sessions (
+          lessons (
             *,
-            teacher_profiles (name, specialization)
+            teachers (name, specialization)
           )
         `)
         .eq('student_id', studentId)
@@ -306,12 +342,12 @@ export const database = {
         .from('bookings')
         .select(`
           *,
-          sessions!inner (
+          lessons!inner (
             *
           ),
-          student_profiles (name)
+          students (name)
         `)
-        .eq('sessions.teacher_id', teacherId)
+        .eq('lessons.teacher_id', teacherId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

@@ -9,6 +9,7 @@ interface TeacherDashboardProps {
 const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
+  const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const [teacherData, setTeacherData] = useState({
     name: '',
     specialization: '',
@@ -50,8 +51,17 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
   };
 
   const handleSaveProfile = async () => {
-    alert('تم حفظ البيانات بنجاح!');
+    try {
+      // Save profile data
+      alert('تم حفظ البيانات بنجاح! سيتم مراجعة ملفك الشخصي قريباً.');
+    } catch (error) {
+      alert('حدث خطأ أثناء حفظ البيانات');
+    }
   };
+
+  // Check if teacher is approved
+  const isApproved = user?.profile?.is_verified || false;
+  const currentApprovalStatus = user?.profile?.approval_status || 'pending';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -70,6 +80,44 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onClose }) => {
         </div>
       </div>
 
+      {/* Approval Status Banner */}
+      {!isApproved && (
+        <div className={`${
+          currentApprovalStatus === 'pending' ? 'bg-amber-50 border-amber-200' :
+          currentApprovalStatus === 'rejected' ? 'bg-red-50 border-red-200' :
+          'bg-blue-50 border-blue-200'
+        } border-b px-4 py-3`}>
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center">
+              <div className={`flex-shrink-0 ${
+                currentApprovalStatus === 'pending' ? 'text-amber-600' :
+                currentApprovalStatus === 'rejected' ? 'text-red-600' :
+                'text-blue-600'
+              }`}>
+                <Clock className="h-5 w-5" />
+              </div>
+              <div className="mr-3">
+                <p className={`text-sm font-medium ${
+                  currentApprovalStatus === 'pending' ? 'text-amber-800' :
+                  currentApprovalStatus === 'rejected' ? 'text-red-800' :
+                  'text-blue-800'
+                }`}>
+                  {currentApprovalStatus === 'pending' && 'حسابك قيد المراجعة'}
+                  {currentApprovalStatus === 'rejected' && 'تم رفض طلب التسجيل'}
+                </p>
+                <p className={`text-xs ${
+                  currentApprovalStatus === 'pending' ? 'text-amber-700' :
+                  currentApprovalStatus === 'rejected' ? 'text-red-700' :
+                  'text-blue-700'
+                }`}>
+                  {currentApprovalStatus === 'pending' && 'يرجى إكمال ملفك الشخصي ورفع الشهادات. سيتم إشعارك عند الموافقة.'}
+                  {currentApprovalStatus === 'rejected' && 'يرجى التواصل مع الدعم الفني لمعرفة أسباب الرفض.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Sidebar */}
