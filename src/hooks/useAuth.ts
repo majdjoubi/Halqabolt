@@ -58,6 +58,7 @@ export const useAuth = () => {
         }
       };
       setUser(mockUser);
+      setLoading(false);
       return mockUser;
     }
     
@@ -78,10 +79,12 @@ export const useAuth = () => {
 
       if (authError) {
         console.error('🔴 Auth signup error:', authError);
+        setLoading(false);
         throw new Error(authError.message || 'فشل في إنشاء الحساب');
       }
 
       if (!authData.user) {
+        setLoading(false);
         throw new Error('فشل في إنشاء الحساب');
       }
 
@@ -135,14 +138,14 @@ export const useAuth = () => {
       };
 
       setUser(appUser);
+      setLoading(false);
       console.log('🟢 Signup completed successfully');
       return appUser;
 
     } catch (error: any) {
       console.error('🔴 Signup error:', error);
-      throw new Error(error.message || 'حدث خطأ أثناء إنشاء الحساب');
-    } finally {
       setLoading(false);
+      throw new Error(error.message || 'حدث خطأ أثناء إنشاء الحساب');
     }
   };
 
