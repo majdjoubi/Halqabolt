@@ -3,39 +3,81 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey || 
-    supabaseUrl === 'your_supabase_project_url' ||
-    supabaseUrl === 'https://placeholder-url.supabase.co' ||
-    supabaseAnonKey === 'your_supabase_anon_key') {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.');
-}
+// Check if environment variables are properly configured
+const isSupabaseConfigured = supabaseUrl && 
+  supabaseAnonKey && 
+  supabaseUrl !== 'your_supabase_project_url' &&
+  supabaseUrl !== 'https://placeholder-url.supabase.co' &&
+  supabaseAnonKey !== 'your_supabase_anon_key' &&
+  !supabaseUrl.includes('placeholder');
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-    flowType: 'pkce'
-  }
-});
+let supabase: any;
 
-// Test connection only if URL looks valid
-if (supabaseUrl.includes('.supabase.co') && !supabaseUrl.includes('placeholder')) {
+if (!isSupabaseConfigured) {
+  console.warn('🔧 Supabase environment variables not configured. Using development mode.');
+  console.warn('📝 To use real Supabase, create a .env file with:');
+  console.warn('   VITE_SUPABASE_URL=https://your-project-ref.supabase.co');
+  console.warn('   VITE_SUPABASE_ANON_KEY=your-actual-anon-key');
+  
+  // Create a mock client for development
+  supabase = {
+    auth: {
+      signUp: () => Promise.resolve({ 
+        data: { user: null }, 
+        error: { message: 'Supabase not configured. Please set up your .env file.' } 
+      }),
+      signInWithPassword: () => Promise.resolve({ 
+        data: { user: null }, 
+        error: { message: 'Supabase not configured. Please set up your .env file.' } 
+      }),
+      signOut: () => Promise.resolve({ error: null }),
+      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+    },
+    from: () => ({
+      select: () => ({ 
+        eq: () => ({ 
+          single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } })
+        }),
+        order: () => Promise.resolve({ data: [], error: null })
+      }),
+      insert: () => ({ 
+        select: () => ({ 
+          single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } })
+        })
+      }),
+      upsert: () => ({ 
+        select: () => ({ 
+          single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } })
+        })
+      })
+    })
+  };
+} else {
+  supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
+      flowType: 'pkce'
+    }
+  });
+
+  // Test connection
   supabase.from('teachers').select('count', { count: 'exact', head: true })
-    .then(({ error }) => {
+    .then(({ error }: any) => {
       if (error) {
         console.error('❌ Supabase connection failed:', error.message);
       } else {
         console.log('✅ Supabase connected successfully');
       }
     })
-    .catch((error) => {
+    .catch((error: any) => {
       console.warn('⚠️ Supabase connection test failed:', error.message);
     });
-} else {
-  console.log('🔧 Supabase environment variables not configured properly');
 }
 
+export { supabase };
 // Database types
 export interface User {
   id: string;
