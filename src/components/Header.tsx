@@ -65,6 +65,14 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
               >
                 تبرع الآن
               </button>
+              
+              {/* CTA Button */}
+              <button
+                onClick={() => onOpenAuth('signup')}
+                className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-2 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
+                ابدأ التعلم الآن
+              </button>
             </nav>
 
             {/* Mobile Menu Button */}
@@ -115,6 +123,17 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   className="text-amber-600 hover:text-amber-700 font-medium text-right"
                 >
                   تبرع الآن
+                </button>
+                
+                {/* Mobile CTA Button */}
+                <button 
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    onOpenAuth('signup');
+                  }}
+                  className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-6 py-3 rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 font-semibold text-center"
+                >
+                  ابدأ التعلم الآن
                 </button>
               </nav>
             </div>

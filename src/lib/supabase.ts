@@ -1,33 +1,119 @@
-// ملف Supabase مبسط بدون مصادقة
-console.log('🔧 Supabase disabled - Authentication removed');
+import { createClient } from '@supabase/supabase-js';
 
-// Mock client بدون مصادقة
-export const supabase = {
-  from: (table: string) => ({
-    select: (columns = '*') => ({
-      eq: (column: string, value: any) => ({
-        single: async () => ({ data: null, error: null }),
-        order: async () => ({ data: [], error: null })
-      }),
-      order: async () => ({ data: [], error: null })
-    }),
-    insert: () => ({
-      select: () => ({
-        single: async () => ({ data: null, error: null })
-      })
-    }),
-    upsert: () => ({
-      select: () => ({
-        single: async () => ({ data: null, error: null })
-      })
-    })
-  })
+// Supabase configuration
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Check if Supabase is configured
+export const isSupabaseConfigured = () => {
+  return !!(supabaseUrl && supabaseAnonKey && 
+    supabaseUrl !== 'your_supabase_project_url' && 
+    supabaseAnonKey !== 'your_supabase_anon_key');
 };
 
-export const isSupabaseConfigured = () => false;
-export const testSupabaseConnection = async () => false;
+// Create Supabase client
+export const supabase = isSupabaseConfigured() 
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        flowType: 'pkce'
+      }
+    })
+  : null;
 
-// Types للتوافق
+// Test Supabase connection
+export const testSupabaseConnection = async (): Promise<boolean> => {
+  if (!supabase) {
+    console.log('🔴 Supabase not configured');
+    return false;
+  }
+
+  try {
+    console.log('🔵 Testing Supabase connection...');
+    
+    // Test REST API
+    const { data, error } = await supabase
+      .from('teachers')
+      .select('count')
+      .limit(1);
+
+    if (error) {
+      console.error('🔴 Supabase REST API error:', error);
+      return false;
+    }
+
+    // Test Auth API
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    console.log('🟢 Supabase connection successful');
+    return true;
+  } catch (error) {
+    console.error('🔴 Supabase connection failed:', error);
+    return false;
+  }
+};
+
+// GitHub integration
+export const testGitHubConnection = async (): Promise<boolean> => {
+  try {
+    console.log('🔵 Testing GitHub connection...');
+    
+    const response = await fetch('https://api.github.com/rate_limit');
+    if (response.ok) {
+      console.log('🟢 GitHub API accessible');
+      return true;
+    } else {
+      console.log('🔴 GitHub API not accessible');
+      return false;
+    }
+  } catch (error) {
+    console.error('🔴 GitHub connection failed:', error);
+    return false;
+  }
+};
+
+// Vercel integration
+export const testVercelConnection = async (): Promise<boolean> => {
+  try {
+    console.log('🔵 Testing Vercel connection...');
+    
+    const response = await fetch('https://api.vercel.com/v1/user', {
+      headers: {
+        'Authorization': `Bearer ${import.meta.env.VITE_VERCEL_TOKEN || 'test'}`
+      }
+    });
+    
+    // Even if unauthorized, if we get a response, Vercel is accessible
+    console.log('🟢 Vercel API accessible');
+    return true;
+  } catch (error) {
+    console.error('🔴 Vercel connection failed:', error);
+    return false;
+  }
+};
+
+// Initialize connections test
+export const initializeConnections = async () => {
+  console.log('🚀 Initializing all connections...');
+  
+  const results = await Promise.all([
+    testSupabaseConnection(),
+    testGitHubConnection(),
+    testVercelConnection()
+  ]);
+  
+  console.log('📊 Connection Results:', {
+    supabase: results[0],
+    github: results[1],
+    vercel: results[2]
+  });
+  
+  return results;
+};
+
+// Types
 export interface User {
   id: string;
   email: string;
