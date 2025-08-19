@@ -88,19 +88,12 @@ if (!isSupabaseConfigured()) {
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: false,
-      flowType: 'pkce'
+      detectSessionInUrl: true,
+      flowType: 'implicit'
     },
     db: {
       schema: 'public',
     },
-    global: {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-      }
-    }
   });
 
   // Test connection with better error handling

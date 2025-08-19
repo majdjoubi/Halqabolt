@@ -99,8 +99,14 @@ export const useAuth = () => {
 
       console.log('🟢 Auth signup successful:', authData.user.id);
 
-      // Wait a bit for auth to be processed
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Wait for auth to be processed and session to be established
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Get the fresh session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('فشل في إنشاء الجلسة');
+      }
 
       // Create profile in appropriate table
       const tableName = role === 'teacher' ? 'teachers' : 'students';
@@ -213,6 +219,9 @@ export const useAuth = () => {
 
       console.log('🟢 Auth signin successful:', authData.user.id);
 
+      // Wait for session to be established
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       // Get user role and profile
       const userRole = authData.user.user_metadata?.role || 'student';
       
@@ -307,33 +316,44 @@ export const useAuth = () => {
   useEffect(() => {
     console.log('🔵 Initializing auth state');
     
+    let mounted = true;
+    
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
+    const initializeAuth = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
       if (error) {
         console.error('🔴 Session error:', error);
         return;
       }
 
-      if (session?.user) {
+      if (session?.user && mounted) {
         console.log('🟢 Found existing session:', session.user.id);
-        handleAuthUser(session.user);
+        await handleAuthUser(session.user);
       } else {
         console.log('🟡 No existing session found');
       }
-    });
+    };
+    
+    initializeAuth();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('🔵 Auth state changed:', event);
       
-      if (event === 'SIGNED_OUT' || !session) {
+      if (!mounted) return;
+      
+      if (event === 'SIGNED_OUT' || !session?.user) {
         setUser(null);
-      } else if (event === 'SIGNED_IN' && session?.user) {
+      } else if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user) {
         await handleAuthUser(session.user);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleAuthUser = async (authUser: User) => {
