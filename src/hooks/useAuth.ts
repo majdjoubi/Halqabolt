@@ -49,17 +49,33 @@ export const useAuth = () => {
     setLoading(true);
     
     try {
-      // Step 1: Sign up with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            role: role,
-            name: name
-          }
+      // Add retry logic for network issues
+      let retries = 3;
+      let authData, authError;
+      
+      while (retries > 0) {
+        try {
+          const result = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                role: role,
+                name: name
+              }
+            }
+          });
+          authData = result.data;
+          authError = result.error;
+          break;
+        } catch (networkError) {
+          retries--;
+          if (retries === 0) throw networkError;
+          console.log(`🔄 Retrying signup... (${3 - retries}/3)`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
-      });
+      }
+
 
       if (authError) {
         console.error('🔴 Auth signup error:', authError);
@@ -145,11 +161,26 @@ export const useAuth = () => {
     setLoading(true);
     
     try {
-      // Step 1: Sign in with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      // Add retry logic for network issues
+      let retries = 3;
+      let authData, authError;
+      
+      while (retries > 0) {
+        try {
+          const result = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
+          authData = result.data;
+          authError = result.error;
+          break;
+        } catch (networkError) {
+          retries--;
+          if (retries === 0) throw networkError;
+          console.log(`🔄 Retrying signin... (${3 - retries}/3)`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
 
       if (authError) {
         console.error('🔴 Auth signin error:', authError);

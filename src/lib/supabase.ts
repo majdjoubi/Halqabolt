@@ -66,6 +66,17 @@ if (!isSupabaseConfigured()) {
       persistSession: true,
       detectSessionInUrl: true,
       flowType: 'pkce'
+    },
+    global: {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+      },
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 2,
+      },
     }
   });
 
@@ -74,13 +85,13 @@ if (!isSupabaseConfigured()) {
     supabase.from('teachers').select('count', { count: 'exact', head: true })
       .then(({ error }: any) => {
         if (error) {
-          console.error('❌ Supabase connection failed:', error.message);
+          console.warn('⚠️ Supabase connection test failed:', error.message);
         } else {
           console.log('✅ Supabase connected successfully');
         }
       })
       .catch((error: any) => {
-        console.warn('⚠️ Supabase connection test failed:', error.message);
+        console.warn('⚠️ Network test failed, but app will continue:', error.message);
       });
   }, 1000);
 }
