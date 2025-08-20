@@ -1,59 +1,95 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim() || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() || '';
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim();
+const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
 
 // Check if Supabase is configured
 export const isSupabaseConfigured = () => {
-  const hasUrl = supabaseUrl && supabaseUrl !== '' && supabaseUrl.includes('supabase.co');
-  const hasKey = supabaseAnonKey && supabaseAnonKey !== '' && supabaseAnonKey.length > 100;
+  const hasUrl = Boolean(supabaseUrl && supabaseUrl.startsWith('https://') && supabaseUrl.includes('.supabase.co'));
+  const hasKey = Boolean(supabaseAnonKey && supabaseAnonKey.startsWith('eyJ') && supabaseAnonKey.length > 100);
   
   console.log('🔍 Supabase Configuration Check:');
-  console.log('  URL configured:', hasUrl ? '✅' : '❌', supabaseUrl ? `(${supabaseUrl.substring(0, 30)}...)` : '(empty)');
-  console.log('  Key configured:', hasKey ? '✅' : '❌', supabaseAnonKey ? `(${supabaseAnonKey.substring(0, 20)}...)` : '(empty)');
-  console.log('  Project ID extracted:', supabaseUrl ? supabaseUrl.split('.')[0].replace('https://', '') : 'none');
+  console.log('  URL:', hasUrl ? '✅' : '❌', supabaseUrl || '(empty)');
+  console.log('  Key:', hasKey ? '✅' : '❌', supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : '(empty)');
+  console.log('  Environment:', import.meta.env.MODE);
+  console.log('  All env vars:', Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')));
   
-  return !!(hasUrl && hasKey);
+  return hasUrl && hasKey;
 };
 
 // Create Supabase client
-export const supabase = isSupabaseConfigured() 
-  ? createClient(supabaseUrl, supabaseAnonKey, {
+let supabase: any = null;
+
+if (isSupabaseConfigured()) {
+  try {
+    supabase = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
         flowType: 'pkce'
+      },
+      global: {
+        headers: {
+          'X-Client-Info': 'halaqah-platform@1.0.0'
+        }
       }
-    })
-  : null;
+    });
+    console.log('🟢 Supabase client created successfully');
+  } catch (error) {
+    console.error('🔴 Failed to create Supabase client:', error);
+    supabase = null;
+  }
+} else {
+  console.log('🔴 Supabase not configured properly');
+}
+
+export { supabase };
 
 // Test Supabase connection
 export const testSupabaseConnection = async (): Promise<boolean> => {
   if (!supabase) {
-    console.log('🔴 Supabase غير مُعد - يرجى إضافة متغيرات البيئة');
+    console.error('🔴 Supabase client not available');
     return false;
   }
 
   try {
-    console.log('🔵 اختبار اتصال Supabase...');
+    console.log('🔵 Testing Supabase connection...');
     
-    // Test REST API
+    // Test with a simple query
     const { data, error } = await supabase
-      .from('teachers')
-      .select('id')
+      .from('users')
+      .select('count')
       .limit(1);
 
     if (error) {
-      console.error('🔴 خطأ في Supabase:', error.message);
+      console.error('🔴 Supabase connection error:', error.message, error.details);
+      
+      // Try alternative test - check if we can reach the API
+      try {
+        const response = await fetch(`${supabaseUrl}/rest/v1/`, {
+          headers: {
+            'apikey': supabaseAnonKey,
+            'Authorization': `Bearer ${supabaseAnonKey}`
+          }
+        });
+        
+        if (response.ok || response.status === 404) {
+          console.log('🟡 Supabase API reachable but table query failed');
+          return true;
+        }
+      } catch (fetchError) {
+        console.error('🔴 Cannot reach Supabase API:', fetchError);
+      }
+      
       return false;
     }
 
-    console.log('🟢 اتصال Supabase ناجح');
+    console.log('🟢 Supabase connection successful');
     return true;
   } catch (error) {
-    console.error('🔴 فشل اتصال Supabase:', error);
+    console.error('🔴 Supabase connection failed:', error);
     return false;
   }
 };

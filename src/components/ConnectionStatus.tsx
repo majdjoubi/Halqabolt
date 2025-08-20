@@ -14,9 +14,15 @@ const ConnectionStatus = () => {
   const checkConnection = async () => {
     setStatus('checking');
     
+    console.log('🔵 Checking Supabase connection...');
+    console.log('Environment variables:', {
+      url: import.meta.env.VITE_SUPABASE_URL ? 'Set' : 'Not set',
+      key: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'Not set'
+    });
+    
     if (!isSupabaseConfigured()) {
       setStatus('not-configured');
-      setDetails('يرجى إعداد متغيرات البيئة في Vercel');
+      setDetails('متغيرات البيئة غير مُعدة بشكل صحيح');
       return;
     }
 
@@ -24,14 +30,15 @@ const ConnectionStatus = () => {
       const isConnected = await testSupabaseConnection();
       if (isConnected) {
         setStatus('connected');
-        setDetails('الاتصال ناجح');
+        setDetails('متصل بنجاح');
       } else {
         setStatus('disconnected');
-        setDetails('فشل الاتصال - تحقق من الإعدادات');
+        setDetails('فشل الاتصال - تحقق من قاعدة البيانات');
       }
     } catch (error) {
+      console.error('Connection check error:', error);
       setStatus('disconnected');
-      setDetails('خطأ في الاتصال');
+      setDetails(`خطأ: ${error instanceof Error ? error.message : 'خطأ غير معروف'}`);
     }
   };
 
