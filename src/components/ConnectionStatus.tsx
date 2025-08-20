@@ -16,7 +16,7 @@ const ConnectionStatus = () => {
     
     if (!isSupabaseConfigured()) {
       setStatus('not-configured');
-      setDetails('متغيرات البيئة غير مُعدة');
+      setDetails('يرجى إعداد متغيرات البيئة في Vercel');
       return;
     }
 

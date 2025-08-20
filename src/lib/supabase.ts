@@ -1,13 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim() || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() || '';
 
 // Check if Supabase is configured
 export const isSupabaseConfigured = () => {
   const hasUrl = supabaseUrl && supabaseUrl !== '' && supabaseUrl.includes('supabase.co');
-  const hasKey = supabaseAnonKey && supabaseAnonKey !== '' && supabaseAnonKey.length > 50;
+  const hasKey = supabaseAnonKey && supabaseAnonKey !== '' && supabaseAnonKey.startsWith('eyJ');
+  
+  console.log('🔍 Supabase Configuration Check:');
+  console.log('  URL configured:', hasUrl ? '✅' : '❌', supabaseUrl ? `(${supabaseUrl.substring(0, 30)}...)` : '(empty)');
+  console.log('  Key configured:', hasKey ? '✅' : '❌', supabaseAnonKey ? `(${supabaseAnonKey.substring(0, 20)}...)` : '(empty)');
+  
   return !!(hasUrl && hasKey);
 };
 
