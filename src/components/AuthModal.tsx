@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mail, Lock, User, Github, Loader2 } from 'lucide-react';
+import { X, Mail, Lock, User, Loader2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { isSupabaseConfigured, initializeConnections } from '../lib/supabase';
 
@@ -19,7 +19,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
   const [error, setError] = useState('');
   const [connectionStatus, setConnectionStatus] = useState<{
     supabase: boolean;
-    github: boolean;
+    google: boolean;
     vercel: boolean;
   } | null>(null);
   const [testingConnections, setTestingConnections] = useState(false);
@@ -42,18 +42,35 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
       const results = await initializeConnections();
       setConnectionStatus({
         supabase: results[0],
-        github: results[1],
+        google: results[1],
         vercel: results[2]
       });
     } catch (error) {
       console.error('Connection test failed:', error);
       setConnectionStatus({
         supabase: false,
-        github: false,
+        google: false,
         vercel: false
       });
     } finally {
       setTestingConnections(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    if (!isSupabaseConfigured()) {
+      setError('يرجى إعداد Supabase أولاً');
+      return;
+    }
+
+    try {
+      const { signInWithOAuth } = await import('../lib/supabase');
+      const result = await signInWithOAuth('google');
+      if (result.error) {
+        setError(result.error.message);
+      }
+    } catch (error: any) {
+      setError(error.message || 'حدث خطأ أثناء تسجيل الدخول بـ Google');
     }
   };
 
@@ -166,13 +183,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span>GitHub (التكامل)</span>
+                <span>Google OAuth</span>
                 <span className={`px-2 py-1 rounded-full text-xs ${
-                  connectionStatus.github 
+                  connectionStatus.google 
                     ? 'bg-green-100 text-green-800' 
                     : 'bg-yellow-100 text-yellow-800'
                 }`}>
-                  {connectionStatus.github ? '✅ متاح' : '⚠️ غير متاح'}
+                  {connectionStatus.google ? '✅ متاح' : '⚠️ غير متاح'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -297,8 +314,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
             )}
           </button>
 
-          {/* GitHub Integration (Optional) */}
-          {connectionStatus?.github && (
+          {/* Google OAuth Integration */}
+          {connectionStatus?.google && (
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300" />
@@ -309,17 +326,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode, onS
             </div>
           )}
 
-          {connectionStatus?.github && (
+          {connectionStatus?.google && (
             <button
               type="button"
-              className="w-full bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center"
-              onClick={() => {
-                // GitHub OAuth integration would go here
-                alert('تكامل GitHub قيد التطوير');
-              }}
+              className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center"
+              onClick={handleGoogleSignIn}
             >
-              <Github className="h-5 w-5 ml-2" />
-              {mode === 'signin' ? 'تسجيل الدخول' : 'إنشاء حساب'} باستخدام GitHub
+              <svg className="h-5 w-5 ml-2" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              {mode === 'signin' ? 'تسجيل الدخول' : 'إنشاء حساب'} باستخدام Google
             </button>
           )}
         </form>

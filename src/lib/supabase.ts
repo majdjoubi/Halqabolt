@@ -56,8 +56,8 @@ export const testSupabaseConnection = async (): Promise<boolean> => {
 export const initializeConnections = async (): Promise<boolean[]> => {
   const results = await Promise.allSettled([
     testSupabaseConnection(),
-    // Test GitHub API availability
-    fetch('https://api.github.com').then(() => true).catch(() => false),
+    // Test Google OAuth availability (check if we can reach Google's OAuth endpoint)
+    fetch('https://accounts.google.com/.well-known/openid_configuration').then(() => true).catch(() => false),
     // Test Vercel availability
     fetch('https://vercel.com').then(() => true).catch(() => false)
   ]);
@@ -65,6 +65,36 @@ export const initializeConnections = async (): Promise<boolean[]> => {
   return results.map(result => result.status === 'fulfilled' ? result.value : false);
 };
 
+// Google OAuth sign in function
+export const signInWithOAuth = async (provider: 'google') => {
+  if (!supabase) {
+    return { error: { message: 'Supabase غير مُعد' } };
+  }
+
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        }
+      }
+    });
+
+    if (error) {
+      console.error('🔴 خطأ في OAuth:', error);
+      return { error };
+    }
+
+    console.log('🟢 تم بدء عملية OAuth بنجاح');
+    return { data };
+  } catch (error: any) {
+    console.error('🔴 خطأ في OAuth:', error);
+    return { error: { message: error.message || 'حدث خطأ أثناء تسجيل الدخول' } };
+  }
+};
 // Types
 export interface User {
   id: string;
