@@ -161,7 +161,8 @@ export const useAuth = () => {
         options: {
           data: {
             name: userData.name,
-            role: userData.role
+            role: userData.role,
+            full_name: userData.name
           }
         }
       });
@@ -180,6 +181,37 @@ export const useAuth = () => {
     } catch (error: any) {
       console.error('🔴 خطأ في إنشاء الحساب:', error);
       return { error: error.message || 'حدث خطأ أثناء إنشاء الحساب' };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    if (!supabase) {
+      return { error: 'Supabase غير مُعد' };
+    }
+
+    setLoading(true);
+    try {
+      console.log('🔵 تسجيل دخول المستخدم بـ Google');
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+
+      if (error) {
+        console.error('🔴 خطأ في تسجيل الدخول بـ Google:', error);
+        return { error: error.message };
+      }
+
+      console.log('🟢 تم بدء عملية تسجيل الدخول بـ Google');
+      return { data };
+    } catch (error: any) {
+      console.error('🔴 خطأ في تسجيل الدخول بـ Google:', error);
+      return { error: error.message || 'حدث خطأ أثناء تسجيل الدخول بـ Google' };
     } finally {
       setLoading(false);
     }
@@ -216,6 +248,7 @@ export const useAuth = () => {
     isAuthenticated: !!user,
     signIn,
     signUp,
+    signInWithGoogle,
     signOut,
   };
 };
