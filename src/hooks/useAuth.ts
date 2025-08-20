@@ -12,7 +12,8 @@ export const useAuth = () => {
 
     const initializeAuth = async () => {
       if (!isSupabaseConfigured() || !supabase) {
-        console.log('🔴 Supabase غير مُعد - تخطي تهيئة المصادقة');
+        console.log('🔴 Supabase غير مُعد - يرجى إعداد متغيرات البيئة في Vercel');
+        console.log('📋 تحقق من الإعدادات في: Vercel Dashboard > Settings > Environment Variables');
         if (mounted) {
           setInitializing(false);
         }

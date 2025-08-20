@@ -25,6 +25,7 @@
 - Node.js 18+ 
 - npm أو yarn
 - حساب Supabase
+- حساب Vercel (للنشر)
 
 ### خطوات التثبيت
 
@@ -46,14 +47,54 @@ cp .env.example .env
 
 4. **تحديث متغيرات Supabase في ملف `.env`**
 ```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 5. **تشغيل المشروع**
 ```bash
 npm run dev
 ```
+
+## ربط Supabase بـ Vercel
+
+### الحصول على بيانات اعتماد Supabase
+
+1. **انتقل إلى لوحة تحكم Supabase**:
+   - اذهب إلى [supabase.com](https://supabase.com) وسجل الدخول
+   - اختر مشروعك
+
+2. **احصل على Project URL و API Key**:
+   - في الشريط الجانبي، انقر على "Project Settings"
+   - اختر "API" من القائمة
+   - انسخ "Project URL" (مثال: `https://abc123.supabase.co`)
+   - انسخ "anon public" key (يبدأ بـ `eyJ...`)
+
+### إضافة متغيرات البيئة في Vercel
+
+1. **انتقل إلى لوحة تحكم Vercel**:
+   - اذهب إلى [vercel.com](https://vercel.com) وسجل الدخول
+   - اختر مشروعك
+
+2. **أضف متغيرات البيئة**:
+   - انتقل إلى "Settings" > "Environment Variables"
+   - أضف المتغيرات التالية:
+
+   | Name | Value | Environments |
+   |------|-------|--------------|
+   | `VITE_SUPABASE_URL` | `https://your-project-id.supabase.co` | Production, Preview, Development |
+   | `VITE_SUPABASE_ANON_KEY` | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` | Production, Preview, Development |
+
+3. **إعادة النشر**:
+   - بعد إضافة المتغيرات، قم بإعادة نشر المشروع
+   - يمكنك القيام بذلك عن طريق الذهاب إلى "Deployments" والنقر على "Redeploy"
+
+### التحقق من الاتصال
+
+بعد النشر، يمكنك التحقق من حالة الاتصال:
+- افتح تطبيقك المنشور على Vercel
+- ستظهر رسالة في أعلى الصفحة تُظهر حالة اتصال Supabase
+- إذا كان الاتصال ناجحاً، ستختفي الرسالة تلقائياً
 
 ## إعداد قاعدة البيانات
 
