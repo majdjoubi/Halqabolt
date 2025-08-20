@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, BookOpen, Star, Clock, Calendar, Camera, X, Wallet, CreditCard } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import PaymentModal from './PaymentModal';
 
 interface StudentDashboardProps {
   onClose: () => void;
@@ -9,6 +10,8 @@ interface StudentDashboardProps {
 const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [chargeAmount, setChargeAmount] = useState(0);
   const [studentData, setStudentData] = useState({
     name: user?.name || '',
     age: '',
@@ -67,8 +70,23 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
   };
 
   const handleChargeWallet = () => {
-    // Here you would integrate with Stripe
-    alert('سيتم تكامل نظام الدفع مع Stripe قريباً');
+    setShowPaymentModal(true);
+  };
+
+  const handleChargeAmount = (amount: number) => {
+    setChargeAmount(amount);
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentSuccess = (paymentIntent: any) => {
+    console.log('Payment successful:', paymentIntent);
+    // تحديث رصيد المحفظة
+    setStudentData(prev => ({
+      ...prev,
+      wallet_balance: prev.wallet_balance + chargeAmount
+    }));
+    alert(`تم شحن ${chargeAmount} ريال بنجاح!`);
+    setShowPaymentModal(false);
   };
 
   return (
@@ -244,7 +262,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
                   {[50, 100, 200].map((amount) => (
                     <button
                       key={amount}
-                      onClick={handleChargeWallet}
+                      onClick={() => handleChargeAmount(amount)}
                       className="border-2 border-emerald-200 hover:border-emerald-500 hover:bg-emerald-50 p-4 rounded-xl transition-all duration-200 text-center"
                     >
                       <CreditCard className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
@@ -261,11 +279,14 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
                     <input
                       type="number"
                       placeholder="أدخل المبلغ"
+                      value={chargeAmount || ''}
+                      onChange={(e) => setChargeAmount(parseFloat(e.target.value) || 0)}
                       className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     />
                     <button
-                      onClick={handleChargeWallet}
-                      className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors"
+                      onClick={() => chargeAmount > 0 && setShowPaymentModal(true)}
+                      disabled={!chargeAmount || chargeAmount <= 0}
+                      className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       شحن
                     </button>
@@ -337,6 +358,14 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ onClose }) => {
           </div>
         </div>
       </div>
+
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        amount={chargeAmount}
+        description={`شحن رصيد المحفظة - ${chargeAmount} ريال`}
+        onSuccess={handlePaymentSuccess}
+      />
     </div>
   );
 };
