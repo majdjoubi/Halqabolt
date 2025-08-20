@@ -82,8 +82,8 @@ npm run dev
 
    | Name | Value | Environments |
    |------|-------|--------------|
-   | `VITE_SUPABASE_URL` | `https://your-project-id.supabase.co` | Production, Preview, Development |
-   | `VITE_SUPABASE_ANON_KEY` | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` | Production, Preview, Development |
+   | `VITE_SUPABASE_URL` | `https://dvvuuabkhitfvrnbubeb.supabase.co` | Production, Preview, Development |
+   | `VITE_SUPABASE_ANON_KEY` | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2dnV1YWJraGl0ZnZybmJ1YmViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk0NjIsImV4cCI6MjA3MDA1NTQ2Mn0.-PrxEvLx66hYnWBTnAfAJH8rC7Xmj2gW7gC1qRDxvc4` | Production, Preview, Development |
 
 3. **إعادة النشر**:
    - بعد إضافة المتغيرات، قم بإعادة نشر المشروع

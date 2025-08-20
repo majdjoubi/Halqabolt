@@ -7,11 +7,12 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() || '';
 // Check if Supabase is configured
 export const isSupabaseConfigured = () => {
   const hasUrl = supabaseUrl && supabaseUrl !== '' && supabaseUrl.includes('supabase.co');
-  const hasKey = supabaseAnonKey && supabaseAnonKey !== '' && supabaseAnonKey.startsWith('eyJ');
+  const hasKey = supabaseAnonKey && supabaseAnonKey !== '' && supabaseAnonKey.length > 100;
   
   console.log('🔍 Supabase Configuration Check:');
   console.log('  URL configured:', hasUrl ? '✅' : '❌', supabaseUrl ? `(${supabaseUrl.substring(0, 30)}...)` : '(empty)');
   console.log('  Key configured:', hasKey ? '✅' : '❌', supabaseAnonKey ? `(${supabaseAnonKey.substring(0, 20)}...)` : '(empty)');
+  console.log('  Project ID extracted:', supabaseUrl ? supabaseUrl.split('.')[0].replace('https://', '') : 'none');
   
   return !!(hasUrl && hasKey);
 };
