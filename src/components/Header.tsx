@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 
 interface HeaderProps {
-  navigateTo: (page: 'home' | 'search' | 'teacherProfile' | 'donation' | 'studentDashboard' | 'teacherDashboard', teacherId?: string | null) => void;
-  currentPage: 'home' | 'search' | 'teacherProfile' | 'donation' | 'studentDashboard' | 'teacherDashboard';
+  navigateTo: (page: 'home' | 'search' | 'teacherProfile' | 'donation' | 'studentDashboard' | 'teacherDashboard' | 'pricing', teacherId?: string | null) => void;
+  currentPage: 'home' | 'search' | 'teacherProfile' | 'donation' | 'studentDashboard' | 'teacherDashboard' | 'pricing';
   onOpenAuth: (mode: 'signin' | 'signup') => void;
 }
 
@@ -73,6 +73,12 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
                 >
                   {t('liveLessons')}
+                </button>
+                <button 
+                  onClick={() => navigateTo('pricing')}
+                  className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200"
+                >
+                  الأسعار
                 </button>
                 <button 
                   onClick={() => navigateTo('donation')}
@@ -186,6 +192,15 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, currentPage, onOpenAuth }) 
                   className="text-gray-700 hover:text-emerald-600 font-medium text-right"
                 >
                   {t('liveLessons')}
+                </button>
+                <button 
+                  onClick={() => {
+                    navigateTo('pricing');
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-gray-700 hover:text-emerald-600 font-medium text-right"
+                >
+                  الأسعار
                 </button>
                 <button 
                   onClick={() => {

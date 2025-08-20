@@ -9,12 +9,13 @@ import DonationPage from './components/DonationPage';
 import TeacherProfilePage from './components/TeacherProfilePage';
 import StudentDashboard from './components/StudentDashboard';
 import TeacherDashboard from './components/TeacherDashboard';
+import SubscriptionPlans from './components/SubscriptionPlans';
 import AuthModal from './components/AuthModal';
 import ConnectionStatus from './components/ConnectionStatus';
 import { isSupabaseConfigured } from './lib/supabase';
 import './lib/i18n'; // Initialize i18n
 
-type Page = 'home' | 'search' | 'teacherProfile' | 'donation' | 'studentDashboard' | 'teacherDashboard';
+type Page = 'home' | 'search' | 'teacherProfile' | 'donation' | 'studentDashboard' | 'teacherDashboard' | 'pricing';
 
 function App() {
   const { i18n } = useTranslation();
@@ -91,6 +92,8 @@ function App() {
         return <StudentDashboard onClose={() => navigateTo('home')} />;
       case 'teacherDashboard':
         return <TeacherDashboard onClose={() => navigateTo('home')} />;
+      case 'pricing':
+        return <SubscriptionPlans />;
       default:
         return (
           <>
@@ -121,6 +124,11 @@ function App() {
       <button 
         data-search-teachers 
         onClick={() => navigateTo('search')} 
+        className="hidden"
+      />
+      <button 
+        data-view-pricing 
+        onClick={() => navigateTo('pricing')} 
         className="hidden"
       />
       
