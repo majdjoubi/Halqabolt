@@ -94,30 +94,18 @@ src/
 
 ## النشر على Supabase
 
-### الطريقة الأولى: استخدام Supabase CLI
-
-```bash
-# تثبيت Supabase CLI
-npm install -g supabase
-
-# تسجيل الدخول
-supabase login
-
-# ربط المشروع
-supabase link --project-ref your-project-ref
-
-# نشر المشروع
-supabase deploy
-```
-
-### الطريقة الثانية: النشر اليدوي
+### النشر على Vercel
 
 1. بناء المشروع للإنتاج
 ```bash
 npm run build
 ```
 
-2. رفع ملفات `dist/` إلى Supabase Storage أو أي خدمة استضافة أخرى
+2. رفع ملفات `dist/` إلى Vercel أو أي خدمة استضافة أخرى
+
+3. تأكد من إعداد متغيرات البيئة في منصة الاستضافة:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
 
 ## المساهمة في المشروع
 

@@ -5,7 +5,3 @@
 /ar/*  /index.html  200
 
 # Handle authentication callback
-/auth/callback  /index.html  200
-
-# Handle API routes if any
-/api/*  /api/:splat  200
