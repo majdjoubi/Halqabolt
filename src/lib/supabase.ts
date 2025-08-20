@@ -59,7 +59,7 @@ export const testSupabaseConnection = async (): Promise<boolean> => {
     
     // Test with a simple query
     const { data, error } = await supabase
-      .from('users')
+      .from('teachers')
       .select('count')
       .limit(1);
 
